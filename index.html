@@ -99,7 +99,7 @@
           <button id="startConsultation" type="button" class="primary-cta">START YOUR CONSULTATION <span aria-hidden="true">↗</span></button>
           <a href="#discover" class="text-cta">EXPLORE THE BEAUTY EDIT <span aria-hidden="true">→</span></a>
         </div>
-        <div class="hero-art" aria-label="Original beauty product illustration with gently floating product icons">
+        <div class="hero-art">
           <div class="hero-art__spotlight" aria-hidden="true"></div>
           <div class="hero-art__orbit hero-art__orbit--serum" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></div>
           <div class="hero-art__orbit hero-art__orbit--lipstick" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></div>
@@ -162,19 +162,20 @@
         </div>
         <div class="hero-caption"><span>THE ART OF INDIVIDUALITY</span><span>01 <span class="hero-caption__rule"></span> 04</span></div>
       </section>
-      <section class="advisor" id="concierge" aria-label="Chat with your personal beauty advisor">
+      <section class="advisor" id="concierge" tabindex="-1" aria-labelledby="advisorTitle">
         <div class="advisor__header">
           <div class="advisor__identity">
             <div class="advisor__avatar" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></div>
-            <div><span class="advisor__eyebrow">YOUR PRIVATE BEAUTY STUDIO</span><h2>Beauty Concierge</h2><span class="advisor__availability"><i></i> HERE TO HELP YOU GLOW</span></div>
+            <div><span class="advisor__eyebrow">YOUR PRIVATE BEAUTY STUDIO</span><h2 id="advisorTitle">Beauty Concierge</h2><span class="advisor__availability"><i></i> HERE TO HELP YOU GLOW</span></div>
           </div>
           <button class="reset-btn" id="resetBtn" type="button" title="Start a new conversation"><span aria-hidden="true">↻</span> New chat</button>
         </div>
         <div class="advisor__intro"><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span><span>DISCOVER • EXPLORE • EXPRESS</span><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span></div>
-        <div class="chat-window" id="chatWindow" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation"></div>
+        <div class="chat-window" id="chatWindow" role="log" aria-live="off" aria-label="Beauty Concierge conversation" aria-describedby="chatHelp"></div>
+        <div id="chatAnnouncement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
         <div class="advisor__composer">
           <div class="prompt-heading"><span>NEED INSPIRATION?</span><span>START HERE ↓</span></div>
-          <div class="quick-prompts" id="miniPrompts" aria-label="Quick question suggestions">
+          <div class="quick-prompts" id="miniPrompts" role="group" aria-label="Suggested beauty questions">
             <button type="button" data-prompt="Help me build a beginner skincare routine for my skin type."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg><span>Build my skincare routine</span></button>
             <button type="button" data-prompt="Help me find an everyday L'Oréal makeup look for my preferences."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg><span>Find my signature look</span></button>
             <button type="button" data-prompt="Help me discover a signature fragrance. Ask me what scents I enjoy."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg><span>Find my scent</span></button>
@@ -182,14 +183,14 @@
           <div id="status" class="status" role="status" aria-live="polite"></div>
           <form class="chat-form" id="chatForm">
             <label for="userInput" class="sr-only">Ask a question about beauty</label>
-            <input id="userInput" type="text" autocomplete="off" maxlength="1000" placeholder="Ask me anything about beauty…" required />
+            <input id="userInput" type="text" autocomplete="off" maxlength="1000" aria-describedby="chatHelp" placeholder="Ask me anything about beauty…" required />
             <button type="submit" id="sendBtn" aria-label="Send message"><span aria-hidden="true">↗</span></button>
           </form>
-          <p class="advisor__fineprint"><span class="fineprint__product" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span>Personalized guidance, not medical advice. Verify product details.</p>
+          <p class="advisor__fineprint" id="chatHelp"><span class="fineprint__product" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span>Personalized guidance, not medical advice. Verify product details.</p>
         </div>
       </section>
     </div>
-    <div class="luxury-ticker" aria-label="Beauty is individual. Discover, express, glow.">
+    <div class="luxury-ticker">
       <div class="luxury-ticker__track" aria-hidden="true">
         <div class="luxury-ticker__group">
           <span>THE ART OF BEAUTY</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></i>
@@ -263,7 +264,7 @@
       <div class="page-width manifesto__inner"><span>THE ART OF SELF EXPRESSION</span><p>Beautifully, <em>unapologetically you.</em></p><span class="manifesto__mark" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></span></div>
     </section>
   </main>
-  <footer class="site-footer page-width"><div><strong>BEAUTY ATELIER</strong><span>AN INDEPENDENT STUDENT PROJECT INSPIRED BY L’ORÉAL PARIS.</span></div><p>Not affiliated with or endorsed by L'Oréal. Product suggestions are AI-generated and may be inaccurate; check official product listings before buying.</p><div class="footer-actions"><button id="motionToggle" type="button" class="motion-toggle" aria-pressed="false"><span class="motion-toggle__icon" aria-hidden="true">Ⅱ</span><span class="motion-toggle__label">PAUSE MOTION</span></button><a href="#top">BACK TO TOP ↑</a></div></footer>
+  <footer class="site-footer page-width"><div><strong>BEAUTY ATELIER</strong><span>AN INDEPENDENT STUDENT PROJECT INSPIRED BY L’ORÉAL PARIS.</span></div><p>Not affiliated with or endorsed by L'Oréal. Product suggestions are AI-generated and may be inaccurate; check official product listings before buying.</p><div class="footer-actions"><button id="motionToggle" type="button" class="motion-toggle"><span class="motion-toggle__icon" aria-hidden="true">Ⅱ</span><span class="motion-toggle__label">PAUSE MOTION</span></button><a href="#top">BACK TO TOP ↑</a></div></footer>
   <script src="script.js"></script>
 </body>
 </html>
