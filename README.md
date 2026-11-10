@@ -3,15 +3,17 @@
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
 ## Features
-- Luxury editorial layout with original vector still-life artwork, refined typography, accessible navigation, and responsive design
-- Original dimensional SVG beauty illustrations throughout the interface, from product-category cards to concierge and quick-action icons
-- Dedicated beauty concierge panel with starter prompts, subtle entrance motion, and accessible status feedback
+- Premium editorial homepage with animated original beauty still-life artwork
+- Five custom-dimensional SVG icons, plus moving product orbits, a luxury announcement ticker, animated product cards and a cinematic beauty-ritual showroom
+- Responsive high-end design with reduced-motion support and a footer pause/resume-motion control
+- Four functional beauty-category prompts and a new personalized-routine CTA
+- Dedicated beauty concierge panel with suggested prompts, subtle motion, and accessible status feedback
 - Safe formatting of common AI response Markdown: bold text, headings, bullet/numbered lists (no HTML injection)
 - Conversation history with Cloudflare message-length protection; user messages are removed on failed attempts so retries don't duplicate them
 - Cloudflare Worker securely holds the OpenAI API key; the working endpoint is already configured in `script.js`
 
 ## Local preview
-Run a static server or open `index.html` in Codespaces/VS Code Live Preview. The real AI backend is still the Cloudflare Worker configured in `script.js`. Your Cloudflare `ALLOWED_ORIGIN` variable must contain the exact preview origin to allow browser requests.
+Run a static server or open `index.html` in Codespaces/VS Code Live Preview. There are no build tools or third-party JS libraries. The real AI backend is still the Cloudflare Worker configured in `script.js`. Your Cloudflare `ALLOWED_ORIGIN` variable must contain the exact preview origin to allow browser requests.
 
 ## Deploy the Worker
 1. In Cloudflare Dashboard, create a new Worker and replace its code with `RESOURCE_cloudflare-worker.js`.
