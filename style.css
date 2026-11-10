@@ -508,6 +508,112 @@ body{background:radial-gradient(ellipse at 11% 1%,#ffefe7 0,transparent 38%),rad
   .ritual__story h2{font-size:59px}
 }
 
+
+/* ================================================================
+   ACCESSIBILITY / WCAG 2.2 AA IMPROVEMENTS
+   Higher-contrast labels, readable text, comfortable interaction
+   targets and visible keyboard focus — while preserving editorial art.
+   ================================================================ */
+:root{
+  --accessible-ink:#382925;
+  --accessible-muted:#62514b;
+  --accessible-accent:#74483f;
+  --accessible-card:#3c2725;
+}
+.brand__sub,
+.hero-caption,
+.advisor__availability,
+.advisor__intro,
+.prompt-heading,
+.prompt-heading span:last-child,
+.advisor__fineprint,
+.section-title p,
+.section-title__eyebrow span,
+.ritual__steps small,
+.site-footer span,
+.site-footer p,
+.motion-toggle,
+.footer-actions a{
+  color:var(--accessible-muted);
+}
+.eyebrow,.edition-num,.advisor__eyebrow,
+.section-title__eyebrow,.ritual__eyebrow,.feature-kicker,
+.ritual__step-num{color:var(--accessible-accent)}
+.advisor__intro{color:var(--accessible-muted)}
+.message.pending{color:var(--accessible-muted)}
+.category-card__number,
+.category-card__bottom small{color:var(--accessible-card)}
+.ritual__story>p,.ritual__steps small{color:var(--accessible-muted)}
+.ritual__corner-label,.ritual__vertical-label{color:#fff3e7;opacity:1;text-shadow:0 1px 3px #170e0edb}
+.hero-art__vertical{color:#3c2725;background:#f9efe8dc;padding:5px 3px;border-radius:2px;opacity:1}
+.hero-art__label{color:#332320;text-shadow:none;background:#f8eee0dd;max-width:75%;padding:8px 11px;border-radius:3px;box-shadow:0 3px 10px #3c24201d}
+.chat-form input::placeholder{color:#65534e;opacity:1}
+.category-card__arrow{color:#382925}
+.advisor__fineprint{color:var(--accessible-muted)}
+.announcement__copy{font-size:11px}
+.brand__sub{font-size:11px;letter-spacing:.07em}
+.header-nav a{font-size:12px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.eyebrow,.edition-num,.hero-caption{font-size:11px}
+.reset-btn{font-size:12px;min-height:44px;display:inline-flex;align-items:center;gap:6px}
+.advisor__eyebrow,.advisor__availability,.advisor__intro{font-size:11px}
+.message{font-size:14px}
+.message h3{font-size:14px}
+.prompt-heading,.section-title__eyebrow,.ritual__eyebrow{font-size:11px}
+.quick-prompts button{font-size:12px;min-height:44px}
+.advisor__fineprint{font-size:11px}
+.chat-form input{font-size:14px;min-height:44px}
+.chat-form button{min-width:44px;min-height:44px}
+.section-title p,.ritual__story>p{font-size:14px}
+.category-card__number{font-size:11px}
+.category-card__bottom small{font-size:12px;line-height:1.5}
+.ritual__steps small{font-size:12px}
+.ritual__corner-label,.ritual__vertical-label{font-size:11px}
+.site-footer span,.site-footer p{font-size:12px}
+.footer-actions a{font-size:11px;min-height:44px;display:inline-flex;align-items:center}
+.motion-toggle{font-size:11px;min-height:44px}
+.text-cta{min-height:44px;display:inline-flex;align-items:center;font-size:11px}
+a:focus-visible,button:focus-visible,
+input:focus-visible,.category-card:focus-visible{
+  outline:3px solid #70493f;
+  outline-offset:4px;
+  box-shadow:0 0 0 6px #fff7ef;
+}
+.chat-form:focus-within{outline:3px solid #70493f;outline-offset:3px}
+#concierge:focus{outline:none}
+#concierge:focus-visible{outline:3px solid #70493f;outline-offset:6px}
+button:disabled{cursor:wait;opacity:.65}
+.motion-paused [data-reveal]{
+  opacity:1!important;
+  transform:none!important;
+  transition:none!important;
+}
+.motion-paused .category-card{
+  transform:none!important;
+}
+@media(max-width:940px){
+  .hero-grid{scroll-margin-top:10px}
+  .advisor{scroll-margin-top:18px}
+}
+@media(max-width:620px){
+  .brand__sub{font-size:10px;line-height:1.55;letter-spacing:0;max-width:174px}
+  .brand__name{font-size:24px}
+  .header-nav__cta{font-size:10px!important;letter-spacing:0;min-height:44px;max-width:127px;white-space:normal;text-align:center}
+  .announcement{min-height:44px}
+  .announcement__copy{font-size:10px;line-height:1.4}
+  .eyebrow,.hero-caption{font-size:10px}
+  .advisor__eyebrow,.advisor__availability{font-size:10px}
+  .advisor__intro{font-size:10px}
+  .message{font-size:14px}
+  .quick-prompts button{font-size:11px}
+  .advisor__fineprint{font-size:10px;line-height:1.6}
+  .chat-form input{font-size:16px}
+  .section-title__eyebrow,.category-card__number,.ritual__eyebrow{font-size:10px}
+  .category-card__bottom small{font-size:11px}
+  .ritual__corner-label,.ritual__vertical-label{font-size:10px}
+  .ritual__steps small{font-size:12px}
+  .site-footer span,.site-footer p{font-size:11px}
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
