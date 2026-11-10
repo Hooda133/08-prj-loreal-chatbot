@@ -475,3 +475,9 @@ test("Conversation stylesheet provides labeled, distinct and responsive bubbles"
   assert.match(css, /@media\(max-width:620px\)\s*\{\s*\.chat-window/s);
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
 });
+
+test("Chat input has one rounded outer focus indicator and no inner rectangle", async () => {
+  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
+  assert.match(css, /\.chat-form input:focus-visible\s*\{\s*outline:none;\s*box-shadow:none;/);
+  assert.match(css, /\.chat-form:focus-within\s*\{\s*outline:3px solid #775322;/);
+});
