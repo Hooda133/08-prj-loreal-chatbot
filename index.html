@@ -8,7 +8,6 @@
   <title>Beauty Atelier — An AI Beauty Experience</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://images.unsplash.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -36,8 +35,59 @@
           <a href="#discover" class="text-cta">EXPLORE THE BEAUTY EDIT <span aria-hidden="true">→</span></a>
         </div>
         <div class="hero-art">
-          <img class="hero-art__image" src="https://images.unsplash.com/photo-1771591742029-1769bb94c9d3?auto=format&amp;fit=crop&amp;w=1200&amp;q=82" alt="Editorial fashion portrait of a woman against a clean studio backdrop" fetchpriority="high" />
-          <div class="hero-art__wash" aria-hidden="true"></div>
+          <!-- Original vector still life; no third-party photography or model likeness. -->
+          <svg class="hero-art__still-life" viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="artwork-title" xmlns="http://www.w3.org/2000/svg">
+            <title id="artwork-title">Original luxury beauty still life featuring an imaginary perfume bottle and lipstick on a sculptural pedestal</title>
+            <defs>
+              <linearGradient id="studio-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8c2b5"/><stop offset=".52" stop-color="#e7d9ce"/><stop offset="1" stop-color="#a07c70"/></linearGradient>
+              <radialGradient id="studio-glow"><stop offset="0" stop-color="#fff8eb" stop-opacity=".88"/><stop offset="1" stop-color="#fff8eb" stop-opacity="0"/></radialGradient>
+              <linearGradient id="glass" x1="0" y1="0" x2="1" y2=".16"><stop offset="0" stop-color="#c49d8b" stop-opacity=".81"/><stop offset=".16" stop-color="#fff6e7" stop-opacity=".92"/><stop offset=".54" stop-color="#efd5bf" stop-opacity=".78"/><stop offset=".81" stop-color="#ffe9d6" stop-opacity=".84"/><stop offset="1" stop-color="#95695b" stop-opacity=".84"/></linearGradient>
+              <linearGradient id="liquid" x1="0" x2="1"><stop offset="0" stop-color="#be7e66"/><stop offset=".28" stop-color="#f0c4a3"/><stop offset=".72" stop-color="#d59681"/><stop offset="1" stop-color="#a76b61"/></linearGradient>
+              <linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#644d46"/><stop offset=".2" stop-color="#e9c6a3"/><stop offset=".51" stop-color="#fff1d2"/><stop offset=".79" stop-color="#ba9274"/><stop offset="1" stop-color="#5c403b"/></linearGradient>
+              <linearGradient id="plinth" x1="0" x2="1"><stop offset="0" stop-color="#b29b90"/><stop offset=".28" stop-color="#f5e7d9"/><stop offset=".78" stop-color="#e3cfc1"/><stop offset="1" stop-color="#9b8277"/></linearGradient>
+              <linearGradient id="lipstick" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b324a"/><stop offset=".48" stop-color="#d45a6a"/><stop offset="1" stop-color="#6b263d"/></linearGradient>
+              <filter id="still-shadow" x="-60%" y="-60%" width="220%" height="250%"><feGaussianBlur stdDeviation="17"/></filter>
+            </defs>
+            <rect width="800" height="480" fill="url(#studio-bg)"/>
+            <ellipse cx="245" cy="125" rx="380" ry="290" fill="url(#studio-glow)"/>
+            <path d="M205 490V139a208 208 0 0 1 416 0v351" fill="none" stroke="#fff9ef" stroke-width="1.5" opacity=".46"/>
+            <path d="M239 490V145a173 173 0 0 1 346 0v345" fill="#f8ece4" opacity=".18"/>
+            <circle cx="156" cy="94" r="89" fill="#ffefe0" opacity=".23"/>
+            <path d="M660 49c-100 67-107 147-44 192 66-45 94-129 44-192z" fill="#bb817a" opacity=".34"/>
+            <path d="M709 111c-92 25-117 101-86 169 68-18 110-91 86-169z" fill="#f5e0cf" opacity=".53"/>
+            <path d="M682 83c-49 76-64 134-52 213" fill="none" stroke="#916b62" stroke-width="2" opacity=".28"/>
+            <ellipse cx="460" cy="419" rx="300" ry="36" fill="#513930" opacity=".22" filter="url(#still-shadow)"/>
+            <rect x="211" y="374" width="497" height="116" rx="5" fill="url(#plinth)"/>
+            <ellipse cx="459" cy="377" rx="249" ry="40" fill="#f6e8de"/>
+            <ellipse cx="459" cy="377" rx="248" ry="39" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2"/>
+            <!-- Sculptural perfume flacon, entirely imaginary. -->
+            <ellipse cx="461" cy="363" rx="143" ry="24" fill="#4b2a23" opacity=".18" filter="url(#still-shadow)"/>
+            <rect x="420" y="83" width="83" height="69" rx="8" fill="url(#metal)" stroke="#f9e4c8" stroke-width="2"/>
+            <rect x="414" y="140" width="95" height="19" rx="3" fill="#c59f7f"/>
+            <rect x="425" y="142" width="73" height="11" fill="#faf0d8" opacity=".54"/>
+            <rect x="348" y="157" width="230" height="218" rx="39" fill="url(#glass)" stroke="#fff7e7" stroke-width="4"/>
+            <path d="M365 276h195v56a27 27 0 0 1-27 27H392a27 27 0 0 1-27-27z" fill="url(#liquid)" opacity=".6"/>
+            <rect x="374" y="190" width="178" height="143" rx="14" fill="#fff1e2" opacity=".21"/>
+            <path d="M367 181q-13 94 0 163" fill="none" stroke="#fff" stroke-opacity=".68" stroke-width="13" stroke-linecap="round"/>
+            <path d="M559 185q11 83 0 155" fill="none" stroke="#fff" stroke-opacity=".37" stroke-width="6" stroke-linecap="round"/>
+            <rect x="389" y="222" width="148" height="101" rx="3" fill="#fef4e9" opacity=".85" stroke="#f6dfc9"/>
+            <text x="463" y="250" text-anchor="middle" fill="#493a36" font-size="22" letter-spacing="4" font-family="Georgia,serif">ATELIER</text>
+            <path d="M426 265h74" stroke="#b49781" stroke-width=".9"/>
+            <text x="463" y="284" text-anchor="middle" fill="#9a7567" font-size="10" letter-spacing="3" font-family="Arial,sans-serif">THE BEAUTY EDIT</text>
+            <text x="463" y="305" text-anchor="middle" fill="#926f65" font-size="9" letter-spacing="2" font-family="Arial,sans-serif">EST. FOR YOU</text>
+            <!-- Secondary lipstick silhouette creates editorial depth. -->
+            <g transform="translate(261 244) rotate(-15 33 80)">
+              <ellipse cx="38" cy="147" rx="40" ry="12" fill="#432925" opacity=".16"/>
+              <path d="M12 49q0-28 51-38v61H12z" fill="url(#lipstick)"/>
+              <path d="M12 49q26 8 51-7" fill="none" stroke="#f4a6a2" stroke-width="4" opacity=".54"/>
+              <rect x="9" y="69" width="58" height="20" rx="3" fill="url(#metal)"/>
+              <rect x="7" y="86" width="62" height="65" rx="4" fill="#342a2b"/>
+              <rect x="12" y="89" width="9" height="57" fill="#ffffff" opacity=".13"/>
+              <rect x="7" y="87" width="62" height="5" fill="#e0c09c"/>
+            </g>
+            <circle cx="585" cy="114" r="3" fill="#fff6e8" opacity=".7"/>
+            <circle cx="605" cy="96" r="2" fill="#fff6e8" opacity=".65"/>
+          </svg>
           <div class="hero-art__vertical" aria-hidden="true">THE BEAUTY ATELIER / ISSUE Nº 01</div>
           <div class="hero-art__label"><span class="tiny-gem">✦</span><span>THE BEAUTY EDIT<br /><strong>INDIVIDUAL BY DESIGN</strong></span></div>
           <div class="hero-art__seal" aria-hidden="true"><span>BEAUTY<br />BEGINS<br /><i>WITH YOU.</i></span></div>
