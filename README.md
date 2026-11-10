@@ -37,6 +37,13 @@ The Worker validates message shape and length, restricts browser CORS to explici
 HTML, CSS, vanilla JavaScript, Cloudflare Workers, OpenAI Chat Completions API (`gpt-4.1`). No npm dependencies.
 
 
+## Typography system
+The page uses two complementary Google Fonts with local fallbacks:
+- **Bodoni Moda** for high-end editorial headlines, category names, the concierge title, and campaign statements.
+- **DM Sans** for navigation, descriptive copy, buttons, chat messages, reply headings, prompt chips, and input fields.
+
+The chatbot deliberately prioritizes readability with 15px message text, spacious line-height, 16px input text, visible focus states, and clear heading/list formatting. Responsive adjustments preserve the layout on small screens. Font loading uses `display=swap` so text is visible while fonts load.
+
 ## Accessibility and quality checks
 - Semantic page regions, named beauty concierge section, keyboard skip link and native button controls.
 - Explicit message labels, a screen-reader response announcement and a visible error status for failed requests.
