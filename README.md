@@ -12,6 +12,20 @@ A responsive student project featuring a personalized beauty chat interface for 
 - Conversation history with Cloudflare message-length protection; user messages are removed on failed attempts so retries don't duplicate them
 - Cloudflare Worker securely holds the OpenAI API key; the working endpoint is already configured in `script.js`
 
+## Assignment requirement: distinct message bubbles and clear chat layout
+
+**Requirement:** “Messages from user and chatbot are styled in distinct chat bubbles with a clear layout.”
+
+The conversation uses two separate visual styles that are distinguishable by more than color:
+- **Visitor:** near-black bubble with white text, right aligned, a softly rounded corner shape, and a visible **YOU** speaker label.
+- **Beauty Concierge:** ivory bubble with a champagne-colored edge accent, warm dark text, left aligned, a complementary corner shape, and a visible **BEAUTY CONCIERGE** label.
+- Replies retain readable typography, including ordered and unordered lists, headings, emphasis, and line wrapping for long messages.
+- Spacing and bubble widths adapt to mobile screens, including narrow 380px viewports.
+- The pre-existing accessible speaker names are preserved in each message's `aria-label`; reduced-motion users keep static messages.
+- The latest-question preview and longer conversation memory from the preceding requirement are unchanged.
+
+**Verification:** Run `node --test tests/chatbot-flow.test.mjs` and review the Lighthouse accessibility check. New automated checks verify each message's speaker role, visible style hooks, alignment rules and responsive mobile rules. Inspect chat messages on a mobile device to confirm wrapping and spacing.
+
 ## Assignment requirement: conversational context and question preview
 
 **Requirement:** “Chatbot remembers details from earlier messages and responds with context awareness. Each user question is briefly shown above the AI response before resetting on next input.”
