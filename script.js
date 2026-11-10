@@ -14,7 +14,7 @@ const startButton = document.getElementById("startConsultation");
 const advisor = document.getElementById("concierge");
 
 const GREETING =
-  "Welcome to Beauty Atelier.\n\nI'm here to help you discover skincare, makeup, haircare and fragrance that feels like you. What would you love to explore today?";
+  "Welcome to Beauty Atelier.\n\nI can help with L’Oréal skincare, makeup, haircare and fragrances, plus personalized beauty routines. What would you like to explore?";
 
 let messages = [];
 let busy = false;
