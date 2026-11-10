@@ -963,6 +963,50 @@ a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-vi
   .header-nav__cta{max-width:115px;font-size:9px!important}
 }
 
+/* ─── CURRENT QUESTION / CONTEXT STRIP ──────────────────────────
+   Latest user question is only a visual reminder: the actual
+   conversation and context are preserved independently in memory. */
+.question-preview{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  flex-shrink:0;
+  margin:0 23px;
+  padding:12px 15px;
+  background:linear-gradient(105deg,#faf6ed,#fffdf8 72%);
+  border:1px solid #e5d9c5;
+  border-radius:10px;
+  box-shadow:0 4px 15px #35271909;
+}
+.question-preview__label{
+  flex:none;
+  font-family:var(--sans);
+  color:#674e2b;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.12em;
+  line-height:1.7;
+}
+.question-preview__text{
+  margin:0;
+  min-width:0;
+  font-family:var(--sans);
+  color:#29251f;
+  font-size:13px;
+  font-weight:500;
+  line-height:1.55;
+  overflow-wrap:anywhere;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+}
+@media(max-width:620px){
+  .question-preview{margin-inline:12px;padding:10px 12px;gap:8px;flex-direction:column}
+  .question-preview__label{font-size:10px}
+  .question-preview__text{font-size:12.5px;line-height:1.5}
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
