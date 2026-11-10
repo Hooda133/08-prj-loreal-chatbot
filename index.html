@@ -1,64 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat Assistant</title>
-    <link
-      href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-
-  <body>
-    <div class="page-wrapper">
-      <!------- Header / Branding ------->
-      <header class="site-header">
-        <h1 class="site-title">Smart Product Advisor</h1>
-      </header>
-
-      <!------- Chat Area ------->
-      <main>
-        <section class="chatbox">
-          <div id="chatWindow" class="chat-window">
-            <!-- messages will be appended here via JS -->
-          </div>
-
-          <form id="chatForm" class="chat-form">
-            <label for="userInput" class="visually-hidden">Message</label>
-            <input
-              id="userInput"
-              name="userInput"
-              type="text"
-              placeholder="Ask me about products or routines…"
-              autocomplete="off"
-              required
-            />
-            <button type="submit" id="sendBtn">
-              <span class="material-icons">send</span>
-              <span class="visually-hidden">Send</span>
-            </button>
-          </form>
-        </section>
-      </main>
-
-      <!------- Footer Links ------->
-      <footer class="site-footer">
-        <p>&copy; 2025 Company Name. All rights reserved.</p>
-        <nav>
-          <!-- These URLs are placeholders -->
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Use</a>
-          <a href="#">Contact</a>
-        </nav>
-      </footer>
-    </div>
-
-    <script src="script.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#171513" />
+  <meta name="description" content="An AI-powered beauty consultation experience exploring L'Oréal products and routines." />
+  <title>Beauty Atelier | L'Oréal-inspired AI Advisor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="announcement">YOUR PERSONAL BEAUTY CONSULTATION · POWERED BY AI</div>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="Beauty Atelier home"><span class="brand-mark">L’ORÉAL</span><span class="brand-subtitle">BEAUTY ATELIER <span class="diamond">✦</span> AI EXPERIENCE</span></a>
+    <span class="header-tag"><span class="online-dot"></span> BEAUTY ASSISTANT</span>
+  </header>
+  <main class="layout">
+    <section class="intro" aria-labelledby="hero-title">
+      <div class="eyebrow"><span class="line"></span> THE ART OF PERSONAL BEAUTY</div>
+      <h1 id="hero-title">Beauty begins<br/>with <em>you.</em></h1>
+      <p>Meet your personal AI beauty advisor. Explore skincare, makeup, haircare and fragrance with thoughtful guidance tailored to your style.</p>
+      <div class="intro-details"><span>01 / DISCOVER</span><span>02 / PERSONALIZE</span><span>03 / GLOW</span></div>
+      <div class="editorial-art" aria-hidden="true"><div class="art-circle"></div><div class="art-bottle"><div class="bottle-cap"></div><div class="bottle-body"><span>L’ORÉAL<br/><small>PARIS</small></span></div></div><span class="art-label">BEAUTY, REIMAGINED.</span></div>
+      <p class="disclaimer">Independent student demo, not an official L'Oréal service. AI suggestions are general information; confirm product details and suitability before purchasing.</p>
+    </section>
+    <section class="advisor" aria-label="Beauty advisor chat">
+      <div class="advisor-top"><div class="avatar" aria-hidden="true">✦</div><div><h2>Your beauty advisor</h2><p><span class="online-dot"></span> Here to help you discover</p></div><button class="reset-btn" id="resetBtn" type="button" title="Start a new conversation">↻ <span>New chat</span></button></div>
+      <div class="chat-window" id="chatWindow" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation"></div>
+      <div class="suggestions" id="suggestions" aria-label="Suggested questions">
+        <button type="button" data-prompt="Build a simple morning skincare routine for combination skin.">✧ Skincare routine <span>↗</span></button>
+        <button type="button" data-prompt="Help me find a lipstick shade for an everyday look.">✧ Makeup picks <span>↗</span></button>
+        <button type="button" data-prompt="Recommend a haircare routine for dry, frizzy hair.">✧ Haircare advice <span>↗</span></button>
+        <button type="button" data-prompt="Help me explore floral fragrances for daytime.">✧ Find my fragrance <span>↗</span></button>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+      <form id="chatForm" class="chat-form"><label for="userInput" class="sr-only">Your message</label><input id="userInput" type="text" autocomplete="off" maxlength="1000" placeholder="Ask me anything about beauty…" required /><button id="sendBtn" type="submit" aria-label="Send message">➜</button></form>
+      <p class="chat-note">✦ Thoughtful suggestions, tailored to you. AI can make mistakes.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><span>BEAUTY ATELIER — STUDENT PROJECT 08</span><span>INSPIRED BY L’ORÉAL’S WORLD OF BEAUTY</span></footer>
+  <script src="script.js"></script>
+</body>
 </html>
