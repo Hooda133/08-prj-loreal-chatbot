@@ -4,43 +4,55 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#171513" />
-  <meta name="description" content="An AI-powered beauty consultation experience exploring L'Oréal products and routines." />
-  <title>Beauty Atelier | L'Oréal-inspired AI Advisor</title>
+  <meta name="description" content="A modern, AI-powered beauty consultation experience exploring L'Oréal products and routines." />
+  <title>Beauty Atelier | Your AI Beauty Concierge</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="announcement">YOUR PERSONAL BEAUTY CONSULTATION · POWERED BY AI</div>
+  <div class="announcement"><span class="announcement-sparkle">✦</span> THE FUTURE OF BEAUTY IS PERSONAL <span class="announcement-sparkle">✦</span></div>
   <header class="site-header">
     <a class="brand" href="#" aria-label="Beauty Atelier home"><span class="brand-mark">L’ORÉAL</span><span class="brand-subtitle">BEAUTY ATELIER <span class="diamond">✦</span> AI EXPERIENCE</span></a>
-    <span class="header-tag"><span class="online-dot"></span> BEAUTY ASSISTANT</span>
+    <span class="header-tag"><span class="online-dot"></span> YOUR AI BEAUTY CONCIERGE</span>
   </header>
   <main class="layout">
     <section class="intro" aria-labelledby="hero-title">
-      <div class="eyebrow"><span class="line"></span> THE ART OF PERSONAL BEAUTY</div>
-      <h1 id="hero-title">Beauty begins<br/>with <em>you.</em></h1>
-      <p>Meet your personal AI beauty advisor. Explore skincare, makeup, haircare and fragrance with thoughtful guidance tailored to your style.</p>
-      <div class="intro-details"><span>01 / DISCOVER</span><span>02 / PERSONALIZE</span><span>03 / GLOW</span></div>
-      <div class="editorial-art" aria-hidden="true"><div class="art-circle"></div><div class="art-bottle"><div class="bottle-cap"></div><div class="bottle-body"><span>L’ORÉAL<br/><small>PARIS</small></span></div></div><span class="art-label">BEAUTY, REIMAGINED.</span></div>
-      <p class="disclaimer">Independent student demo, not an official L'Oréal service. AI suggestions are general information; confirm product details and suitability before purchasing.</p>
+      <div class="eyebrow"><span class="line"></span> DISCOVER BEAUTY, DIFFERENTLY</div>
+      <h1 id="hero-title">Your beauty.<br/><em>Your way.</em></h1>
+      <p>Meet a smarter way to discover what makes you glow. Explore beauty essentials and find personalized routines, all through a conversation.</p>
+      <div class="intro-details"><span><b>01</b> DISCOVER</span><span><b>02</b> PERSONALIZE</span><span><b>03</b> GLOW</span></div>
+      <div class="feature-heading"><div><span class="feature-kicker">CURATED FOR YOU</span><h2>What brings you here?</h2></div><span class="feature-hint">CHOOSE A CATEGORY ↓</span></div>
+      <div class="beauty-grid" id="suggestions" aria-label="Suggested beauty questions">
+        <button class="beauty-card beauty-card--serum" type="button" data-prompt="Build a simple morning skincare routine for combination skin." aria-label="Skincare: Build your glow"><span class="beauty-card__icon"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="serumglass" x1="0" x2="1"><stop stop-color="#fff9ec"/><stop offset=".38" stop-color="#ffe3b9"/><stop offset=".8" stop-color="#d9a36e"/><stop offset="1" stop-color="#fff0d1"/></linearGradient><linearGradient id="serumcap" x1="0" x2="1"><stop stop-color="#2d2829"/><stop offset=".5" stop-color="#75665f"/><stop offset="1" stop-color="#1b171b"/></linearGradient></defs><ellipse cx="61" cy="109" rx="35" ry="7" fill="#64351d" opacity=".14"/><rect x="47" y="8" width="26" height="29" rx="4" fill="url(#serumcap)"/><rect x="42" y="33" width="36" height="9" rx="3" fill="#e9c79e"/><rect x="31" y="41" width="58" height="62" rx="13" fill="url(#serumglass)" stroke="#fff9" stroke-width="2"/><rect x="39" y="55" width="42" height="35" rx="2" fill="#fff9ef" opacity=".8"/><text x="60" y="68" font-size="9" text-anchor="middle" fill="#7d5541" font-family="serif">L'ORÉAL</text><text x="60" y="79" font-size="5" text-anchor="middle" fill="#846d59" letter-spacing="1.5">SERUM</text><path d="M38 50 Q34 73 39 91" stroke="white" stroke-width="4" opacity=".55" fill="none"/></svg></span><span class="beauty-card__copy"><strong>Skincare</strong><small>Build your glow</small></span><span class="beauty-card__arrow" aria-hidden="true">↗</span></button>
+<button class="beauty-card beauty-card--lipstick" type="button" data-prompt="Help me find a lipstick shade for an everyday look." aria-label="Makeup: Find your look"><span class="beauty-card__icon"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="lipgold" x1="0" x2="1"><stop stop-color="#7b5546"/><stop offset=".24" stop-color="#f8d8a0"/><stop offset=".65" stop-color="#b68257"/><stop offset="1" stop-color="#724332"/></linearGradient><linearGradient id="lipred" x1="0" x2="1"><stop stop-color="#7d253a"/><stop offset=".5" stop-color="#d84f67"/><stop offset="1" stop-color="#731e39"/></linearGradient></defs><ellipse cx="62" cy="110" rx="29" ry="6" fill="#4e2034" opacity=".16"/><g transform="rotate(-13 60 60)"><path d="M46 18 Q52 7 75 9 L75 44 L46 44 Z" fill="url(#lipred)"/><path d="M46 18 Q60 22 75 9 L75 18 Q61 29 46 25Z" fill="#f58b8b" opacity=".5"/><rect x="43" y="44" width="35" height="15" rx="2" fill="url(#lipgold)"/><rect x="41" y="58" width="39" height="47" rx="5" fill="#241d23"/><path d="M49 61 V100" stroke="#ffffff" opacity=".18" stroke-width="4"/><rect x="41" y="59" width="39" height="5" fill="url(#lipgold)"/></g></svg></span><span class="beauty-card__copy"><strong>Makeup</strong><small>Find your look</small></span><span class="beauty-card__arrow" aria-hidden="true">↗</span></button>
+<button class="beauty-card beauty-card--hair" type="button" data-prompt="Recommend a haircare routine for dry, frizzy hair." aria-label="Haircare: Love your hair"><span class="beauty-card__icon"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="hairglass" x1="0" x2="1"><stop stop-color="#76493b"/><stop offset=".25" stop-color="#e4a87c"/><stop offset=".66" stop-color="#c17c53"/><stop offset="1" stop-color="#6a3e3c"/></linearGradient><linearGradient id="hairpump" x1="0" x2="1"><stop stop-color="#282a2b"/><stop offset=".55" stop-color="#74706b"/><stop offset="1" stop-color="#1d1d21"/></linearGradient></defs><ellipse cx="60" cy="111" rx="31" ry="6" fill="#3b251e" opacity=".17"/><rect x="52" y="11" width="17" height="27" rx="2" fill="url(#hairpump)"/><path d="M53 11 V7 H85 Q89 7 89 12 V15 H64 V20 H53Z" fill="#313034"/><rect x="40" y="36" width="42" height="69" rx="11" fill="url(#hairglass)" stroke="#ffd6b5" stroke-width="1.5"/><rect x="43" y="60" width="36" height="30" rx="2" fill="#f9e5d4" opacity=".88"/><text x="61" y="73" text-anchor="middle" font-size="8" font-family="serif" fill="#664333">L'ORÉAL</text><text x="61" y="83" text-anchor="middle" font-size="5" letter-spacing="1" fill="#8e6b51">HAIRCARE</text><path d="M46 43 Q43 58 46 91" fill="none" stroke="#fff" stroke-width="3" opacity=".3"/></svg></span><span class="beauty-card__copy"><strong>Haircare</strong><small>Love your hair</small></span><span class="beauty-card__arrow" aria-hidden="true">↗</span></button>
+<button class="beauty-card beauty-card--perfume" type="button" data-prompt="Help me explore floral fragrances for daytime." aria-label="Fragrance: Discover your scent"><span class="beauty-card__icon"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="perfglass" x1="0" x2="1"><stop stop-color="#ffe8d4"/><stop offset=".24" stop-color="#fffaf3"/><stop offset=".66" stop-color="#d7a4a5"/><stop offset="1" stop-color="#f8e9d9"/></linearGradient><linearGradient id="perfmetal" x1="0" x2="1"><stop stop-color="#8f7357"/><stop offset=".5" stop-color="#f9e3b6"/><stop offset="1" stop-color="#84664e"/></linearGradient></defs><ellipse cx="61" cy="110" rx="36" ry="7" fill="#614035" opacity=".15"/><rect x="49" y="8" width="25" height="24" rx="2" fill="url(#perfmetal)"/><rect x="45" y="29" width="33" height="9" rx="2" fill="#e5c49c"/><rect x="24" y="36" width="76" height="67" rx="16" fill="url(#perfglass)" stroke="#fff" stroke-width="2"/><path d="M29 70 Q60 90 95 69 V87 Q95 99 81 99 H40 Q28 99 29 87Z" fill="#d9959e" opacity=".38"/><rect x="41" y="60" width="42" height="28" fill="#fff6ed" opacity=".77"/><text x="62" y="72" text-anchor="middle" font-family="serif" font-size="9" fill="#7d575b">L'ORÉAL</text><text x="62" y="81" text-anchor="middle" letter-spacing="1.1" font-size="5" fill="#8d6870">PARFUM</text><path d="M33 43 Q26 65 34 88" fill="none" stroke="#fff" stroke-width="4" opacity=".7"/></svg></span><span class="beauty-card__copy"><strong>Fragrance</strong><small>Discover your scent</small></span><span class="beauty-card__arrow" aria-hidden="true">↗</span></button>
+      </div>
+      <p class="disclaimer">Independent student demo, not an official L'Oréal service. AI suggestions are general information; verify product details and suitability before purchasing.</p>
     </section>
     <section class="advisor" aria-label="Beauty advisor chat">
-      <div class="advisor-top"><div class="avatar" aria-hidden="true">✦</div><div><h2>Your beauty advisor</h2><p><span class="online-dot"></span> Here to help you discover</p></div><button class="reset-btn" id="resetBtn" type="button" title="Start a new conversation">↻ <span>New chat</span></button></div>
-      <div class="chat-window" id="chatWindow" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation"></div>
-      <div class="suggestions" id="suggestions" aria-label="Suggested questions">
-        <button type="button" data-prompt="Build a simple morning skincare routine for combination skin.">✧ Skincare routine <span>↗</span></button>
-        <button type="button" data-prompt="Help me find a lipstick shade for an everyday look.">✧ Makeup picks <span>↗</span></button>
-        <button type="button" data-prompt="Recommend a haircare routine for dry, frizzy hair.">✧ Haircare advice <span>↗</span></button>
-        <button type="button" data-prompt="Help me explore floral fragrances for daytime.">✧ Find my fragrance <span>↗</span></button>
+      <div class="advisor-top">
+        <div class="avatar" aria-hidden="true"><span>✦</span></div>
+        <div class="advisor-profile"><h2>Atelier AI <span class="verified" title="AI assistant">✧</span></h2><p><span class="online-dot"></span> Your personal beauty guide</p></div>
+        <button class="reset-btn" id="resetBtn" type="button" title="Start a new conversation"><span class="reset-icon" aria-hidden="true">↻</span> <span>New chat</span></button>
       </div>
-      <div id="status" class="status" role="status" aria-live="polite"></div>
-      <form id="chatForm" class="chat-form"><label for="userInput" class="sr-only">Your message</label><input id="userInput" type="text" autocomplete="off" maxlength="1000" placeholder="Ask me anything about beauty…" required /><button id="sendBtn" type="submit" aria-label="Send message">➜</button></form>
-      <p class="chat-note">✦ Thoughtful suggestions, tailored to you. AI can make mistakes.</p>
+      <div class="chat-banner"><span>✦</span> A little beauty advice, made just for you <span>✦</span></div>
+      <div class="chat-window" id="chatWindow" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation"></div>
+      <div class="chat-bottom">
+        <p class="prompt-title">NOT SURE WHERE TO START? <span>TRY ASKING</span></p>
+        <div class="mini-prompts" id="miniPrompts">
+          <button type="button" data-prompt="What should I include in a simple beginner skincare routine?">✦ A simple skincare routine</button>
+          <button type="button" data-prompt="How do I choose a fragrance for everyday wear?">✦ My signature scent</button>
+        </div>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+        <form id="chatForm" class="chat-form"><label for="userInput" class="sr-only">Your message</label><input id="userInput" type="text" autocomplete="off" maxlength="1000" placeholder="Ask your beauty question…" required /><button id="sendBtn" type="submit" aria-label="Send message"><span aria-hidden="true">➤</span></button></form>
+        <p class="chat-note"><span>✧</span> Powered by AI · Thoughtful guidance, uniquely you</p>
+      </div>
     </section>
   </main>
-  <footer class="site-footer"><span>BEAUTY ATELIER — STUDENT PROJECT 08</span><span>INSPIRED BY L’ORÉAL’S WORLD OF BEAUTY</span></footer>
+  <footer class="site-footer"><span>© BEAUTY ATELIER — STUDENT PROJECT 08</span><span>INSPIRED BY L’ORÉAL’S WORLD OF BEAUTY</span></footer>
   <script src="script.js"></script>
 </body>
 </html>
