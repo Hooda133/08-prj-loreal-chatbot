@@ -7,6 +7,7 @@ const statusEl = document.getElementById("status");
 const sendBtn = document.getElementById("sendBtn");
 const suggestions = document.getElementById("suggestions");
 const resetBtn = document.getElementById("resetBtn");
+const miniPrompts = document.getElementById("miniPrompts");
 const GREETING = "Hello, beautiful! ✨ I'm your personal beauty advisor. Tell me what you're looking for, or choose a topic below to get started.";
 let messages = [];
 let busy = false;
@@ -24,14 +25,13 @@ function setBusy(value) {
   busy = value;
   sendBtn.disabled = value;
   input.disabled = value;
-  suggestions.querySelectorAll("button").forEach(button => { button.disabled = value; });
+  document.querySelectorAll("[data-prompt]").forEach(button => { button.disabled = value; });
 }
 function newChat() {
   messages = [];
   windowEl.replaceChildren();
   statusEl.textContent = "";
   addMessage(GREETING, "ai");
-  suggestions.hidden = false;
   input.value = "";
   input.focus();
 }
@@ -42,7 +42,6 @@ async function sendMessage(text) {
   statusEl.textContent = "";
   addMessage(content, "user");
   input.value = "";
-  suggestions.hidden = true;
   const nextMessages = [...messages, { role: "user", content }].slice(-12);
   const pending = addMessage("Curating your beauty advice…", "ai", true);
   setBusy(true);
@@ -74,9 +73,11 @@ async function sendMessage(text) {
   }
 }
 form.addEventListener("submit", event => { event.preventDefault(); sendMessage(input.value); });
-suggestions.addEventListener("click", event => {
+function handlePrompt(event) {
   const button = event.target.closest("button[data-prompt]");
   if (button) sendMessage(button.dataset.prompt);
-});
+}
+suggestions.addEventListener("click", handlePrompt);
+miniPrompts.addEventListener("click", handlePrompt);
 resetBtn.addEventListener("click", newChat);
 newChat();
