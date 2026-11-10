@@ -354,7 +354,7 @@ body{background:radial-gradient(ellipse at 11% 1%,#ffefe7 0,transparent 38%),rad
 .category-card{min-height:363px;border:1px solid #e1cfc4;border-radius:4px;box-shadow:0 14px 35px #5d40321a;transform:perspective(1000px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateY(var(--lift,0px));transform-style:preserve-3d;transition:transform .26s var(--campaign-ease),box-shadow .3s ease,border-color .3s ease;will-change:transform}
 .category-card:before{inset:-50%;background:radial-gradient(circle at var(--glare-x,40%) var(--glare-y,20%),#fff9,transparent 39%);transition:opacity .22s;opacity:.52}
 .category-card:hover:before,.category-card:focus-visible:before{opacity:1}
-.category-card:hover,.category-card:focus-visible{--lift:-8px;box-shadow:0 30px 51px #51352a39;border-color:#c19a89}
+.category-card:hover,.category-card:focus-visible{--lift:-8px;transform:perspective(1000px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg)) translateY(var(--lift,0px));box-shadow:0 30px 51px #51352a39;border-color:#c19a89}
 .category-card__scene{height:215px;transform:translateZ(25px)}
 .category-card__disc{width:198px;height:198px;animation:halo-breathe 7s ease-in-out infinite}
 .category-card__visual{width:190px;height:190px;transform:translateZ(32px);animation:card-object-float 5.3s ease-in-out infinite}
