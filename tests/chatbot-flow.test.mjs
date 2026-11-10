@@ -430,3 +430,48 @@ test("Older beauty preferences are carried into context without violating Worker
   assert.equal(resetRequest.length, 1);
   assert.equal(resetRequest[0].role, "user");
 });
+
+
+test("User and Beauty Concierge replies remain distinct accessible chat bubbles", async () => {
+  const sent = [];
+  const app = createFrontend(async (_, options) => {
+    sent.push(JSON.parse(options.body));
+    return {
+      ok: true,
+      async json() {
+        return { choices: [{ message: { content: "## L’Oréal beauty routine\n- Start with a gentle cleanser." } }] };
+      }
+    };
+  });
+  const { elements } = app;
+  const greeting = elements.chatWindow.nodes[0];
+  assert.match(greeting.className, /message ai/);
+  assert.equal(greeting.getAttribute("aria-label"), "Beauty Concierge message");
+
+  elements.userInput.value = "Help with my L’Oréal skincare";
+  elements.chatForm.listeners.submit({ preventDefault() {} });
+  await new Promise(resolve => setTimeout(resolve, 10));
+
+  const user = elements.chatWindow.nodes[1];
+  const assistant = elements.chatWindow.nodes[2];
+  assert.match(user.className, /message user/);
+  assert.match(assistant.className, /message ai/);
+  assert.equal(user.getAttribute("aria-label"), "Your message");
+  assert.equal(assistant.getAttribute("aria-label"), "Beauty Concierge message");
+  assert.match(user.textContent, /Help with my L.Oréal skincare/);
+  assert.match(assistant.textContent, /gentle cleanser/);
+  assert.equal(sent.length, 1);
+  assert.equal(elements.chatWindow.getAttribute("role"), null); // The real page declares role=log in HTML.
+});
+
+test("Conversation stylesheet provides labeled, distinct and responsive bubbles", async () => {
+  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
+  assert.match(css, /\.chat-window \.message\.user::before\s*\{\s*content:"YOU"/);
+  assert.match(css, /\.chat-window \.message\.ai::before\s*\{\s*content:"BEAUTY CONCIERGE"/);
+  assert.match(css, /\.chat-window \.message\.user\s*\{[^}]*align-self:flex-end/s);
+  assert.match(css, /\.chat-window \.message\.ai\s*\{[^}]*align-self:flex-start/s);
+  assert.match(css, /--chat-user-surface:#161616/);
+  assert.match(css, /--chat-advisor-surface:#faf8f3/);
+  assert.match(css, /@media\(max-width:620px\)\s*\{\s*\.chat-window/s);
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
+});
