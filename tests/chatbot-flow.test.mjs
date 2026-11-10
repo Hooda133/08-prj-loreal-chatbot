@@ -219,6 +219,7 @@ class FakeElement {
     this.disabled = false;
     this.hidden = false;
     this.scrollHeight = 200;
+    this.clientHeight = 200;
     this.scrollTop = 0;
     this.focusCount = 0;
     this._classes = new Set();
@@ -255,7 +256,7 @@ class FakeElement {
   scrollIntoView() {}
 }
 
-function createFrontend(mockFetch) {
+function createFrontend(mockFetch, options = {}) {
   const ids = [
     "chatForm", "userInput", "chatWindow", "status", "chatAnnouncement",
     "questionPreview", "questionPreviewText",
@@ -276,6 +277,7 @@ function createFrontend(mockFetch) {
   const body = new FakeElement("body");
   const document = {
     body,
+    activeElement: null,
     getElementById: id => elements[id] || null,
     createElement: tag => new FakeElement(tag),
     createTextNode: text => ({ textContent: String(text) }),
@@ -289,7 +291,12 @@ function createFrontend(mockFetch) {
       addEventListener() {}
     })
   };
-  vm.runInNewContext(frontendSource, { document, window, fetch: mockFetch }, {
+  vm.runInNewContext(frontendSource, {
+    document, window, fetch: mockFetch,
+    AbortController,
+    setTimeout: options.setTimeout || setTimeout,
+    clearTimeout: options.clearTimeout || clearTimeout
+  }, {
     filename: "script.js",
     timeout: 3000
   });
@@ -480,4 +487,121 @@ test("Chat input has one rounded outer focus indicator and no inner rectangle", 
   const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
   assert.match(css, /\.chat-form input:focus-visible\s*\{\s*outline:none;\s*box-shadow:none;/);
   assert.match(css, /\.chat-form:focus-within\s*\{\s*outline:3px solid #775322;/);
+});
+
+
+test("New chat cancels a pending response and ignores late stale results", async () => {
+  let resolveFirst;
+  let callCount = 0;
+  const app = createFrontend(async () => {
+    callCount++;
+    if (callCount === 1) {
+      return new Promise(resolve => { resolveFirst = resolve; });
+    }
+    return { ok: true, async json() { return { choices: [{ message: { content: "Fresh answer" } }] }; } };
+  });
+  const { elements } = app;
+  elements.userInput.value = "Old question about L’Oréal skincare";
+  elements.chatForm.listeners.submit({ preventDefault() {} });
+  assert.equal(elements.sendBtn.disabled, true);
+  assert.equal(elements.resetBtn.disabled, false);
+  assert.match(elements.chatWindow.textContent, /Old question/);
+
+  elements.resetBtn.listeners.click();
+  assert.equal(elements.sendBtn.disabled, false);
+  assert.equal(elements.questionPreview.hidden, true);
+  assert.equal(elements.chatWindow.nodes.length, 1);
+  assert.doesNotMatch(elements.chatWindow.textContent, /Old question/);
+
+  // Resolve the old fetch even though it was cancelled: a stale response
+  // must not reappear or corrupt the next conversation.
+  resolveFirst({
+    ok: true,
+    async json() { return { choices: [{ message: { content: "Stale reply must never display" } }] }; }
+  });
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(elements.chatWindow.nodes.length, 1);
+  assert.doesNotMatch(elements.chatWindow.textContent, /Stale reply/);
+
+  elements.userInput.value = "Fresh L’Oréal makeup question";
+  elements.chatForm.listeners.submit({ preventDefault() {} });
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.match(elements.chatWindow.textContent, /Fresh answer/);
+  assert.equal(elements.sendBtn.disabled, false);
+});
+
+test("A slow reply times out gracefully, restores input and unlocks the composer", async () => {
+  let timerCallback;
+  const app = createFrontend((_, options) => new Promise((resolve, reject) => {
+    options.signal.addEventListener("abort", () => {
+      const error = new Error("The operation was aborted");
+      error.name = "AbortError";
+      reject(error);
+    });
+  }), {
+    setTimeout(callback) {
+      timerCallback = callback;
+      return 91;
+    },
+    clearTimeout() {}
+  });
+  const { elements } = app;
+  elements.userInput.value = "My L’Oréal skincare question";
+  elements.chatForm.listeners.submit({ preventDefault() {} });
+  assert.equal(typeof timerCallback, "function");
+  assert.equal(elements.sendBtn.disabled, true);
+
+  timerCallback();
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.match(elements.status.textContent, /taking too long/);
+  assert.equal(elements.userInput.value, "My L’Oréal skincare question");
+  assert.equal(elements.sendBtn.disabled, false);
+  assert.equal(elements.resetBtn.disabled, false);
+  assert.equal(elements.questionPreview.hidden, true);
+  assert.equal(elements.chatWindow.nodes.length, 1);
+});
+
+test("A network error produces helpful status while keeping the unsent question", async () => {
+  const app = createFrontend(async () => { throw new TypeError("Failed to fetch"); });
+  const { elements } = app;
+  elements.userInput.value = "Recommend L’Oréal haircare";
+  elements.chatForm.listeners.submit({ preventDefault() {} });
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.match(elements.status.textContent, /Check your connection/i);
+  assert.equal(elements.userInput.value, "Recommend L’Oréal haircare");
+  assert.equal(elements.sendBtn.disabled, false);
+  assert.equal(elements.chatWindow.nodes.length, 1);
+});
+
+test("New assistant replies do not scroll over earlier messages being read", async () => {
+  let resolveReply;
+  const app = createFrontend(async () => new Promise(resolve => { resolveReply = resolve; }));
+  const { elements } = app;
+  elements.chatWindow.scrollHeight = 1400;
+  elements.chatWindow.clientHeight = 400;
+  elements.chatWindow.scrollTop = 1000;
+  elements.userInput.value = "What L’Oréal skincare should I use?";
+  elements.chatForm.listeners.submit({ preventDefault() {} });
+  // A newly submitted question scrolls to its message.
+  assert.equal(elements.chatWindow.scrollTop, 1400);
+  // The reader scrolls up during the network request.
+  elements.chatWindow.scrollTop = 100;
+  resolveReply({
+    ok: true,
+    async json() {
+      return { choices: [{ message: { content: "A gentle L’Oréal cleanser may suit you." } }] };
+    }
+  });
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(elements.chatWindow.scrollTop, 100);
+  assert.match(elements.chatWindow.textContent, /gentle L.Oréal cleanser/);
+});
+
+test("Polished composer maintains just one focus ring and readable error style", async () => {
+  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
+  assert.match(css, /\.chat-form input:focus-visible\s*\{\s*outline:none;\s*box-shadow:none;/);
+  assert.match(css, /\.chat-form:focus-within\s*\{\s*outline:3px solid #775322;/);
+  assert.match(css, /\.status:not\(:empty\)\s*\{\s*margin:0 0 12px;/);
+  assert.match(css, /@media\(max-width:380px\)/);
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
 });
