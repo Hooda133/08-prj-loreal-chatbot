@@ -49,7 +49,7 @@ test("Cloudflare adds a beauty system prompt and sends user input to OpenAI", as
     assert.equal(payload.messages[0].role, "system");
     assert.match(payload.messages[0].content, /beauty advisor/i);
     assert.match(payload.messages[0].content, /skincare/i);
-    assert.match(payload.messages[0].content, /not.*official/i);
+    assert.match(payload.messages[0].content, /official L.Oréal representative/i);
     assert.deepEqual(payload.messages[1], { role: "user", content: "Can you suggest skincare?" });
     assert.ok(!JSON.stringify(result).includes("test-secret-never-commit"));
   } finally {
