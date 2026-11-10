@@ -12,6 +12,19 @@ A responsive student project featuring a personalized beauty chat interface for 
 - Conversation history with Cloudflare message-length protection; user messages are removed on failed attempts so retries don't duplicate them
 - Cloudflare Worker securely holds the OpenAI API key; the working endpoint is already configured in `script.js`
 
+## Stability and interface polish
+
+The chat is designed to recover cleanly from unreliable connections and longer conversations:
+
+- **30-second timeout:** If a Cloudflare request takes too long, the pending bubble disappears, the original question returns to the input, and an actionable error is shown. The send button becomes usable again.
+- **Safe cancellation:** **New chat** remains available even during a pending response. It aborts the request, clears the prior conversation and prevents late replies from resurfacing after reset.
+- **Thoughtful scrolling:** New submitted questions scroll to the latest message, but an incoming AI reply will not force scrolling if the visitor has moved up to read earlier messages.
+- **Better device focus:** Chat input focus is restored only when appropriate for keyboard/mouse use; a completed response no longer unexpectedly opens the phone's virtual keyboard.
+- **Visual finishing details:** Clearer status errors, responsive header and composer, consistent focus states and a single outer input focus ring (no extra inner rectangle).
+- **Security unchanged:** This update remains in the GitHub Pages frontend; the approved Cloudflare Worker endpoint and key management are not modified.
+
+**Verify:** Run `node --test tests/chatbot-flow.test.mjs` and review the Lighthouse accessibility workflow. New tests cover timeout recovery, cancellation races, ignored stale replies, network failures and intentional scroll preservation. Manually review on a phone and desktop before merging.
+
 ## Assignment requirement: distinct message bubbles and clear chat layout
 
 **Requirement:** “Messages from user and chatbot are styled in distinct chat bubbles with a clear layout.”
