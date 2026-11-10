@@ -5,6 +5,7 @@ const form = document.getElementById("chatForm");
 const input = document.getElementById("userInput");
 const windowEl = document.getElementById("chatWindow");
 const statusEl = document.getElementById("status");
+const chatAnnouncement = document.getElementById("chatAnnouncement");
 const sendBtn = document.getElementById("sendBtn");
 const suggestions = document.getElementById("suggestions");
 const miniPrompts = document.getElementById("miniPrompts");
@@ -22,6 +23,8 @@ let busy = false;
 function addMessage(text, role, pending = false) {
   const bubble = document.createElement("div");
   bubble.className = "message " + role + (pending ? " pending" : "");
+  bubble.setAttribute("role", "group");
+  bubble.setAttribute("aria-label", role === "user" ? "Your message" : "Beauty Concierge message");
   bubble.textContent = text;
   windowEl.appendChild(bubble);
   windowEl.scrollTop = windowEl.scrollHeight;
@@ -84,6 +87,8 @@ function setBusy(value) {
   busy = value;
   input.disabled = value;
   sendBtn.disabled = value;
+  resetBtn.disabled = value;
+  ritualCta.disabled = value;
   windowEl.setAttribute("aria-busy", String(value));
   document.querySelectorAll("[data-prompt]").forEach(button => {
     button.disabled = value;
@@ -95,8 +100,10 @@ function newChat(focusInput = true) {
   messages = [];
   windowEl.replaceChildren();
   statusEl.textContent = "";
+  chatAnnouncement.textContent = "";
   input.value = "";
   addMessage(GREETING, "ai");
+  if (focusInput) chatAnnouncement.textContent = "New conversation started. The beauty advisor is ready.";
   if (focusInput) input.focus();
 }
 
@@ -120,6 +127,7 @@ async function sendMessage(text) {
   }));
   const nextMessages = [...history, { role: "user", content }];
   const pending = addMessage("Finding your perfect beauty edit…", "ai", true);
+  chatAnnouncement.textContent = "Question sent. Your beauty advisor is preparing a response.";
   setBusy(true);
 
   try {
@@ -146,12 +154,16 @@ async function sendMessage(text) {
     }
     pending.classList.remove("pending");
     renderAssistantReply(pending, reply);
+    chatAnnouncement.textContent =
+      "Beauty Concierge replied. " + reply.slice(0, 320) +
+      (reply.length > 320 ? " The full response is in the conversation." : "");
     messages = [...nextMessages, { role: "assistant", content: reply }].slice(-12);
   } catch (error) {
     // A failed request must not leave a duplicate user message when retried.
     pending.remove();
     userBubble.remove();
     input.value = content;
+    chatAnnouncement.textContent = "";
     statusEl.textContent = error.message || "Something went wrong. Please try again.";
   } finally {
     setBusy(false);
@@ -211,8 +223,8 @@ ritualCta.addEventListener("click", () => {
 function setMotionPaused(paused) {
   motionPaused = paused;
   document.body.classList.toggle("motion-paused", paused);
-  motionToggle.setAttribute("aria-pressed", String(paused));
   motionLabel.textContent = paused ? "RESUME MOTION" : "PAUSE MOTION";
+  motionToggle.setAttribute("aria-label", paused ? "Resume animations" : "Pause animations");
   motionIcon.textContent = paused ? "▶" : "Ⅱ";
   // Cards should not remain tilted while the visitor pauses movement.
   if (paused) {
@@ -227,7 +239,13 @@ motionToggle.addEventListener("click", () => {
 });
 function updateMotionPreference() {
   motionToggle.hidden = motionQuery.matches;
-  if (motionQuery.matches) document.body.classList.remove("has-motion");
+  if (motionQuery.matches) {
+    document.body.classList.remove("has-motion");
+    document.querySelectorAll(".category-card").forEach(card => {
+      card.style.removeProperty("--tilt-x");
+      card.style.removeProperty("--tilt-y");
+    });
+  }
 }
 if (typeof motionQuery.addEventListener === "function") {
   motionQuery.addEventListener("change", updateMotionPreference);
@@ -250,6 +268,11 @@ if (!motionQuery.matches && "IntersectionObserver" in window) {
     });
   }, { threshold: 0.08, rootMargin: "0px 0px 60px 0px" });
   revealTargets.forEach(element => revealObserver.observe(element));
+  // Keyboard users must never tab into an element that is visually hidden.
+  document.addEventListener("focusin", event => {
+    const reveal = event.target.closest("[data-reveal]");
+    if (reveal) reveal.classList.add("is-visible");
+  });
 }
 
 // Pointer-responsive product cards with gentle 3D tilt.
