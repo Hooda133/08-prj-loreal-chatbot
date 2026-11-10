@@ -85,20 +85,24 @@
     </a>
     <nav class="header-nav" aria-label="Main navigation">
       <a href="#discover">THE BEAUTY EDIT</a>
+      <a class="header-nav__ritual" href="#ritual">OUR APPROACH</a>
       <a href="#concierge" class="header-nav__cta">MEET YOUR ADVISOR <span aria-hidden="true">↗</span></a>
     </nav>
   </header>
   <main id="top">
-    <div class="hero-grid page-width">
+    <div class="hero-grid page-width" id="consultation">
       <section class="hero-story" aria-labelledby="hero-title">
-        <div class="eyebrow"><span class="eyebrow__line"></span> BEAUTY IS PERSONAL. SO ARE WE.</div>
-        <h1 id="hero-title">Beauty, <em>on</em><br />your terms<span class="hero-period">.</span></h1>
-        <p class="hero-story__lead">Your skin. Your style. Your story. Discover a world of beauty with a personal beauty advisor that starts by listening to <strong>you.</strong></p>
+        <div class="eyebrow"><span class="eyebrow__line"></span> YOUR BEAUTY. YOUR RULES. <span class="edition-num">VOL. 01 / 2026</span></div>
+        <h1 id="hero-title">The art of<br /><em>being you</em><span class="hero-period">.</span></h1>
+        <p class="hero-story__lead">Beauty isn’t one-size-fits-all. Meet your personal beauty concierge and discover the looks, rituals and little luxuries that feel entirely <strong>you.</strong></p>
         <div class="hero-actions">
           <button id="startConsultation" type="button" class="primary-cta">START YOUR CONSULTATION <span aria-hidden="true">↗</span></button>
           <a href="#discover" class="text-cta">EXPLORE THE BEAUTY EDIT <span aria-hidden="true">→</span></a>
         </div>
-        <div class="hero-art">
+        <div class="hero-art" aria-label="Original beauty product illustration with gently floating product icons">
+          <div class="hero-art__spotlight" aria-hidden="true"></div>
+          <div class="hero-art__orbit hero-art__orbit--serum" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></div>
+          <div class="hero-art__orbit hero-art__orbit--lipstick" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></div>
           <!-- Original vector still life; no third-party photography or model likeness. -->
           <svg class="hero-art__still-life" viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="artwork-title" xmlns="http://www.w3.org/2000/svg">
             <title id="artwork-title">Original luxury beauty still life featuring an imaginary perfume bottle and lipstick on a sculptural pedestal</title>
@@ -152,20 +156,21 @@
             <circle cx="585" cy="114" r="3" fill="#fff6e8" opacity=".7"/>
             <circle cx="605" cy="96" r="2" fill="#fff6e8" opacity=".65"/>
           </svg>
-          <div class="hero-art__vertical" aria-hidden="true">THE BEAUTY ATELIER / ISSUE Nº 01</div>
-          <div class="hero-art__label"><span class="hero-art__product-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span><span>THE BEAUTY EDIT<br /><strong>INDIVIDUAL BY DESIGN</strong></span></div>
-          <div class="hero-art__seal" aria-hidden="true"><span>BEAUTY<br />BEGINS<br /><i>WITH YOU.</i></span></div>
+          <div class="hero-art__vertical" aria-hidden="true">BEAUTY, MADE PERSONAL / ISSUE Nº 01</div>
+          <div class="hero-art__label"><span class="hero-art__product-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span><span>THE ATELIER COLLECTION<br /><strong>INDIVIDUAL BY DESIGN</strong></span></div>
+          <div class="hero-art__seal" aria-hidden="true"><span>THE<br /><i>BEAUTY</i><br />EDIT.</span></div>
         </div>
+        <div class="hero-caption"><span>THE ART OF INDIVIDUALITY</span><span>01 <span class="hero-caption__rule"></span> 04</span></div>
       </section>
       <section class="advisor" id="concierge" aria-label="Chat with your personal beauty advisor">
         <div class="advisor__header">
           <div class="advisor__identity">
             <div class="advisor__avatar" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></div>
-            <div><span class="advisor__eyebrow">YOUR PERSONAL BEAUTY CONCIERGE</span><h2>Beauty Concierge</h2><span class="advisor__availability"><i></i> HERE TO HELP YOU GLOW</span></div>
+            <div><span class="advisor__eyebrow">YOUR PRIVATE BEAUTY STUDIO</span><h2>Beauty Concierge</h2><span class="advisor__availability"><i></i> HERE TO HELP YOU GLOW</span></div>
           </div>
           <button class="reset-btn" id="resetBtn" type="button" title="Start a new conversation"><span aria-hidden="true">↻</span> New chat</button>
         </div>
-        <div class="advisor__intro"><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span><span>A BEAUTY EXPERIENCE, MADE FOR YOU</span><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span></div>
+        <div class="advisor__intro"><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span><span>DISCOVER • EXPLORE • EXPRESS</span><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span></div>
         <div class="chat-window" id="chatWindow" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation"></div>
         <div class="advisor__composer">
           <div class="prompt-heading"><span>NEED INSPIRATION?</span><span>START HERE ↓</span></div>
@@ -184,10 +189,26 @@
         </div>
       </section>
     </div>
+    <div class="luxury-ticker" aria-label="Beauty is individual. Discover, express, glow.">
+      <div class="luxury-ticker__track" aria-hidden="true">
+        <div class="luxury-ticker__group">
+          <span>THE ART OF BEAUTY</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></i>
+          <span>MADE FOR YOU</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></i>
+          <span>DISCOVER YOUR RITUAL</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></i>
+          <span>EXPRESS YOURSELF</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></i>
+        </div>
+<div class="luxury-ticker__group">
+          <span>THE ART OF BEAUTY</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></i>
+          <span>MADE FOR YOU</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></i>
+          <span>DISCOVER YOUR RITUAL</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></i>
+          <span>EXPRESS YOURSELF</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></i>
+        </div>
+      </div>
+    </div>
     <section class="discover page-width" id="discover" aria-labelledby="discover-title">
       <div class="section-title">
-        <div><span class="section-title__eyebrow">THE BEAUTY EDIT <span>— 01 / 04</span></span><h2 id="discover-title">Find your <em>beautiful.</em></h2></div>
-        <p>Four worlds to explore. Endless ways to be you. Pick your starting point and we'll take it from there.</p>
+        <div><span class="section-title__eyebrow">A WORLD TO EXPLORE <span>— THE EDIT / 01</span></span><h2 id="discover-title">Your next <em>obsession.</em></h2></div>
+        <p>From your first serum to your signature scent. Choose what inspires you and begin a conversation.</p>
       </div>
       <div class="category-grid" id="suggestions">
         <button class="category-card category-card--skin" type="button" data-prompt="Help me create a simple personalized skincare routine. Ask me about my skin type and concerns first." aria-label="Explore Skincare: The routine that feels like you.">
@@ -212,11 +233,37 @@
 </button>
       </div>
     </section>
+    <section class="ritual" id="ritual" aria-labelledby="ritual-title">
+      <div class="page-width ritual__grid">
+        <div class="ritual__visual" aria-hidden="true">
+          <div class="ritual__arch"></div>
+          <div class="ritual__halo"></div>
+          <div class="ritual__plinth"></div>
+          <span class="ritual__object ritual__object--perfume"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span>
+          <span class="ritual__object ritual__object--serum"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span>
+          <span class="ritual__object ritual__object--lipstick"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span>
+          <span class="ritual__object ritual__object--hair"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-hair"></use></svg></span>
+          <span class="ritual__corner-label">ATELIER / THE PERSONAL EDIT</span>
+          <span class="ritual__vertical-label">BEAUTY WITHOUT RULES</span>
+        </div>
+        <div class="ritual__story">
+          <span class="ritual__eyebrow"><span></span> YOUR BEAUTY, REIMAGINED / 02</span>
+          <h2 id="ritual-title">A little ritual.<br /><em>A lot of you.</em></h2>
+          <p>We believe the best beauty advice begins with a conversation. Explore what you love, discover what fits, and make every step your own.</p>
+          <ol class="ritual__steps">
+            <li><span class="ritual__step-num">01</span><span><strong>Tell us your story</strong><small>Share your goals, preferences and what inspires you.</small></span></li>
+            <li><span class="ritual__step-num">02</span><span><strong>Discover your beauty edit</strong><small>Explore ideas across skincare, makeup, hair and scent.</small></span></li>
+            <li><span class="ritual__step-num">03</span><span><strong>Make it yours</strong><small>Refine your routine, one thoughtful choice at a time.</small></span></li>
+          </ol>
+          <button type="button" class="ritual__cta" id="ritualCta" data-prompt="Help me create my own beauty ritual. Ask me about my routine, preferences and goals, then suggest a personalized plan.">CREATE MY BEAUTY RITUAL <span aria-hidden="true">↗</span></button>
+        </div>
+      </div>
+    </section>
     <section class="manifesto" aria-label="Beauty Atelier statement">
-      <div class="page-width manifesto__inner"><span>THE ART OF SELF EXPRESSION</span><p>Because beauty should feel <em>like you.</em></p><span class="manifesto__mark" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></span></div>
+      <div class="page-width manifesto__inner"><span>THE ART OF SELF EXPRESSION</span><p>Beautifully, <em>unapologetically you.</em></p><span class="manifesto__mark" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></span></div>
     </section>
   </main>
-  <footer class="site-footer page-width"><div><strong>BEAUTY ATELIER</strong><span>AN INDEPENDENT STUDENT PROJECT INSPIRED BY L’ORÉAL PARIS.</span></div><p>Not affiliated with or endorsed by L'Oréal. Product suggestions are AI-generated and may be inaccurate; check official product listings before buying.</p><a href="#top">BACK TO TOP ↑</a></footer>
+  <footer class="site-footer page-width"><div><strong>BEAUTY ATELIER</strong><span>AN INDEPENDENT STUDENT PROJECT INSPIRED BY L’ORÉAL PARIS.</span></div><p>Not affiliated with or endorsed by L'Oréal. Product suggestions are AI-generated and may be inaccurate; check official product listings before buying.</p><div class="footer-actions"><button id="motionToggle" type="button" class="motion-toggle" aria-pressed="false"><span class="motion-toggle__icon" aria-hidden="true">Ⅱ</span><span class="motion-toggle__label">PAUSE MOTION</span></button><a href="#top">BACK TO TOP ↑</a></div></footer>
   <script src="script.js"></script>
 </body>
 </html>
