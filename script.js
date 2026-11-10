@@ -192,12 +192,13 @@ async function sendMessage(text) {
   const nextMessages = buildContextMessages(content);
   const pending = addMessage("Finding your perfect beauty edit…", "ai", true);
   chatAnnouncement.textContent = "Question sent. Your beauty advisor is preparing a response.";
+  // Capture focus before disabling the input, which may move focus to body.
+  const returnFocus = document.activeElement === input || document.activeElement === sendBtn;
   setBusy(true);
 
   const thisRequest = ++requestGeneration;
   const controller = new AbortController();
   activeRequestController = controller;
-  const returnFocus = document.activeElement === input || document.activeElement === sendBtn;
   let didTimeOut = false;
   const timeoutId = setTimeout(() => {
     if (thisRequest !== requestGeneration) return;
