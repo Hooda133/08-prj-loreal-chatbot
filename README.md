@@ -12,6 +12,18 @@ A responsive student project featuring a personalized beauty chat interface for 
 - Conversation history with Cloudflare message-length protection; user messages are removed on failed attempts so retries don't duplicate them
 - Cloudflare Worker securely holds the OpenAI API key; the working endpoint is already configured in `script.js`
 
+## Assignment requirement: conversational context and question preview
+
+**Requirement:** “Chatbot remembers details from earlier messages and responds with context awareness. Each user question is briefly shown above the AI response before resetting on next input.”
+
+**Context-aware replies:** `script.js` keeps successful conversation turns in memory for the current browser tab and sends the most recent ten messages back to the same secure Cloudflare Worker with each new question. When older history exists, it also identifies up to three earlier, user-provided beauty preferences (for example skin type, hair concerns or product preferences), bundles them into one clearly labeled context-only **user-role message**, and sends that before the recent exchange. This keeps requests within the Worker’s twelve-message / 1,000-characters-per-message limits. The backend's L’Oréal-only **system prompt remains authoritative**; previous user texts are never turned into system instructions. Only real user questions and replies are retained in the session memory; the synthetic context note is not saved into conversation history.
+
+**Latest-question preview:** The accessible `YOU ASKED` strip appears directly above the conversation when a question is submitted and stays visible while the response is generated and viewed. When the visitor starts typing the **next** question, the strip clears; submitting that question shows the new strip. Previously answered messages remain visible in the conversation, and New chat clears both preview and memory.
+
+**Privacy and scope:** The memory is temporary for the current open page only. It is not stored in localStorage, cookies or a database; refreshing or opening a new tab starts a fresh conversation. Context retention is bounded to 80 most recent successful messages. Follow-ups remain limited to L’Oréal products and routines.
+
+**Verify:** Run `node --test tests/chatbot-flow.test.mjs`. Automated tests cover earlier preferences surviving long chats, correct recent context, preview reset on input, clean New chat, Worker request-size bounds and prior Cloudflare safety checks. Live acceptance test: say “My skin is oily and I prefer lightweight L’Oréal products,” ask five or six more relevant questions, then ask “What skin type did I tell you?”; verify it can still use that detail. For the preview, type another question and confirm the previous “YOU ASKED” line clears immediately.
+
 ## Assignment requirement: L’Oréal-only answers and secure Cloudflare routing
 
 **Requirement:** “Chatbot refuses unrelated questions and only answers queries about L’Oréal products and routines. Chatbot requests are safely routed through Cloudflare Worker.”
