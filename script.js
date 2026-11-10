@@ -1,5 +1,5 @@
 // Set this to the URL of your deployed Cloudflare Worker (no API key in frontend code).
-const WORKER_URL = ""; // Example: "https://your-worker.your-account.workers.dev"
+const WORKER_URL = ""; // Example: "https://loreal-beauty-advisor.your-account.workers.dev"
 const form = document.getElementById("chatForm");
 const input = document.getElementById("userInput");
 const windowEl = document.getElementById("chatWindow");
