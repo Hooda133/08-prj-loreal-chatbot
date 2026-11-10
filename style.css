@@ -3,8 +3,8 @@
 :root{
   --ink:#211c1b;--cream:#faf8f4;--paper:#fffefa;--mushroom:#f3ede8;
   --blush:#d8aa9f;--rose:#b17878;--bronze:#a98064;--muted:#766d67;
-  --line:#e7dfda;--serif:"Cormorant Garamond",Georgia,serif;
-  --sans:"Manrope",Arial,Helvetica,sans-serif;
+  --line:#e7dfda;--serif:"Bodoni Moda",Didot,Georgia,serif;
+  --sans:"DM Sans",Arial,Helvetica,sans-serif;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:20px}
@@ -612,6 +612,237 @@ button:disabled{cursor:wait;opacity:.65}
   .ritual__corner-label,.ritual__vertical-label{font-size:10px}
   .ritual__steps small{font-size:12px}
   .site-footer span,.site-footer p{font-size:11px}
+}
+
+
+/* ================================================================
+   ATELIER / THE TYPOGRAPHY EDIT
+   Bodoni Moda: sculptural fashion-editorial display typography.
+   DM Sans: polished, comfortable reading in every interface,
+   particularly the concierge's replies, prompts and text input.
+   ================================================================ */
+html{font-synthesis:none}
+body{
+  font-family:var(--sans);
+  font-optical-sizing:auto;
+  font-kerning:normal;
+  text-rendering:optimizeLegibility;
+  font-size:15px;
+  line-height:1.6;
+  letter-spacing:-.008em;
+}
+button,input{font-family:var(--sans)}
+/* Brand and editorial display hierarchy. */
+.brand__name{
+  font-family:var(--serif);
+  font-size:36px;
+  font-weight:600;
+  line-height:1.02;
+  letter-spacing:-.075em;
+  white-space:nowrap;
+}
+.brand__name span{
+  font-family:var(--sans);
+  font-weight:700;
+  font-size:10px;
+  letter-spacing:.13em;
+  vertical-align:baseline;
+}
+.brand__sub{font-size:10.5px;font-weight:600;letter-spacing:.07em;line-height:1.5}
+.announcement__copy{font-size:11px;letter-spacing:.16em;font-weight:700;line-height:1.45}
+.header-nav a{font-size:11.5px;font-weight:700;letter-spacing:.11em}
+.eyebrow,.edition-num,.hero-caption,.section-title__eyebrow,.ritual__eyebrow{
+  font-family:var(--sans);
+  font-size:11px;
+  font-weight:700;
+  line-height:1.55;
+  letter-spacing:.145em;
+}
+.hero-story h1{
+  font-family:var(--serif);
+  font-size:clamp(74px,7.35vw,112px);
+  line-height:.98;
+  letter-spacing:-.076em;
+  font-weight:500;
+  margin-block:30px 25px;
+}
+.hero-story h1 em{font-weight:400;letter-spacing:-.092em}
+.hero-story__lead{font-size:15.5px;line-height:1.95;letter-spacing:0;max-width:490px}
+.hero-story__lead strong{font-weight:700}
+.primary-cta,.ritual__cta{
+  font-size:11px;
+  line-height:1.45;
+  font-weight:700;
+  letter-spacing:.105em;
+}
+.text-cta{font-size:11.5px;line-height:1.35;font-weight:700;letter-spacing:.04em}
+.hero-art__label,.hero-art__vertical{font-family:var(--sans);font-weight:700;letter-spacing:.095em}
+.hero-art__seal{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-.035em}
+.hero-art__seal i{font-size:20px;font-weight:400}
+/* High-contrast concierge typography: the conversation is the product. */
+.advisor__eyebrow{
+  font-family:var(--sans);
+  font-size:10.5px;
+  letter-spacing:.105em;
+  font-weight:700;
+  line-height:1.6;
+}
+.advisor__identity h2{
+  font-family:var(--serif);
+  font-size:clamp(30px,2.5vw,38px);
+  font-weight:500;
+  line-height:1.12;
+  letter-spacing:-.06em;
+  margin:3px 0 6px;
+}
+.advisor__availability{
+  font-family:var(--sans);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.055em;
+  line-height:1.5;
+}
+.reset-btn{font-size:12px;font-weight:600;letter-spacing:0;line-height:1.35}
+.advisor__intro{font-size:11px;font-weight:700;line-height:1.45;letter-spacing:.1em}
+.chat-window{font-family:var(--sans)}
+.message{
+  font-family:var(--sans);
+  font-size:15px;
+  font-weight:400;
+  line-height:1.8;
+  letter-spacing:0;
+  padding:16px 19px;
+  max-width:90%;
+}
+.message h3{
+  font-family:var(--sans);
+  font-size:15.5px;
+  line-height:1.45;
+  font-weight:700;
+  letter-spacing:-.012em;
+  margin:3px 0 10px;
+}
+.message p{line-height:1.8;margin-bottom:12px}
+.message ul,.message ol{line-height:1.7;margin-block:6px 13px;padding-left:21px}
+.message li{padding:2px 0;margin-bottom:3px}
+.message strong{font-weight:700}
+.message.pending{font-weight:500;letter-spacing:0}
+.prompt-heading{font-size:11px;letter-spacing:.12em;line-height:1.45}
+.quick-prompts button{
+  font-family:var(--sans);
+  font-size:12.5px;
+  font-weight:600;
+  line-height:1.35;
+  letter-spacing:-.009em;
+}
+.chat-form input{
+  font-family:var(--sans);
+  font-size:16px;
+  line-height:1.5;
+  letter-spacing:-.01em;
+  font-weight:500;
+}
+.chat-form input::placeholder{font-weight:400;font-size:15px;letter-spacing:0}
+.chat-form button{font-family:var(--sans);font-size:23px;font-weight:600}
+.advisor__fineprint{font-size:11.5px;line-height:1.6;letter-spacing:0}
+/* The beauty edits: soft, editorial titles and clear descriptions. */
+.section-title h2{
+  font-family:var(--serif);
+  font-weight:500;
+  font-size:clamp(60px,6.05vw,88px);
+  line-height:1.03;
+  letter-spacing:-.075em;
+}
+.section-title h2 em{font-weight:400}
+.section-title p{font-size:14px;line-height:1.9}
+.category-card__number{font-size:11px;font-weight:700;letter-spacing:.1em}
+.category-card__bottom strong{
+  font-family:var(--serif);
+  font-size:clamp(29px,2.7vw,38px);
+  font-weight:500;
+  line-height:1.12;
+  letter-spacing:-.045em;
+}
+.category-card__bottom small{font-size:12.5px;font-weight:500;line-height:1.55;letter-spacing:-.01em}
+.luxury-ticker__group>span{
+  font-family:var(--serif);
+  font-size:30px;
+  font-weight:400;
+  line-height:1.2;
+  letter-spacing:-.035em;
+}
+.ritual__story h2{
+  font-family:var(--serif);
+  font-size:clamp(64px,6vw,89px);
+  font-weight:500;
+  line-height:1.03;
+  letter-spacing:-.075em;
+}
+.ritual__story h2 em{font-weight:400}
+.ritual__story>p{font-size:14.5px;line-height:1.95;letter-spacing:0}
+.ritual__steps strong{
+  font-family:var(--serif);
+  font-size:27px;
+  line-height:1.18;
+  font-weight:500;
+  letter-spacing:-.045em;
+}
+.ritual__steps small{font-family:var(--sans);font-size:12.5px;line-height:1.75}
+.ritual__step-num{font-family:var(--serif);font-size:27px;font-weight:500}
+.manifesto__inner p{
+  font-family:var(--serif);
+  font-size:clamp(42px,5vw,66px);
+  font-weight:400;
+  line-height:1.1;
+  letter-spacing:-.045em;
+}
+.site-footer strong{font-family:var(--serif);font-size:26px;font-weight:500;letter-spacing:-.025em}
+.site-footer span,.site-footer p{font-size:12px;line-height:1.7}
+.footer-actions a,.motion-toggle{font-size:11px;font-weight:700;letter-spacing:.04em}
+@media(max-width:1150px){
+  .hero-story h1{font-size:clamp(69px,7.45vw,98px)}
+  .brand__name{font-size:33px}
+  .category-card__bottom strong{font-size:33px}
+}
+@media(max-width:940px){
+  .hero-story h1{font-size:clamp(74px,11.1vw,105px)}
+  .ritual__story h2{font-size:clamp(68px,9vw,86px)}
+  .section-title h2{font-size:clamp(62px,8vw,81px)}
+}
+@media(max-width:620px){
+  .brand__name{font-size:25px}
+  .brand__name span{font-size:8px;letter-spacing:.04em}
+  .brand__sub{font-size:10px;line-height:1.4}
+  .announcement__copy{font-size:10px;letter-spacing:.065em}
+  .hero-story h1{font-size:clamp(62px,12.6vw,83px);line-height:1;letter-spacing:-.075em;margin-block:22px}
+  .hero-story__lead{font-size:15px;line-height:1.85}
+  .eyebrow,.hero-caption{font-size:10px;letter-spacing:.08em}
+  .advisor__identity h2{font-size:27px;letter-spacing:-.06em}
+  .advisor__eyebrow,.advisor__availability{font-size:10px;letter-spacing:.025em}
+  .advisor__intro{font-size:10px;letter-spacing:.05em}
+  .message{font-size:15px;line-height:1.78;padding:13px 15px;max-width:91%}
+  .message h3{font-size:15px}
+  .chat-form input{font-size:16px;min-width:0}
+  .chat-form input::placeholder{font-size:14px}
+  .quick-prompts button{font-size:11.5px;line-height:1.4}
+  .advisor__fineprint{font-size:10.5px}
+  .section-title h2{font-size:clamp(54px,11.4vw,66px)}
+  .category-card__bottom strong{font-size:29px}
+  .category-card__number{font-size:10px}
+  .category-card__bottom small{font-size:11.5px}
+  .luxury-ticker__group>span{font-size:25px}
+  .ritual__story h2{font-size:clamp(57px,11.2vw,77px);line-height:1.02}
+  .ritual__steps strong{font-size:24px}
+  .ritual__steps small{font-size:12px}
+  .manifesto__inner p{font-size:clamp(34px,8vw,47px)}
+}
+@media(max-width:360px){
+  .hero-story h1{font-size:57px}
+  .brand__name{font-size:23px}
+  .brand__sub{font-size:9px}
+  .category-card__bottom strong{font-size:25px}
+  .advisor__identity h2{font-size:24px}
+  .ritual__story h2{font-size:53px}
 }
 
 @media(prefers-reduced-motion:reduce){
