@@ -37,6 +37,15 @@ The Worker validates message shape and length, restricts browser CORS to explici
 HTML, CSS, vanilla JavaScript, Cloudflare Workers, OpenAI Chat Completions API (`gpt-4.1`). No npm dependencies.
 
 
+## Accessibility and quality checks
+- Semantic page regions, named beauty concierge section, keyboard skip link and native button controls.
+- Explicit message labels, a screen-reader response announcement and a visible error status for failed requests.
+- High-contrast small text, focus-visible outlines, readable fields and larger tap/click targets.
+- Motion pause control, `prefers-reduced-motion` support and keyboard-safe scroll reveals.
+- Pull requests run `.github/workflows/accessibility.yml`, which reports a Lighthouse Accessibility score from a local static server and uploads the JSON report.
+
+**Important:** An automated Lighthouse score (including 100/100) is not proof of full WCAG compliance. Manually verify a keyboard-only chat, 200–400% zoom, screen-reader announcements, category shortcuts and the pause-motion behavior on desktop and mobile.
+
 ## Design credits
 The hero and all four category product illustrations are original inline SVG artwork built for this student concept. The hero is a fictional beauty product still life rather than a photograph of a real model or a genuine product packshot. No third-party stock photo or model likeness is used in the page.
 

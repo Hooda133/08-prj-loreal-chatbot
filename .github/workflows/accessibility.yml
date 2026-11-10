@@ -1,0 +1,59 @@
+name: Accessibility Lighthouse audit
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "style.css"
+      - "script.js"
+      - ".github/workflows/accessibility.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  accessibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Serve site locally (no API key needed)
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 >/tmp/beauty-audit-server.log 2>&1 &
+          sleep 3
+
+      - name: Run Lighthouse accessibility audit
+        run: |
+          npx --yes lighthouse@12 http://127.0.0.1:8000 \
+            --only-categories=accessibility \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --output=json \
+            --output-path=/tmp/beauty-accessibility.json \
+            --quiet
+
+      - name: Show accessibility score and failed audits
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const report = JSON.parse(fs.readFileSync('/tmp/beauty-accessibility.json', 'utf8'));
+          const score = Math.round(report.categories.accessibility.score * 100);
+          const failed = Object.values(report.audits).filter(a => a.score !== null && a.score < 1 && a.details?.type !== 'opportunity');
+          console.log('Lighthouse Accessibility: ' + score + '/100');
+          for (const audit of failed) console.log('AUDIT: ' + audit.id + ' — ' + audit.title + ' (score ' + audit.score + ')');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+            '## Lighthouse Accessibility: ' + score + '/100\n\n' +
+            failed.map(a => '- ' + a.title + ' (' + a.id + ')').join('\n') + '\n');
+          // Report rather than blocking merges; visual/manual keyboard audits also matter.
+          NODE
+
+      - name: Upload Lighthouse report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-accessibility
+          path: /tmp/beauty-accessibility.json
+          if-no-files-found: ignore
