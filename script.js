@@ -1,17 +1,24 @@
-// Set this to the URL of your deployed Cloudflare Worker (no API key in frontend code).
+// Beauty Atelier: beginner-friendly frontend. OpenAI credentials stay in Cloudflare.
 const WORKER_URL = "https://loreal-beauty-advisor.elshamandy133.workers.dev";
+
 const form = document.getElementById("chatForm");
 const input = document.getElementById("userInput");
 const windowEl = document.getElementById("chatWindow");
 const statusEl = document.getElementById("status");
 const sendBtn = document.getElementById("sendBtn");
 const suggestions = document.getElementById("suggestions");
+const miniPrompts = document.getElementById("miniPrompts");
 const resetBtn = document.getElementById("resetBtn");
-const GREETING = "Hello, beautiful! ✨ I'm your personal beauty advisor. Tell me what you're looking for, or choose a topic below to get started.";
+const startButton = document.getElementById("startConsultation");
+const advisor = document.getElementById("concierge");
+
+const GREETING =
+  "Welcome to your Beauty Atelier ✦\n\nI'm here to help you discover skincare, makeup, haircare and fragrance that feels like you. What would you love to explore today?";
+
 let messages = [];
 let busy = false;
 
-// Use textContent, not innerHTML, so messages cannot inject HTML.
+// Never put untrusted messages into innerHTML. Build all message content as text nodes.
 function addMessage(text, role, pending = false) {
   const bubble = document.createElement("div");
   bubble.className = "message " + role + (pending ? " pending" : "");
@@ -20,42 +27,104 @@ function addMessage(text, role, pending = false) {
   windowEl.scrollTop = windowEl.scrollHeight;
   return bubble;
 }
+
+// Make simple Markdown from the AI readable without importing libraries
+// or turning AI-generated text into executable HTML.
+function addInlineText(parent, value) {
+  const boldPattern = /\*\*([^*]+)\*\*/g;
+  let last = 0;
+  let match;
+  while ((match = boldPattern.exec(value)) !== null) {
+    parent.appendChild(document.createTextNode(value.slice(last, match.index)));
+    const strong = document.createElement("strong");
+    strong.textContent = match[1];
+    parent.appendChild(strong);
+    last = match.index + match[0].length;
+  }
+  parent.appendChild(document.createTextNode(value.slice(last)));
+}
+function renderAssistantReply(bubble, responseText) {
+  bubble.replaceChildren();
+  const lines = responseText.split(/\r?\n/);
+  let list = null;
+  let listKind = "";
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) {
+      list = null;
+      listKind = "";
+      continue;
+    }
+    const bullet = line.match(/^[-*•]\s+(.+)$/);
+    const numbered = line.match(/^\d+[.)]\s+(.+)$/);
+    if (bullet || numbered) {
+      const kind = numbered ? "ol" : "ul";
+      if (!list || listKind !== kind) {
+        list = document.createElement(kind);
+        bubble.appendChild(list);
+        listKind = kind;
+      }
+      const item = document.createElement("li");
+      addInlineText(item, (numbered || bullet)[1]);
+      list.appendChild(item);
+      continue;
+    }
+    list = null;
+    listKind = "";
+    const heading = line.match(/^#{1,4}\s+(.+)$/);
+    const element = document.createElement(heading ? "h3" : "p");
+    addInlineText(element, heading ? heading[1] : line);
+    bubble.appendChild(element);
+  }
+  windowEl.scrollTop = windowEl.scrollHeight;
+}
+
 function setBusy(value) {
   busy = value;
-  sendBtn.disabled = value;
   input.disabled = value;
-  suggestions.querySelectorAll("button").forEach(button => { button.disabled = value; });
+  sendBtn.disabled = value;
+  windowEl.setAttribute("aria-busy", String(value));
+  document.querySelectorAll("[data-prompt]").forEach(button => {
+    button.disabled = value;
+  });
 }
-function newChat() {
+
+function newChat(focusInput = true) {
+  if (busy) return;
   messages = [];
   windowEl.replaceChildren();
   statusEl.textContent = "";
-  addMessage(GREETING, "ai");
-  suggestions.hidden = false;
   input.value = "";
-  input.focus();
+  addMessage(GREETING, "ai");
+  if (focusInput) input.focus();
 }
+
 async function sendMessage(text) {
   const content = text.trim();
-  if (!content || busy) return;
-  if (content.length > 1000) { statusEl.textContent = "Please keep messages under 1,000 characters."; return; }
+  if (busy || !content) return;
+  if (content.length > 1000) {
+    statusEl.textContent = "Please keep your question under 1,000 characters.";
+    return;
+  }
+
   statusEl.textContent = "";
   const userBubble = addMessage(content, "user");
   input.value = "";
-  suggestions.hidden = true;
-  // The deployed Worker caps each message at 1,000 characters.
-  // Keep the complete AI answer visible, but shorten earlier answers when
-  // sending history so a long recommendation never breaks the next turn.
+
+  // The deployed Cloudflare Worker accepts at most 12 messages of 1,000
+  // characters each. The full AI response stays visible in the interface.
   const history = messages.slice(-10).map(message => ({
     role: message.role,
     content: message.content.slice(0, 1000)
   }));
   const nextMessages = [...history, { role: "user", content }];
-  const pending = addMessage("Curating your beauty advice…", "ai", true);
+  const pending = addMessage("Finding your perfect beauty edit…", "ai", true);
   setBusy(true);
+
   try {
-    if (!WORKER_URL || !/^https:\/\//.test(WORKER_URL)) {
-      throw new Error("Chat isn't connected yet. Deploy your Cloudflare Worker and paste its HTTPS URL into WORKER_URL in script.js.");
+    if (!WORKER_URL.startsWith("https://")) {
+      throw new Error("Cloudflare Worker URL is not configured.");
     }
     const response = await fetch(WORKER_URL, {
       method: "POST",
@@ -63,29 +132,52 @@ async function sendMessage(text) {
       body: JSON.stringify({ messages: nextMessages })
     });
     let data;
-    try { data = await response.json(); } catch { throw new Error("The server returned an unreadable response."); }
-    if (!response.ok) throw new Error(data.error || "The beauty advisor is temporarily unavailable.");
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("The server returned an unreadable response.");
+    }
+    if (!response.ok) {
+      throw new Error(typeof data.error === "string" ? data.error : "The beauty advisor is unavailable right now.");
+    }
     const reply = data?.choices?.[0]?.message?.content;
-    if (typeof reply !== "string" || !reply.trim()) throw new Error("The assistant sent an empty response.");
-    pending.textContent = reply;
+    if (typeof reply !== "string" || !reply.trim()) {
+      throw new Error("The beauty advisor returned an empty response.");
+    }
     pending.classList.remove("pending");
+    renderAssistantReply(pending, reply);
     messages = [...nextMessages, { role: "assistant", content: reply }].slice(-12);
   } catch (error) {
+    // A failed request must not leave a duplicate user message when retried.
     pending.remove();
-    userBubble.remove(); // Failed sends are retryable, not duplicated in chat.
-    if (messages.length === 0) suggestions.hidden = false;
-    statusEl.textContent = error.message || "Something went wrong. Try again.";
-    // Keep previous conversation; user can retry the failed message.
+    userBubble.remove();
     input.value = content;
+    statusEl.textContent = error.message || "Something went wrong. Please try again.";
   } finally {
     setBusy(false);
     input.focus();
   }
 }
-form.addEventListener("submit", event => { event.preventDefault(); sendMessage(input.value); });
-suggestions.addEventListener("click", event => {
-  const button = event.target.closest("button[data-prompt]");
-  if (button) sendMessage(button.dataset.prompt);
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  sendMessage(input.value);
 });
-resetBtn.addEventListener("click", newChat);
-newChat();
+
+function handleSuggestedPrompt(event) {
+  const button = event.target.closest("button[data-prompt]");
+  if (!button) return;
+  sendMessage(button.dataset.prompt);
+  advisor.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+suggestions.addEventListener("click", handleSuggestedPrompt);
+miniPrompts.addEventListener("click", handleSuggestedPrompt);
+
+resetBtn.addEventListener("click", () => newChat(true));
+startButton.addEventListener("click", () => {
+  advisor.scrollIntoView({ behavior: "smooth", block: "start" });
+  input.focus({ preventScroll: true });
+});
+
+// Show the hero on initial page load instead of scrolling to the input.
+newChat(false);

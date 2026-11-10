@@ -3,14 +3,15 @@
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
 ## Features
-- Premium editorial styling, responsive layout, quick prompts and new chat
-- Conversation history sent to the AI (last 12 messages)
-- Safe DOM rendering, error feedback, and loading states
-- Cloudflare Worker proxy keeps the OpenAI API key off the public website
-- Beauty-focused system instructions that avoid inventing unverified product facts
+- Luxury editorial layout with fashion photography, refined typography, accessible navigation, and responsive design
+- Four custom dimensional SVG beauty illustrations with interactive, tappable category cards
+- Dedicated AI concierge panel with starter prompts, subtle entrance motion, and accessible status feedback
+- Safe formatting of common AI response Markdown: bold text, headings, bullet/numbered lists (no HTML injection)
+- Conversation history with Cloudflare message-length protection; user messages are removed on failed attempts so retries don't duplicate them
+- Cloudflare Worker securely holds the OpenAI API key; the working endpoint is already configured in `script.js`
 
 ## Local preview
-Open `index.html` with a local preview extension, or in GitHub Codespaces. You can explore the interface immediately; AI replies require the Worker.
+Run a static server or open `index.html` in Codespaces/VS Code Live Preview. The real AI backend is still the Cloudflare Worker configured in `script.js`. Your Cloudflare `ALLOWED_ORIGIN` variable must contain the exact preview origin to allow browser requests.
 
 ## Deploy the Worker
 1. In Cloudflare Dashboard, create a new Worker and replace its code with `RESOURCE_cloudflare-worker.js`.
@@ -32,3 +33,9 @@ The Worker validates message shape and length, restricts browser CORS to explici
 
 ## Tech
 HTML, CSS, vanilla JavaScript, Cloudflare Workers, OpenAI Chat Completions API (`gpt-4.1`). No npm dependencies.
+
+
+## Design credits
+The hero uses a free photo by [Angga Pratama on Unsplash](https://unsplash.com/photos/young-woman-lying-on-a-white-surface-ixjHZ5-RWFw) (Unsplash License). It is loaded from Unsplash's image CDN; if offline, the hero has a neutral background fallback. Category product artwork is original inline SVG illustration and is not an official product packshot.
+
+**This is an independent educational concept, not affiliated with or endorsed by L'Oréal.** Verify product recommendations through official product listings.
