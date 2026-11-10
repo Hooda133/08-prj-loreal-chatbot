@@ -12,6 +12,23 @@ A responsive student project featuring a personalized beauty chat interface for 
 - Conversation history with Cloudflare message-length protection; user messages are removed on failed attempts so retries don't duplicate them
 - Cloudflare Worker securely holds the OpenAI API key; the working endpoint is already configured in `script.js`
 
+## Assignment requirement: working OpenAI chatbot
+
+**Requirement:** “Chatbot uses a system prompt, captures user input, sends it to OpenAI, and displays a response.”
+
+| Step | Implementation | File |
+| --- | --- | --- |
+| 1. System prompt | SYSTEM_PROMPT gives the assistant its beauty-advisor role, response guidelines, and student-project limitations. It is inserted as the first system-role message sent to OpenAI. | RESOURCE_cloudflare-worker.js |
+| 2. Capture input | chatForm listens for Submit; userInput supplies the question. Quick-prompt buttons can submit questions too. | index.html + script.js |
+| 3. Send to OpenAI | sendMessage() sends JSON to the Cloudflare Worker using fetch(). The Worker adds the system prompt and calls the OpenAI Chat Completions endpoint with gpt-4.1 and OPENAI_API_KEY stored securely as a Worker secret. | script.js + RESOURCE_cloudflare-worker.js |
+| 4. Display a response | The Worker returns the assistant's reply. renderAssistantReply() displays it as safe, readable chat content with headings, lists and bold text. Errors are shown in the status area for recovery. | script.js |
+
+**Request flow:** visitor submits a question → webpage sends a messages array to Cloudflare → Worker prepends the system prompt and calls OpenAI → Worker returns an assistant response → webpage displays the assistant's text.
+
+**Verification:** run the command node --test tests/chatbot-flow.test.mjs. These automated tests exercise the real Worker and frontend code with mock OpenAI responses; they do **not** use the production API key or charge API credits. They verify the system-role message, captured typed questions, follow-up conversation context, rendered reply, origin restrictions, error handling and secret isolation. GitHub Actions runs these tests automatically on relevant pull requests. The deployed Worker must still be checked manually because the version in Cloudflare is deployed separately from the repository.
+
+**Live smoke test:** open https://hooda133.github.io/08-prj-loreal-chatbot/ and ask “Can you suggest a simple skincare routine?”. Confirm that the question appears in the conversation, a response arrives, and a follow-up question is answered. The deployed website's origin must remain in Cloudflare's ALLOWED_ORIGIN setting.
+
 ## Local preview
 Run a static server or open `index.html` in Codespaces/VS Code Live Preview. There are no build tools or third-party JS libraries. The real AI backend is still the Cloudflare Worker configured in `script.js`. Your Cloudflare `ALLOWED_ORIGIN` variable must contain the exact preview origin to allow browser requests.
 
