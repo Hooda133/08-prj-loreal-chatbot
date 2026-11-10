@@ -3,7 +3,7 @@
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
 ## Features
-- Luxury editorial layout with fashion photography, refined typography, accessible navigation, and responsive design
+- Luxury editorial layout with original vector still-life artwork, refined typography, accessible navigation, and responsive design
 - Four custom dimensional SVG beauty illustrations with interactive, tappable category cards
 - Dedicated AI concierge panel with starter prompts, subtle entrance motion, and accessible status feedback
 - Safe formatting of common AI response Markdown: bold text, headings, bullet/numbered lists (no HTML injection)
@@ -36,6 +36,6 @@ HTML, CSS, vanilla JavaScript, Cloudflare Workers, OpenAI Chat Completions API (
 
 
 ## Design credits
-The hero uses a free photo by [Angga Pratama on Unsplash](https://unsplash.com/photos/young-woman-lying-on-a-white-surface-ixjHZ5-RWFw) (Unsplash License). It is loaded from Unsplash's image CDN; if offline, the hero has a neutral background fallback. Category product artwork is original inline SVG illustration and is not an official product packshot.
+The hero and all four category product illustrations are original inline SVG artwork built for this student concept. The hero is a fictional beauty product still life rather than a photograph of a real model or a genuine product packshot. No third-party stock photo or model likeness is used in the page.
 
 **This is an independent educational concept, not affiliated with or endorsed by L'Oréal.** Verify product recommendations through official product listings.
