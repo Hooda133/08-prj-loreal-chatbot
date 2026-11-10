@@ -4,8 +4,8 @@ A responsive student project featuring a personalized beauty chat interface for 
 
 ## Features
 - Luxury editorial layout with original vector still-life artwork, refined typography, accessible navigation, and responsive design
-- Four custom dimensional SVG beauty illustrations with interactive, tappable category cards
-- Dedicated AI concierge panel with starter prompts, subtle entrance motion, and accessible status feedback
+- Original dimensional SVG beauty illustrations throughout the interface, from product-category cards to concierge and quick-action icons
+- Dedicated beauty concierge panel with starter prompts, subtle entrance motion, and accessible status feedback
 - Safe formatting of common AI response Markdown: bold text, headings, bullet/numbered lists (no HTML injection)
 - Conversation history with Cloudflare message-length protection; user messages are removed on failed attempts so retries don't duplicate them
 - Cloudflare Worker securely holds the OpenAI API key; the working endpoint is already configured in `script.js`
