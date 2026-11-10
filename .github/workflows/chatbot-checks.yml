@@ -1,0 +1,30 @@
+name: Chatbot interaction checks
+
+on:
+  pull_request:
+    paths:
+      - "script.js"
+      - "RESOURCE_cloudflare-worker.js"
+      - "index.html"
+      - "tests/chatbot-flow.test.mjs"
+      - ".github/workflows/chatbot-checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chatbot-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify complete chatbot requirement
+        run: node --test tests/chatbot-flow.test.mjs
