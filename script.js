@@ -40,10 +40,17 @@ async function sendMessage(text) {
   if (!content || busy) return;
   if (content.length > 1000) { statusEl.textContent = "Please keep messages under 1,000 characters."; return; }
   statusEl.textContent = "";
-  addMessage(content, "user");
+  const userBubble = addMessage(content, "user");
   input.value = "";
   suggestions.hidden = true;
-  const nextMessages = [...messages, { role: "user", content }].slice(-12);
+  // The deployed Worker caps each message at 1,000 characters.
+  // Keep the complete AI answer visible, but shorten earlier answers when
+  // sending history so a long recommendation never breaks the next turn.
+  const history = messages.slice(-10).map(message => ({
+    role: message.role,
+    content: message.content.slice(0, 1000)
+  }));
+  const nextMessages = [...history, { role: "user", content }];
   const pending = addMessage("Curating your beauty advice…", "ai", true);
   setBusy(true);
   try {
@@ -65,6 +72,8 @@ async function sendMessage(text) {
     messages = [...nextMessages, { role: "assistant", content: reply }].slice(-12);
   } catch (error) {
     pending.remove();
+    userBubble.remove(); // Failed sends are retryable, not duplicated in chat.
+    if (messages.length === 0) suggestions.hidden = false;
     statusEl.textContent = error.message || "Something went wrong. Try again.";
     // Keep previous conversation; user can retry the failed message.
     input.value = content;
