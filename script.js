@@ -8,7 +8,8 @@ const sendBtn = document.getElementById("sendBtn");
 const suggestions = document.getElementById("suggestions");
 const resetBtn = document.getElementById("resetBtn");
 const miniPrompts = document.getElementById("miniPrompts");
-const GREETING = "Hello, beautiful! ✨ I'm your personal beauty advisor. Tell me what you're looking for, or choose a topic below to get started.";
+const GREETING =
+  "Hello, beautiful! ✨ I'm your personal beauty advisor. Tell me what you're looking for, or choose a topic below to get started.";
 let messages = [];
 let busy = false;
 
@@ -25,7 +26,9 @@ function setBusy(value) {
   busy = value;
   sendBtn.disabled = value;
   input.disabled = value;
-  document.querySelectorAll("[data-prompt]").forEach(button => { button.disabled = value; });
+  document.querySelectorAll("[data-prompt]").forEach((button) => {
+    button.disabled = value;
+  });
 }
 function newChat() {
   messages = [];
@@ -38,7 +41,10 @@ function newChat() {
 async function sendMessage(text) {
   const content = text.trim();
   if (!content || busy) return;
-  if (content.length > 1000) { statusEl.textContent = "Please keep messages under 1,000 characters."; return; }
+  if (content.length > 1000) {
+    statusEl.textContent = "Please keep messages under 1,000 characters.";
+    return;
+  }
   statusEl.textContent = "";
   addMessage(content, "user");
   input.value = "";
@@ -47,21 +53,33 @@ async function sendMessage(text) {
   setBusy(true);
   try {
     if (!WORKER_URL || !/^https:\/\//.test(WORKER_URL)) {
-      throw new Error("Chat isn't connected yet. Deploy your Cloudflare Worker and paste its HTTPS URL into WORKER_URL in script.js.");
+      throw new Error(
+        "Chat isn't connected yet. Deploy your Cloudflare Worker and paste its HTTPS URL into WORKER_URL in script.js.",
+      );
     }
     const response = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: nextMessages })
+      body: JSON.stringify({ messages: nextMessages }),
     });
     let data;
-    try { data = await response.json(); } catch { throw new Error("The server returned an unreadable response."); }
-    if (!response.ok) throw new Error(data.error || "The beauty advisor is temporarily unavailable.");
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("The server returned an unreadable response.");
+    }
+    if (!response.ok)
+      throw new Error(
+        data.error || "The beauty advisor is temporarily unavailable.",
+      );
     const reply = data?.choices?.[0]?.message?.content;
-    if (typeof reply !== "string" || !reply.trim()) throw new Error("The assistant sent an empty response.");
+    if (typeof reply !== "string" || !reply.trim())
+      throw new Error("The assistant sent an empty response.");
     pending.textContent = reply;
     pending.classList.remove("pending");
-    messages = [...nextMessages, { role: "assistant", content: reply }].slice(-12);
+    messages = [...nextMessages, { role: "assistant", content: reply }].slice(
+      -12,
+    );
   } catch (error) {
     pending.remove();
     statusEl.textContent = error.message || "Something went wrong. Try again.";
@@ -72,7 +90,10 @@ async function sendMessage(text) {
     input.focus();
   }
 }
-form.addEventListener("submit", event => { event.preventDefault(); sendMessage(input.value); });
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  sendMessage(input.value);
+});
 function handlePrompt(event) {
   const button = event.target.closest("button[data-prompt]");
   if (button) sendMessage(button.dataset.prompt);
