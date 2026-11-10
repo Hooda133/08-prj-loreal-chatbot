@@ -1,21 +1,24 @@
 // Cloudflare Worker example. Store OPENAI_API_KEY as a Cloudflare Worker secret.
-// Set ALLOWED_ORIGIN to your deployed site origin (e.g. https://username.github.io).
+// Set ALLOWED_ORIGIN to one or more exact origins, comma-separated (GitHub Pages and Codespaces).
+// Never use a wildcard: permit only the preview URLs you personally trust.
 const SYSTEM_PROMPT = `You are Beauty Atelier, a friendly beauty advisor for an independent student demonstration inspired by L'Oréal. Help users explore L'Oréal makeup, skincare, haircare, and fragrances. Ask a brief clarifying question when important. Suggest practical routines and explain general ingredient benefits without diagnosing or treating medical conditions. Do not fabricate precise product names, prices, inventory, ingredients, claims or links. If information is not verified, say so and direct users to official product listings to confirm. Be inclusive, concise, and avoid collecting sensitive personal information. Mention patch testing for new skincare and seeking professional advice for persistent skin problems. Never claim to be an official L'Oréal representative.`;
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
-    const allowed = env.ALLOWED_ORIGIN || "";
+    // Cloudflare must echo the requesting origin (never a comma-separated list).
+    const allowedOrigins = (env.ALLOWED_ORIGIN || "").split(",").map(value => value.trim()).filter(Boolean);
+    const isAllowed = allowedOrigins.includes(origin);
     const cors = {
-      "Access-Control-Allow-Origin": allowed,
       "Vary": "Origin",
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type"
     };
+    if (isAllowed) cors["Access-Control-Allow-Origin"] = origin;
     if (request.method === "OPTIONS") {
-      return new Response(null, { status: origin === allowed ? 204 : 403, headers: cors });
+      return new Response(null, { status: isAllowed ? 204 : 403, headers: cors });
     }
     if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, cors);
-    if (!allowed || origin !== allowed) return json({ error: "Origin not allowed" }, 403, cors);
+    if (!isAllowed) return json({ error: "Origin not allowed" }, 403, cors);
     if (!env.OPENAI_API_KEY) return json({ error: "Server API key is not configured" }, 503, cors);
     if (!(request.headers.get("Content-Type") || "").includes("application/json")) return json({ error: "Expected JSON" }, 415, cors);
     if (Number(request.headers.get("Content-Length") || 0) > 20000) return json({ error: "Request too large" }, 413, cors);
