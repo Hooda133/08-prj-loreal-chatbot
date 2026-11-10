@@ -26,6 +26,19 @@ const PERSONAL_DETAIL_CUE = /\b(?:my\s+(?:skin|hair|routine|budget|preferences?|
 
 let messages = [];
 let busy = false;
+const REPLY_TIMEOUT_MS = 30000;
+let requestGeneration = 0;
+let activeRequestController = null;
+
+// A visitor reading earlier exchanges should not be yanked to the bottom
+// when the assistant finishes. Sending a new question intentionally scrolls.
+function isNearChatBottom() {
+  const distance = windowEl.scrollHeight - windowEl.clientHeight - windowEl.scrollTop;
+  return !Number.isFinite(distance) || distance < 130;
+}
+function scrollChatIfNeeded(shouldScroll) {
+  if (shouldScroll) windowEl.scrollTop = windowEl.scrollHeight;
+}
 
 function setQuestionPreview(question) {
   const value = question.trim();
@@ -59,14 +72,15 @@ function buildContextMessages(question) {
 }
 
 // Never put untrusted messages into innerHTML. Build all message content as text nodes.
-function addMessage(text, role, pending = false) {
+function addMessage(text, role, pending = false, forceScroll = false) {
+  const shouldScroll = forceScroll || isNearChatBottom();
   const bubble = document.createElement("div");
   bubble.className = "message " + role + (pending ? " pending" : "");
   bubble.setAttribute("role", "group");
   bubble.setAttribute("aria-label", role === "user" ? "Your message" : "Beauty Concierge message");
   bubble.textContent = text;
   windowEl.appendChild(bubble);
-  windowEl.scrollTop = windowEl.scrollHeight;
+  scrollChatIfNeeded(shouldScroll);
   return bubble;
 }
 
@@ -86,6 +100,7 @@ function addInlineText(parent, value) {
   parent.appendChild(document.createTextNode(value.slice(last)));
 }
 function renderAssistantReply(bubble, responseText) {
+  const shouldScroll = isNearChatBottom();
   bubble.replaceChildren();
   const lines = responseText.split(/\r?\n/);
   let list = null;
@@ -119,14 +134,19 @@ function renderAssistantReply(bubble, responseText) {
     addInlineText(element, heading ? heading[1] : line);
     bubble.appendChild(element);
   }
-  windowEl.scrollTop = windowEl.scrollHeight;
+  scrollChatIfNeeded(shouldScroll);
 }
 
 function setBusy(value) {
   busy = value;
   input.disabled = value;
   sendBtn.disabled = value;
-  resetBtn.disabled = value;
+  // Keep New chat usable so people can stop an unresponsive response.
+  resetBtn.disabled = false;
+  resetBtn.title = value
+    ? "Cancel the current reply and start a new conversation"
+    : "Start a new conversation";
+  sendBtn.setAttribute("aria-label", value ? "Sending your question" : "Send message");
   ritualCta.disabled = value;
   windowEl.setAttribute("aria-busy", String(value));
   document.querySelectorAll("[data-prompt]").forEach(button => {
@@ -135,7 +155,14 @@ function setBusy(value) {
 }
 
 function newChat(focusInput = true) {
-  if (busy) return;
+  if (busy) {
+    // Invalidate pending promises even if the browser or a mock transport
+    // ignores AbortController, so a late result cannot reappear.
+    requestGeneration += 1;
+    activeRequestController?.abort();
+    activeRequestController = null;
+    setBusy(false);
+  }
   messages = [];
   windowEl.replaceChildren();
   setQuestionPreview("");
@@ -157,7 +184,7 @@ async function sendMessage(text) {
 
   statusEl.textContent = "";
   setQuestionPreview(content);
-  const userBubble = addMessage(content, "user");
+  const userBubble = addMessage(content, "user", false, true);
   input.value = "";
 
   // Send contextual recent history and earlier beauty preferences.
@@ -167,6 +194,17 @@ async function sendMessage(text) {
   chatAnnouncement.textContent = "Question sent. Your beauty advisor is preparing a response.";
   setBusy(true);
 
+  const thisRequest = ++requestGeneration;
+  const controller = new AbortController();
+  activeRequestController = controller;
+  const returnFocus = document.activeElement === input || document.activeElement === sendBtn;
+  let didTimeOut = false;
+  const timeoutId = setTimeout(() => {
+    if (thisRequest !== requestGeneration) return;
+    didTimeOut = true;
+    controller.abort();
+  }, REPLY_TIMEOUT_MS);
+
   try {
     if (!WORKER_URL.startsWith("https://")) {
       throw new Error("Cloudflare Worker URL is not configured.");
@@ -174,14 +212,17 @@ async function sendMessage(text) {
     const response = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: nextMessages })
+      body: JSON.stringify({ messages: nextMessages }),
+      signal: controller.signal
     });
+    if (thisRequest !== requestGeneration) return;
     let data;
     try {
       data = await response.json();
     } catch {
       throw new Error("The server returned an unreadable response.");
     }
+    if (thisRequest !== requestGeneration) return;
     if (!response.ok) {
       throw new Error(typeof data.error === "string" ? data.error : "The beauty advisor is unavailable right now.");
     }
@@ -199,16 +240,28 @@ async function sendMessage(text) {
       messages = messages.slice(-MAX_SESSION_MESSAGES);
     }
   } catch (error) {
+    if (thisRequest !== requestGeneration) return;
     // A failed request must not leave a duplicate user message when retried.
     pending.remove();
     userBubble.remove();
     input.value = content;
     setQuestionPreview("");
     chatAnnouncement.textContent = "";
-    statusEl.textContent = error.message || "Something went wrong. Please try again.";
+    if (didTimeOut) {
+      statusEl.textContent = "The beauty advisor is taking too long. Please try sending your question again.";
+    } else if (error?.name === "TypeError" || error?.name === "AbortError") {
+      statusEl.textContent = "Could not reach the beauty advisor. Check your connection and try again.";
+    } else {
+      statusEl.textContent = error?.message || "Something went wrong. Please try again.";
+    }
   } finally {
-    setBusy(false);
-    input.focus();
+    clearTimeout(timeoutId);
+    if (thisRequest === requestGeneration) {
+      activeRequestController = null;
+      setBusy(false);
+      // Avoid unexpectedly opening the virtual keyboard on touch devices.
+      if (returnFocus && window.matchMedia("(pointer: fine)").matches) input.focus();
+    }
   }
 }
 
