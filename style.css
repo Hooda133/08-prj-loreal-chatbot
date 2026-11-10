@@ -1007,6 +1007,143 @@ a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-vi
   .question-preview__text{font-size:12.5px;line-height:1.5}
 }
 
+
+/* ================================================================
+   BEAUTY CONCIERGE / EDITORIAL CONVERSATION BUBBLES
+   Direction, surface, corner shape and visible speaker labels make
+   user and advisor messages unmistakable without relying on color.
+   ================================================================ */
+:root{
+  --chat-user-surface:#161616;
+  --chat-user-text:#ffffff;
+  --chat-user-caption:#f3d6a3;
+  --chat-advisor-surface:#faf8f3;
+  --chat-advisor-text:#25221e;
+  --chat-advisor-outline:#ded3bd;
+  --chat-advisor-caption:#634920;
+}
+.chat-window{
+  gap:20px;
+  padding:28px 25px 32px;
+  background:
+    radial-gradient(ellipse at 100% 0%,#eee9dd55,transparent 48%),
+    linear-gradient(150deg,#ffffff,#fcfbf8);
+  scroll-padding-block:24px;
+}
+.chat-window .message{
+  position:relative;
+  flex:0 0 auto;
+  width:fit-content;
+  max-width:min(89%,570px);
+  padding:17px 20px 18px;
+  border:1px solid transparent;
+  font-family:var(--sans);
+  font-size:15px;
+  font-weight:400;
+  line-height:1.75;
+  letter-spacing:0;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  text-align:left;
+  box-shadow:none;
+  animation:bubble-in .25s ease-out both;
+}
+.chat-window .message::before{
+  display:block;
+  font-family:var(--sans);
+  font-size:10px;
+  font-weight:800;
+  line-height:1.35;
+  letter-spacing:.12em;
+  margin:0 0 9px;
+}
+.chat-window .message.ai{
+  align-self:flex-start;
+  color:var(--chat-advisor-text);
+  background:var(--chat-advisor-surface);
+  border-color:var(--chat-advisor-outline);
+  border-radius:5px 19px 19px 19px;
+  box-shadow:0 8px 22px #42332113,inset 0 1px #ffffff;
+}
+.chat-window .message.ai::before{
+  content:"BEAUTY CONCIERGE";
+  color:var(--chat-advisor-caption);
+}
+.chat-window .message.ai::after{
+  content:"";
+  position:absolute;
+  left:-1px;
+  top:34px;
+  width:3px;
+  height:32px;
+  background:#ae8b52;
+  border-radius:0 3px 3px 0;
+}
+.chat-window .message.user{
+  align-self:flex-end;
+  color:var(--chat-user-text);
+  background:var(--chat-user-surface);
+  border-color:#313131;
+  border-radius:19px 19px 5px 19px;
+  box-shadow:0 10px 23px #1c1c1c26;
+}
+.chat-window .message.user::before{
+  content:"YOU";
+  color:var(--chat-user-caption);
+}
+.chat-window .message.pending{
+  color:#514a40;
+  font-style:normal;
+  border-style:dashed;
+  box-shadow:none;
+}
+.chat-window .message.pending::before{content:"BEAUTY CONCIERGE · THINKING"}
+.chat-window .message h3{
+  color:var(--chat-advisor-text);
+  font-weight:700;
+  line-height:1.45;
+  font-size:15.5px;
+  margin:3px 0 9px;
+}
+.chat-window .message p{
+  margin:0 0 12px;
+  line-height:1.75;
+  white-space:pre-wrap;
+}
+.chat-window .message p:last-child,
+.chat-window .message ul:last-child,
+.chat-window .message ol:last-child{margin-bottom:0}
+.chat-window .message ul,
+.chat-window .message ol{
+  padding-left:22px;
+  margin:7px 0 12px;
+  line-height:1.72;
+}
+.chat-window .message li{padding:2px 0 2px 1px}
+.chat-window .message strong{font-weight:700}
+.chat-window .message.ai a{color:#5a3b18;text-decoration-thickness:1.5px;text-underline-offset:3px}
+.chat-window .message.user a{color:#ffdcaa}
+@media(max-width:620px){
+  .chat-window{gap:16px;padding:20px 13px 25px}
+  .chat-window .message{
+    max-width:92%;
+    padding:14px 15px 15px;
+    font-size:14.5px;
+    line-height:1.7;
+    border-radius:16px;
+  }
+  .chat-window .message.ai{border-radius:5px 16px 16px 16px}
+  .chat-window .message.user{border-radius:16px 16px 5px 16px}
+  .chat-window .message::before{font-size:10px;letter-spacing:.09em;margin-bottom:7px}
+  .chat-window .message h3{font-size:14.5px}
+  .chat-window .message ul,.chat-window .message ol{padding-left:19px}
+  .chat-window .message.ai::after{top:30px;height:26px}
+}
+@media(max-width:380px){
+  .chat-window{padding-inline:10px}
+  .chat-window .message{max-width:95%;font-size:14px}
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
