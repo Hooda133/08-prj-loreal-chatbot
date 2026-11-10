@@ -168,16 +168,109 @@ function handleSuggestedPrompt(event) {
   const button = event.target.closest("button[data-prompt]");
   if (!button) return;
   sendMessage(button.dataset.prompt);
-  advisor.scrollIntoView({ behavior: "smooth", block: "start" });
+  scrollToAdvisor();
 }
 suggestions.addEventListener("click", handleSuggestedPrompt);
 miniPrompts.addEventListener("click", handleSuggestedPrompt);
 
 resetBtn.addEventListener("click", () => newChat(true));
 startButton.addEventListener("click", () => {
-  advisor.scrollIntoView({ behavior: "smooth", block: "start" });
+  scrollToAdvisor();
   input.focus({ preventScroll: true });
 });
 
 // Show the hero on initial page load instead of scrolling to the input.
 newChat(false);
+
+
+// ---------- THE MOTION EDIT ----------
+// Design-only interactions. They never change the Cloudflare request logic.
+const ritualCta = document.getElementById("ritualCta");
+const motionToggle = document.getElementById("motionToggle");
+const motionLabel = motionToggle.querySelector(".motion-toggle__label");
+const motionIcon = motionToggle.querySelector(".motion-toggle__icon");
+const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+let motionPaused = false;
+
+function motionIsAllowed() {
+  return !motionQuery.matches && !motionPaused;
+}
+function scrollToAdvisor() {
+  advisor.scrollIntoView({
+    behavior: motionIsAllowed() ? "smooth" : "auto",
+    block: "start"
+  });
+}
+// The editorial ritual CTA behaves like other suggested prompts.
+ritualCta.addEventListener("click", () => {
+  if (busy) return;
+  scrollToAdvisor();
+  sendMessage(ritualCta.dataset.prompt);
+});
+
+function setMotionPaused(paused) {
+  motionPaused = paused;
+  document.body.classList.toggle("motion-paused", paused);
+  motionToggle.setAttribute("aria-pressed", String(paused));
+  motionLabel.textContent = paused ? "RESUME MOTION" : "PAUSE MOTION";
+  motionIcon.textContent = paused ? "▶" : "Ⅱ";
+  // Cards should not remain tilted while the visitor pauses movement.
+  if (paused) {
+    document.querySelectorAll(".category-card").forEach(card => {
+      card.style.removeProperty("--tilt-x");
+      card.style.removeProperty("--tilt-y");
+    });
+  }
+}
+motionToggle.addEventListener("click", () => {
+  setMotionPaused(!motionPaused);
+});
+function updateMotionPreference() {
+  motionToggle.hidden = motionQuery.matches;
+  if (motionQuery.matches) document.body.classList.remove("has-motion");
+}
+if (typeof motionQuery.addEventListener === "function") {
+  motionQuery.addEventListener("change", updateMotionPreference);
+}
+updateMotionPreference();
+
+// IntersectionObserver is optional. No JS, old browsers and reduced-motion
+// settings get all content immediately without animation or hidden sections.
+if (!motionQuery.matches && "IntersectionObserver" in window) {
+  const revealTargets = document.querySelectorAll(
+    ".section-title, .category-card, .ritual__visual, .ritual__story, .manifesto__inner"
+  );
+  revealTargets.forEach(element => element.setAttribute("data-reveal", ""));
+  document.body.classList.add("has-motion");
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      revealObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.08, rootMargin: "0px 0px 60px 0px" });
+  revealTargets.forEach(element => revealObserver.observe(element));
+}
+
+// Pointer-responsive product cards with gentle 3D tilt.
+// Disabled on touch-only devices or where users request reduced motion.
+if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+  document.querySelectorAll(".category-card").forEach(card => {
+    card.addEventListener("pointermove", event => {
+      if (!motionIsAllowed()) return;
+      const bounds = card.getBoundingClientRect();
+      const x = (event.clientX - bounds.left) / bounds.width;
+      const y = (event.clientY - bounds.top) / bounds.height;
+      card.style.setProperty("--tilt-x", ((0.5 - y) * 6).toFixed(2) + "deg");
+      card.style.setProperty("--tilt-y", ((x - 0.5) * 7).toFixed(2) + "deg");
+      card.style.setProperty("--glare-x", (x * 100).toFixed(1) + "%");
+      card.style.setProperty("--glare-y", (y * 100).toFixed(1) + "%");
+    });
+    card.addEventListener("pointerleave", () => {
+      card.style.removeProperty("--tilt-x");
+      card.style.removeProperty("--tilt-y");
+      card.style.removeProperty("--glare-x");
+      card.style.removeProperty("--glare-y");
+    });
+  });
+}
