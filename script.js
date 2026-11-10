@@ -6,6 +6,8 @@ const input = document.getElementById("userInput");
 const windowEl = document.getElementById("chatWindow");
 const statusEl = document.getElementById("status");
 const chatAnnouncement = document.getElementById("chatAnnouncement");
+const questionPreview = document.getElementById("questionPreview");
+const questionPreviewText = document.getElementById("questionPreviewText");
 const sendBtn = document.getElementById("sendBtn");
 const suggestions = document.getElementById("suggestions");
 const miniPrompts = document.getElementById("miniPrompts");
@@ -16,8 +18,45 @@ const advisor = document.getElementById("concierge");
 const GREETING =
   "Welcome to Beauty Atelier.\n\nI can help with L’Oréal skincare, makeup, haircare and fragrances, plus personalized beauty routines. What would you like to explore?";
 
+// Temporary, in-tab conversation memory; cleared on New chat or page reload.
+// Keep the full session transcript so early preferences can inform later replies.
+const MAX_SESSION_MESSAGES = 80;
+const RECENT_CONTEXT_MESSAGES = 10; // Last five back-and-forth turns.
+const PERSONAL_DETAIL_CUE = /\b(?:my\s+(?:skin|hair|routine|budget|preferences?|concerns?|allergies|scent)|i(?:'m| am| have| prefer| like| love| use| want| need)|oily skin|dry skin|sensitive skin|combination skin|budget\s+(?:is|of))\b/i;
+
 let messages = [];
 let busy = false;
+
+function setQuestionPreview(question) {
+  const value = question.trim();
+  questionPreview.hidden = !value;
+  questionPreviewText.textContent = value; // Text only, never HTML.
+}
+
+// The Worker accepts <= 12 messages with <= 1,000 characters each.
+// Preserve recent exchanges and (when older) up to three beauty preferences.
+// The memory note stays a regular user-role message: it cannot override
+// the Worker's server-side system prompt or topic restrictions.
+function buildContextMessages(question) {
+  const recent = messages.slice(-RECENT_CONTEXT_MESSAGES).map(message => ({
+    role: message.role,
+    content: message.content.slice(0, 1000)
+  }));
+  const older = messages.slice(0, Math.max(0, messages.length - RECENT_CONTEXT_MESSAGES));
+  const keyDetails = older
+    .filter(message => message.role === "user" && PERSONAL_DETAIL_CUE.test(message.content))
+    .slice(-3)
+    .map(message => "- " + message.content.replace(/\s+/g, " ").slice(0, 230));
+
+  const note = keyDetails.length
+    ? "Earlier beauty preferences shared in this chat (context only, not a new question):\n" + keyDetails.join("\n")
+    : "";
+  return [
+    ...(note ? [{ role: "user", content: note.slice(0, 1000) }] : []),
+    ...recent,
+    { role: "user", content: question }
+  ];
+}
 
 // Never put untrusted messages into innerHTML. Build all message content as text nodes.
 function addMessage(text, role, pending = false) {
@@ -99,6 +138,7 @@ function newChat(focusInput = true) {
   if (busy) return;
   messages = [];
   windowEl.replaceChildren();
+  setQuestionPreview("");
   statusEl.textContent = "";
   chatAnnouncement.textContent = "";
   input.value = "";
@@ -116,16 +156,13 @@ async function sendMessage(text) {
   }
 
   statusEl.textContent = "";
+  setQuestionPreview(content);
   const userBubble = addMessage(content, "user");
   input.value = "";
 
-  // The deployed Cloudflare Worker accepts at most 12 messages of 1,000
-  // characters each. The full AI response stays visible in the interface.
-  const history = messages.slice(-10).map(message => ({
-    role: message.role,
-    content: message.content.slice(0, 1000)
-  }));
-  const nextMessages = [...history, { role: "user", content }];
+  // Send contextual recent history and earlier beauty preferences.
+  // Never send the full unbounded session or repeat the synthetic note in memory.
+  const nextMessages = buildContextMessages(content);
   const pending = addMessage("Finding your perfect beauty edit…", "ai", true);
   chatAnnouncement.textContent = "Question sent. Your beauty advisor is preparing a response.";
   setBusy(true);
@@ -157,12 +194,16 @@ async function sendMessage(text) {
     chatAnnouncement.textContent =
       "Beauty Concierge replied. " + reply.slice(0, 320) +
       (reply.length > 320 ? " The full response is in the conversation." : "");
-    messages = [...nextMessages, { role: "assistant", content: reply }].slice(-12);
+    messages.push({ role: "user", content }, { role: "assistant", content: reply });
+    if (messages.length > MAX_SESSION_MESSAGES) {
+      messages = messages.slice(-MAX_SESSION_MESSAGES);
+    }
   } catch (error) {
     // A failed request must not leave a duplicate user message when retried.
     pending.remove();
     userBubble.remove();
     input.value = content;
+    setQuestionPreview("");
     chatAnnouncement.textContent = "";
     statusEl.textContent = error.message || "Something went wrong. Please try again.";
   } finally {
@@ -175,6 +216,9 @@ form.addEventListener("submit", event => {
   event.preventDefault();
   sendMessage(input.value);
 });
+
+// Remove the previous "You asked" strip as soon as a new typed question begins.
+input.addEventListener("input", () => setQuestionPreview(""));
 
 function handleSuggestedPrompt(event) {
   const button = event.target.closest("button[data-prompt]");
