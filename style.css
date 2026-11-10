@@ -845,6 +845,124 @@ button,input{font-family:var(--sans)}
   .ritual__story h2{font-size:53px}
 }
 
+
+/* ================================================================
+   L'OREAL PARIS / STUDENT CONCEPT VISUAL IDENTITY
+   Reference: monochrome brand wordmark and black / white framing.
+   Champagne is a restrained editorial accent, not an official
+   claim about proprietary brand guidelines.
+   ================================================================ */
+:root{
+  --brand-black:#101010;
+  --brand-white:#ffffff;
+  --brand-ivory:#faf9f6;
+  --brand-champagne:#d8b988;
+  --brand-gold:#a97c3a;
+  --ink:#181818;
+  --cream:#faf9f6;
+  --paper:#ffffff;
+  --mushroom:#f4f1eb;
+  --blush:#dbc19b;
+  --rose:#866644;
+  --bronze:#a97c3a;
+  --muted:#5d5650;
+  --line:#e3ded6;
+  --accessible-ink:#222222;
+  --accessible-muted:#565047;
+  --accessible-accent:#5d4425;
+  --accessible-card:#282420;
+}
+body{
+  background:linear-gradient(180deg,#ffffff 0,#fdfcf9 36%,#f7f5ef 100%);
+  color:var(--brand-black);
+}
+.announcement{background:var(--brand-black);border-bottom:1px solid #39342e;color:#fff}
+.announcement__copy{color:#fff}
+.announcement__copy b{color:#e4cba5}
+.site-header{
+  background:rgba(255,255,255,.99);
+  border-bottom:1px solid #dedbd4;
+  min-height:112px;
+}
+.brand{gap:5px;flex-shrink:0;min-width:0;padding-block:7px}
+.brand__mark{display:flex;flex-direction:column;align-items:center;width:205px;max-width:100%;gap:0}
+.brand__logo{width:100%;height:auto;aspect-ratio:800/145;object-fit:contain;display:block}
+.brand__paris{font-family:Arial,Helvetica,sans-serif;letter-spacing:.55em;text-indent:.55em;font-size:11px;font-weight:700;color:#101010;line-height:1.3;text-align:center}
+.brand__sub{font-family:var(--sans);font-size:10px;font-weight:650;letter-spacing:.055em;color:#3c3935;line-height:1.45;white-space:normal;text-align:center}
+.brand__sub b{color:#93703e}
+.header-nav a{color:#181818}
+.header-nav a:hover{color:#77552c}
+.header-nav__cta{background:#111;color:#fff!important;border:1px solid #111;box-shadow:0 6px 16px #00000012}
+.header-nav__cta:hover{background:#34302b;border-color:#34302b}
+.hero-story:before{border-color:#d1bd996b;box-shadow:0 0 0 22px #decba31b,0 0 0 49px #d1ba8e10}
+.eyebrow,.edition-num,.hero-caption,.ritual__eyebrow,.section-title__eyebrow{color:#674f30}
+.eyebrow__line,.ritual__eyebrow>span,.hero-caption__rule{background:#b6955d}
+.hero-story h1{color:#171717}
+.hero-story h1 em{color:#7c5d34}
+.hero-story h1 em:after{background:linear-gradient(90deg,transparent,#a9834b 24%,#bca173 76%,transparent)}
+.hero-period{color:#a97c3a}
+.hero-story__lead,.ritual__story>p,.section-title p{color:#524d46}
+.primary-cta,.ritual__cta{background:#111;border:1px solid #111;color:#fff}
+.primary-cta:hover,.ritual__cta:hover{background:#3b3228;border-color:#3b3228}
+.text-cta{border-bottom-color:#a98b59;color:#222}
+.hero-art{border:1px solid #e3cfb1;box-shadow:0 23px 54px #564a3523}
+.hero-art__orbit{border-color:#fff9eab5;background:linear-gradient(145deg,#fff9efdf,#d7bd905e)}
+.hero-art__seal{border-color:#886c45;color:#2b2420;background:#fffbefca}
+.hero-art__label{color:#23201c;background:#fff9ecea}
+.hero-art__vertical{color:#2b2924;background:#fff9f0e8}
+.advisor{background:#fff;border:1px solid #ded7ca;box-shadow:0 27px 67px #3c342323}
+.advisor:before{background:linear-gradient(90deg,#a17c47,#dac69e 48%,#aa8048)}
+.advisor__avatar{background:linear-gradient(145deg,#fff9eb,#d2b88f 80%)}
+.advisor__intro{background:linear-gradient(90deg,#f6f3ec,#ffffff,#f5f0e5);color:#4b433a;border-color:#e7e1d6}
+.advisor__eyebrow,.advisor__availability{color:#51483d}
+.advisor__availability i{background:#487a50;box-shadow:0 0 0 3px #487a5030}
+.chat-window{background:radial-gradient(ellipse at 95% 0%,#f9f4e7 0,transparent 36%),linear-gradient(135deg,#ffffff,#fdfcf9)}
+.message.ai{background:linear-gradient(130deg,#f9f8f4,#f3f0e8);color:#2e2b26;border-color:#e7e1d6}
+.message.user{background:linear-gradient(135deg,#151515,#33302c);color:#fff}
+.quick-prompts button{background:linear-gradient(150deg,#fff,#f8f5ee);border-color:#dfd5c4;color:#302820}
+.quick-prompts button:hover:not(:disabled){background:#f4ede1;border-color:#ac8e60}
+.chat-form{background:#fff;border-color:#a69a83}
+.chat-form button{background:#111;color:#fff}
+.luxury-ticker{background:#121212;color:#fff;border-block:1px solid #282828}
+.discover{background:transparent}
+.section-title h2,.ritual__story h2{color:#171717}
+.section-title h2 em,.ritual__story h2 em{color:#82633c}
+.category-grid{gap:18px}
+.category-card{border-color:#e3d6c6;box-shadow:0 12px 30px #3d372914}
+.category-card--skin{background:linear-gradient(148deg,#fdf7eb 0%,#e7d8bd 100%)}
+.category-card--makeup{background:linear-gradient(148deg,#fdf6f3 0%,#e9cfca 100%)}
+.category-card--hair{background:linear-gradient(148deg,#fcf7ed 0%,#e0d1ba 100%)}
+.category-card--scent{background:linear-gradient(148deg,#f9f6ef 0%,#dcd8cb 100%)}
+.category-card__number,.category-card__bottom small,.category-card__bottom strong{color:#24201b}
+.category-card__arrow{color:#2a2118;border-color:#e0d1b8}
+.ritual__visual{background:radial-gradient(circle at 45% 40%,#6b5840,#302922 57%,#141414 100%);border-color:#645740}
+.ritual__plinth{background:linear-gradient(90deg,#4c4135,#b9a282 27%,#ebd5aa 56%,#7d6c50 88%)}
+.ritual__eyebrow,.ritual__step-num{color:#76552e}
+.manifesto{background:radial-gradient(ellipse at 50% 50%,#3c3931,#111111);border-top:1px solid #8f7b55;color:#fff}
+.site-footer{border-top:1px solid #ded7c7}
+.site-footer strong{color:#181818}
+.motion-toggle{border-color:#bbb09c;color:#3b352c}
+a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-visible{outline-color:#775322}
+.chat-form:focus-within{outline-color:#775322}
+@media(max-width:940px){
+  .site-header{min-height:99px}
+  .brand__mark{width:192px}
+}
+@media(max-width:620px){
+  .site-header{min-height:94px}
+  .brand{gap:3px}
+  .brand__mark{width:160px}
+  .brand__paris{font-size:9px}
+  .brand__sub{font-size:9px;letter-spacing:0;max-width:178px;line-height:1.45}
+  .header-nav__cta{border-color:#111;background:#111}
+}
+@media(max-width:380px){
+  .brand__mark{width:137px}
+  .brand__paris{font-size:8px}
+  .brand__sub{font-size:8px;max-width:146px}
+  .header-nav__cta{max-width:115px;font-size:9px!important}
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
