@@ -258,6 +258,7 @@ class FakeElement {
 function createFrontend(mockFetch) {
   const ids = [
     "chatForm", "userInput", "chatWindow", "status", "chatAnnouncement",
+    "questionPreview", "questionPreviewText",
     "sendBtn", "suggestions", "miniPrompts", "resetBtn", "startConsultation",
     "concierge", "ritualCta", "motionToggle"
   ];
@@ -351,4 +352,81 @@ test("Frontend shows a useful message and restores user text if OpenAI is unavai
   assert.match(app.elements.status.textContent, /AI service unavailable/);
   assert.equal(app.elements.userInput.value, "Can you help me?");
   assert.equal(app.elements.chatWindow.nodes.length, 1); // Greeting; failed request is rolled back.
+});
+
+
+test("Latest question preview appears above the reply and resets on next input", async () => {
+  const app = createFrontend(async () => ({
+    ok: true,
+    async json() { return { choices: [{ message: { content: "A L’Oréal moisturizer is a useful next step." } }] }; }
+  }));
+  const { elements } = app;
+  assert.equal(elements.questionPreview.hidden, true);
+
+  elements.userInput.value = "Which L’Oréal moisturizer suits oily skin?";
+  elements.chatForm.listeners.submit({ preventDefault() {} });
+  assert.equal(elements.questionPreview.hidden, false);
+  assert.equal(elements.questionPreviewText.textContent, "Which L’Oréal moisturizer suits oily skin?");
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.match(elements.chatWindow.textContent, /L.Oréal moisturizer/);
+
+  // Starting another typed question clears the previous preview, but not chat history.
+  elements.userInput.value = "What about evening use?";
+  elements.userInput.listeners.input();
+  assert.equal(elements.questionPreview.hidden, true);
+  assert.equal(elements.questionPreviewText.textContent, "");
+  assert.match(elements.chatWindow.textContent, /Which L.Oréal moisturizer/);
+
+  elements.chatForm.listeners.submit({ preventDefault() {} });
+  assert.equal(elements.questionPreview.hidden, false);
+  assert.equal(elements.questionPreviewText.textContent, "What about evening use?");
+  await new Promise(resolve => setTimeout(resolve, 10));
+  elements.resetBtn.listeners.click();
+  assert.equal(elements.questionPreview.hidden, true);
+  assert.equal(elements.chatWindow.nodes.length, 1);
+});
+
+test("Older beauty preferences are carried into context without violating Worker limits", async () => {
+  const requests = [];
+  const app = createFrontend(async (_, options) => {
+    requests.push(JSON.parse(options.body));
+    return {
+      ok: true,
+      async json() {
+        return { choices: [{ message: { content: "Here is your L’Oréal beauty recommendation." } }] };
+      }
+    };
+  });
+  const { elements } = app;
+  const ask = async question => {
+    elements.userInput.value = question;
+    elements.chatForm.listeners.submit({ preventDefault() {} });
+    await new Promise(resolve => setTimeout(resolve, 10));
+  };
+
+  await ask("My skin is oily and I prefer lightweight L’Oréal skincare.");
+  for (let i = 1; i <= 6; i++) {
+    await ask("What is L’Oréal step " + i + " in my routine?");
+  }
+  const latest = requests.at(-1).messages;
+  assert.ok(latest.length <= 12);
+  assert.ok(latest.every(message => message.content.length <= 1000));
+  assert.equal(latest[0].role, "user");
+  assert.match(latest[0].content, /Earlier beauty preferences/);
+  assert.match(latest[0].content, /My skin is oily/);
+  assert.equal(latest.at(-1).content, "What is L’Oréal step 6 in my routine?");
+  assert.equal(latest.filter(message => message.role === "system").length, 0);
+
+  // The next answer must not repeat previous synthetic memory notes.
+  await ask("How often should I use it?");
+  const next = requests.at(-1).messages;
+  assert.ok(next.length <= 12);
+  assert.equal(next.filter(m => /Earlier beauty preferences/.test(m.content)).length, 1);
+  assert.equal(next.at(-1).content, "How often should I use it?");
+
+  elements.resetBtn.listeners.click();
+  await ask("Can you suggest a L’Oréal fragrance?");
+  const resetRequest = requests.at(-1).messages;
+  assert.equal(resetRequest.length, 1);
+  assert.equal(resetRequest[0].role, "user");
 });
