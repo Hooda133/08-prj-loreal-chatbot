@@ -37,6 +37,12 @@ The Worker validates message shape and length, restricts browser CORS to explici
 HTML, CSS, vanilla JavaScript, Cloudflare Workers, OpenAI Chat Completions API (`gpt-4.1`). No npm dependencies.
 
 
+## L’Oréal-inspired brand identity
+- The page header shows the **L’Oréal wordmark** from the [Wikimedia Commons vector published by L’Oréal](https://commons.wikimedia.org/wiki/File:L%27Or%C3%A9al_logo.svg) with a separate `PARIS` label. The vector is loaded from Wikimedia’s SVG host rather than copied into the Git repository.
+- Black (`#101010`) and white (`#ffffff`) are the primary brand-inspired UI colors. Soft ivory and champagne/gold are **our own secondary editorial accent colors**, not presented as an official brand guide or approved proprietary palette.
+- This remains an **independent student design concept**. The L’Oréal wordmark is a trademark; its use here does not mean L’Oréal sponsors, endorses or operates this site.
+- The original vector product art and working chatbot stay unchanged.
+
 ## Typography system
 The page uses two complementary Google Fonts with local fallbacks:
 - **Bodoni Moda** for high-end editorial headlines, category names, the concierge title, and campaign statements.
