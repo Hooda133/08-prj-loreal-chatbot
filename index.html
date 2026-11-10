@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#faf8f4" />
-  <meta name="description" content="Explore makeup, skincare, haircare and fragrance with Beauty Atelier, a L'Oréal-inspired AI beauty advisor student project." />
-  <title>Beauty Atelier — An AI Beauty Experience</title>
+  <meta name="description" content="Discover makeup, skincare, haircare and fragrance with Beauty Atelier, a personalized L’Oréal-inspired student concept." />
+  <title>Beauty Atelier — The Beauty Edit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -13,7 +13,71 @@
 </head>
 <body>
   <a class="skip-link" href="#concierge">Skip to beauty advisor</a>
-  <div class="announcement"><span>✦</span> A NEW WAY TO DISCOVER YOUR BEAUTY <span>✦</span> PERSONALIZED WITH AI</div>
+  <!-- Compact, original dimensional SVG beauty icons; no external image assets. -->
+  <svg class="beauty-icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" width="0" height="0">
+    <defs>
+      <linearGradient id="ui-champagne" x1="0" y1="0" x2="1" y2=".1">
+        <stop stop-color="#6b4a43"/><stop offset=".24" stop-color="#dfb58b"/><stop offset=".52" stop-color="#fff1d6"/><stop offset=".76" stop-color="#bb8a68"/><stop offset="1" stop-color="#6a453d"/>
+      </linearGradient>
+      <linearGradient id="ui-bottle" x1="0" y1="0" x2="1" y2=".2">
+        <stop stop-color="#af796d" stop-opacity=".9"/><stop offset=".24" stop-color="#fff6e9"/><stop offset=".58" stop-color="#f0cfbb"/><stop offset=".85" stop-color="#d4a58f"/><stop offset="1" stop-color="#946b60"/>
+      </linearGradient>
+      <linearGradient id="ui-rose" x1="0" y1="0" x2="1" y2="1">
+        <stop stop-color="#753044"/><stop offset=".46" stop-color="#d56880"/><stop offset="1" stop-color="#7b364e"/>
+      </linearGradient>
+      <linearGradient id="ui-dark" x1="0" y1="0" x2="1" y2=".1">
+        <stop stop-color="#1e1a1c"/><stop offset=".42" stop-color="#615254"/><stop offset="1" stop-color="#211c1e"/>
+      </linearGradient>
+      <symbol id="ui-serum" viewBox="0 0 80 80">
+        <ellipse cx="40" cy="71" rx="24" ry="5" fill="#573b31" opacity=".17"/>
+        <rect x="31" y="5" width="18" height="19" rx="3" fill="url(#ui-dark)"/>
+        <rect x="27" y="22" width="26" height="6" rx="2" fill="url(#ui-champagne)"/>
+        <rect x="21" y="27" width="38" height="41" rx="9" fill="url(#ui-bottle)" stroke="#fff4e7" stroke-width="1.8"/>
+        <rect x="28" y="38" width="24" height="22" rx="2" fill="#fff6ed" opacity=".81"/>
+        <path d="M26 32 Q23 47 26 61" fill="none" stroke="#fff" opacity=".77" stroke-width="3"/>
+        <path d="M33 46h14M35 50h10" stroke="#aa7c69" stroke-width="1.6" opacity=".85"/>
+      </symbol>
+      <symbol id="ui-lipstick" viewBox="0 0 80 80">
+        <ellipse cx="40" cy="73" rx="25" ry="5" fill="#512a38" opacity=".16"/>
+        <g transform="rotate(-12 40 42)">
+          <path d="M29 11 Q39 4 51 5 V35 H29Z" fill="url(#ui-rose)"/>
+          <path d="M29 11 Q41 15 51 5 V13 Q42 23 29 19Z" fill="#f79ca4" opacity=".55"/>
+          <rect x="27" y="34" width="26" height="10" rx="1" fill="url(#ui-champagne)"/>
+          <rect x="25" y="43" width="30" height="29" rx="3" fill="url(#ui-dark)"/>
+          <path d="M31 47 V67" stroke="#fff" stroke-width="3" opacity=".19"/>
+        </g>
+      </symbol>
+      <symbol id="ui-perfume" viewBox="0 0 80 80">
+        <ellipse cx="40" cy="72" rx="30" ry="5" fill="#59362f" opacity=".17"/>
+        <rect x="31" y="6" width="18" height="16" rx="2" fill="url(#ui-champagne)"/>
+        <rect x="27" y="21" width="26" height="6" rx="2" fill="#d8af8d"/>
+        <rect x="12" y="26" width="56" height="43" rx="11" fill="url(#ui-bottle)" stroke="#fff6e9" stroke-width="2"/>
+        <path d="M16 49 Q38 63 64 49 V59 Q64 65 57 65 H23 Q16 65 16 59Z" fill="#d89b94" opacity=".48"/>
+        <rect x="24" y="40" width="32" height="20" rx="2" fill="#fffaf1" opacity=".75"/>
+        <path d="M20 31 Q16 48 20 59" stroke="white" stroke-width="3" opacity=".8" fill="none"/>
+        <path d="M33 49h14M35 53h10" stroke="#a98579" stroke-width="1.4"/>
+      </symbol>
+      <symbol id="ui-compact" viewBox="0 0 80 80">
+        <ellipse cx="40" cy="72" rx="30" ry="5" fill="#594035" opacity=".18"/>
+        <path d="M17 40c0-20 46-20 46 0v10H17Z" fill="url(#ui-champagne)" stroke="#fff0d1" stroke-width="1.5"/>
+        <ellipse cx="40" cy="42" rx="24" ry="15" fill="#dcb9a8" stroke="#fff3dc" stroke-width="3"/>
+        <ellipse cx="40" cy="42" rx="18" ry="10" fill="#ba817c"/>
+        <ellipse cx="37" cy="38" rx="10" ry="4" fill="#e9bdb2" opacity=".64"/>
+        <path d="M13 47h54v9c0 9-11 16-27 16S13 65 13 56Z" fill="url(#ui-champagne)" stroke="#fff2d9" stroke-width="1.5"/>
+        <path d="M19 53 Q40 64 61 53" fill="none" stroke="#fff5e4" stroke-width="2" opacity=".69"/>
+      </symbol>
+      <symbol id="ui-hair" viewBox="0 0 80 80">
+        <ellipse cx="40" cy="73" rx="23" ry="5" fill="#53332c" opacity=".17"/>
+        <rect x="33" y="11" width="13" height="19" rx="2" fill="url(#ui-dark)"/>
+        <path d="M35 11V6h27v7H46" fill="none" stroke="#292123" stroke-width="5" stroke-linejoin="round"/>
+        <rect x="24" y="28" width="32" height="43" rx="8" fill="url(#ui-champagne)" stroke="#ffead6" stroke-width="1.7"/>
+        <rect x="28" y="45" width="24" height="20" rx="2" fill="#fff5e9" opacity=".79"/>
+        <path d="M32 37Q30 49 32 63" stroke="white" stroke-width="3" fill="none" opacity=".7"/>
+        <path d="M34 53h12M36 57h8" stroke="#976b59" stroke-width="1.3"/>
+      </symbol>
+    </defs>
+  </svg>
+  <div class="announcement"><span class="announcement__product" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span><span class="announcement__copy">THE BEAUTY EDIT <b>·</b> BEAUTY, PERSONALIZED FOR YOU</span><span class="announcement__product" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span></div>
   <header class="site-header page-width">
     <a class="brand" href="#top" aria-label="Beauty Atelier home">
       <span class="brand__name">L’ORÉAL <span>PARIS</span></span>
@@ -29,7 +93,7 @@
       <section class="hero-story" aria-labelledby="hero-title">
         <div class="eyebrow"><span class="eyebrow__line"></span> BEAUTY IS PERSONAL. SO ARE WE.</div>
         <h1 id="hero-title">Beauty, <em>on</em><br />your terms<span class="hero-period">.</span></h1>
-        <p class="hero-story__lead">Your skin. Your style. Your story. Discover a world of beauty with an AI advisor that starts by listening to <strong>you.</strong></p>
+        <p class="hero-story__lead">Your skin. Your style. Your story. Discover a world of beauty with a personal beauty advisor that starts by listening to <strong>you.</strong></p>
         <div class="hero-actions">
           <button id="startConsultation" type="button" class="primary-cta">START YOUR CONSULTATION <span aria-hidden="true">↗</span></button>
           <a href="#discover" class="text-cta">EXPLORE THE BEAUTY EDIT <span aria-hidden="true">→</span></a>
@@ -89,26 +153,26 @@
             <circle cx="605" cy="96" r="2" fill="#fff6e8" opacity=".65"/>
           </svg>
           <div class="hero-art__vertical" aria-hidden="true">THE BEAUTY ATELIER / ISSUE Nº 01</div>
-          <div class="hero-art__label"><span class="tiny-gem">✦</span><span>THE BEAUTY EDIT<br /><strong>INDIVIDUAL BY DESIGN</strong></span></div>
+          <div class="hero-art__label"><span class="hero-art__product-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span><span>THE BEAUTY EDIT<br /><strong>INDIVIDUAL BY DESIGN</strong></span></div>
           <div class="hero-art__seal" aria-hidden="true"><span>BEAUTY<br />BEGINS<br /><i>WITH YOU.</i></span></div>
         </div>
       </section>
-      <section class="advisor" id="concierge" aria-label="Chat with your AI beauty advisor">
+      <section class="advisor" id="concierge" aria-label="Chat with your personal beauty advisor">
         <div class="advisor__header">
           <div class="advisor__identity">
-            <div class="advisor__avatar" aria-hidden="true">✳</div>
-            <div><span class="advisor__eyebrow">YOUR PERSONAL BEAUTY CONCIERGE</span><h2>Atelier AI <span class="advisor__sparkle" aria-hidden="true">✦</span></h2><span class="advisor__availability"><i></i> HERE TO HELP YOU GLOW</span></div>
+            <div class="advisor__avatar" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></div>
+            <div><span class="advisor__eyebrow">YOUR PERSONAL BEAUTY CONCIERGE</span><h2>Beauty Concierge</h2><span class="advisor__availability"><i></i> HERE TO HELP YOU GLOW</span></div>
           </div>
           <button class="reset-btn" id="resetBtn" type="button" title="Start a new conversation"><span aria-hidden="true">↻</span> New chat</button>
         </div>
-        <div class="advisor__intro"><span class="advisor__intro-icon" aria-hidden="true">✦</span> A BEAUTY EXPERIENCE, MADE FOR YOU <span class="advisor__intro-icon" aria-hidden="true">✦</span></div>
+        <div class="advisor__intro"><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span><span>A BEAUTY EXPERIENCE, MADE FOR YOU</span><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span></div>
         <div class="chat-window" id="chatWindow" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation"></div>
         <div class="advisor__composer">
           <div class="prompt-heading"><span>NEED INSPIRATION?</span><span>START HERE ↓</span></div>
           <div class="quick-prompts" id="miniPrompts" aria-label="Quick question suggestions">
-            <button type="button" data-prompt="Help me build a beginner skincare routine for my skin type.">✦ Build my skincare routine</button>
-            <button type="button" data-prompt="Help me find an everyday L'Oréal makeup look for my preferences.">✦ Find my signature look</button>
-            <button type="button" data-prompt="Help me discover a signature fragrance. Ask me what scents I enjoy.">✦ Find my scent</button>
+            <button type="button" data-prompt="Help me build a beginner skincare routine for my skin type."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg><span>Build my skincare routine</span></button>
+            <button type="button" data-prompt="Help me find an everyday L'Oréal makeup look for my preferences."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg><span>Find my signature look</span></button>
+            <button type="button" data-prompt="Help me discover a signature fragrance. Ask me what scents I enjoy."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg><span>Find my scent</span></button>
           </div>
           <div id="status" class="status" role="status" aria-live="polite"></div>
           <form class="chat-form" id="chatForm">
@@ -116,7 +180,7 @@
             <input id="userInput" type="text" autocomplete="off" maxlength="1000" placeholder="Ask me anything about beauty…" required />
             <button type="submit" id="sendBtn" aria-label="Send message"><span aria-hidden="true">↗</span></button>
           </form>
-          <p class="advisor__fineprint"><span aria-hidden="true">✧</span> AI guidance, not medical advice. Verify product information.</p>
+          <p class="advisor__fineprint"><span class="fineprint__product" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span>Personalized guidance, not medical advice. Verify product details.</p>
         </div>
       </section>
     </div>
@@ -149,7 +213,7 @@
       </div>
     </section>
     <section class="manifesto" aria-label="Beauty Atelier statement">
-      <div class="page-width manifesto__inner"><span>THE ART OF SELF EXPRESSION</span><p>Because beauty should feel <em>like you.</em></p><span class="manifesto__mark" aria-hidden="true">✳</span></div>
+      <div class="page-width manifesto__inner"><span>THE ART OF SELF EXPRESSION</span><p>Because beauty should feel <em>like you.</em></p><span class="manifesto__mark" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></span></div>
     </section>
   </main>
   <footer class="site-footer page-width"><div><strong>BEAUTY ATELIER</strong><span>AN INDEPENDENT STUDENT PROJECT INSPIRED BY L’ORÉAL PARIS.</span></div><p>Not affiliated with or endorsed by L'Oréal. Product suggestions are AI-generated and may be inaccurate; check official product listings before buying.</p><a href="#top">BACK TO TOP ↑</a></footer>

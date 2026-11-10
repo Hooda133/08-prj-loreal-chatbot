@@ -13,7 +13,7 @@ const startButton = document.getElementById("startConsultation");
 const advisor = document.getElementById("concierge");
 
 const GREETING =
-  "Welcome to your Beauty Atelier ✦\n\nI'm here to help you discover skincare, makeup, haircare and fragrance that feels like you. What would you love to explore today?";
+  "Welcome to Beauty Atelier.\n\nI'm here to help you discover skincare, makeup, haircare and fragrance that feels like you. What would you love to explore today?";
 
 let messages = [];
 let busy = false;
