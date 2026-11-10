@@ -1144,6 +1144,19 @@ a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-vi
   .chat-window .message{max-width:95%;font-size:14px}
 }
 
+/* Keep one visible keyboard-focus indicator around the whole composer.
+   The global input:focus-visible rule formerly added a second rectangle
+   inside the already outlined rounded chat box. */
+.chat-form input:focus-visible {
+  outline:none;
+  box-shadow:none;
+}
+/* The main, rounded outer chat field remains keyboard-visible. */
+.chat-form:focus-within {
+  outline:3px solid #775322;
+  outline-offset:3px;
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
