@@ -628,3 +628,42 @@ test("An upstream model refusal uses the same warm beauty-specific redirection",
     globalThis.fetch = originalFetch;
   }
 });
+
+
+test("Beauty icon sprite contains five complete, uniquely named dimensional product vectors", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  const sprite = html.match(/<svg class="beauty-icon-sprite"[\s\S]*?<\/svg>/)?.[0];
+  assert.ok(sprite, "Shared original beauty icon sprite exists");
+  const names = [...sprite.matchAll(/<symbol id="([^"]+)"/g)].map(m => m[1]);
+  assert.deepEqual(names, ["ui-serum", "ui-lipstick", "ui-perfume", "ui-compact", "ui-hair"]);
+  const materials = [...sprite.matchAll(/<(?:linearGradient|radialGradient|filter) id="([^"]+)"/g)]
+    .map(m => m[1]);
+  assert.equal(materials.length, new Set(materials).size, "Material and filter IDs must be unique");
+  assert.ok(materials.length >= 10, "Original materials include distinct glass, chrome, metallic and soft powders");
+
+  const references = [...sprite.matchAll(/(?:fill|stroke|filter)="url\(#([^)"']+)\)"/g)]
+    .map(m => m[1]);
+  assert.ok(references.length > 18, "Material gradients are used throughout the icons");
+  for (const ref of references) {
+    assert.ok(materials.includes(ref), "Defined SVG material missing: " + ref);
+  }
+  const symbolsClosed = (sprite.match(/<\/symbol>/g) || []).length;
+  assert.equal(symbolsClosed, 5);
+});
+
+test("Product-card and concierge icons share the same pack without broken references", async () => {
+  const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
+  const symbolIds = new Set([...html.matchAll(/<symbol id="([^"]+)"/g)].map(m => m[1]));
+  const iconUses = [...html.matchAll(/<use href="#([^"]+)"/g)].map(m => m[1]);
+  assert.ok(iconUses.length >= 29);
+  for (const icon of iconUses) {
+    assert.ok(symbolIds.has(icon), "Unknown icon reference: " + icon);
+  }
+  assert.equal((html.match(/beauty-icon--showcase/g) || []).length, 4);
+  assert.equal((html.match(/<span class="category-card__visual">/g) || []).length, 4);
+  assert.ok(!html.includes('id="serumglass"'), "Legacy flat product-card gradients were replaced");
+  assert.match(css, /\.category-card__scene::before\s*\{/);
+  assert.match(css, /\.category-card__visual \.beauty-icon--showcase\s*\{/);
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
+});
