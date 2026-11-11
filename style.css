@@ -1223,6 +1223,93 @@ a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-vi
   .advisor__composer{padding-inline:10px}
 }
 
+
+/* ================================================================
+   ATELIER STUDIO / SCULPTED BEAUTY ICON COLLECTION
+   One consistent original set of premium glass, metal and lacquer
+   product illustrations across the cards, concierge and showroom.
+   ================================================================ */
+.category-card__scene{
+  isolation:isolate;
+  overflow:visible;
+}
+.category-card__scene::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  width:min(84%,188px);
+  aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle at 44% 31%,#fffdf3 0%,#ffe9cba6 30%,#ffffff00 70%);
+  filter:blur(10px);
+  opacity:.77;
+  pointer-events:none;
+  transition:opacity .28s ease,transform .28s ease;
+}
+.category-card__scene::after{
+  content:"";
+  position:absolute;
+  z-index:1;
+  bottom:8%;
+  left:22%;
+  width:56%;
+  height:17px;
+  border-radius:50%;
+  background:radial-gradient(ellipse,#5b392a47,#5b392a0d 55%,transparent 75%);
+  filter:blur(5px);
+  transform:translateY(5px);
+  pointer-events:none;
+}
+.category-card__disc{z-index:1;pointer-events:none}
+.category-card__visual{z-index:2;filter:none}
+.category-card__visual .beauty-icon--showcase{
+  overflow:visible;
+  filter:drop-shadow(4px 10px 5px #51372a52);
+  transform:translateZ(0);
+}
+.category-card:hover .category-card__scene::before,
+.category-card:focus-visible .category-card__scene::before{
+  opacity:1;
+  transform:scale(1.08);
+}
+.category-card--makeup .category-card__scene::before{
+  background:radial-gradient(circle at 45% 32%,#fff 0%,#f8ccd4ab 33%,transparent 74%);
+}
+.category-card--hair .category-card__scene::before{
+  background:radial-gradient(circle at 45% 32%,#fffaf0 0%,#f6d6a3b8 32%,transparent 74%);
+}
+.category-card--scent .category-card__scene::before{
+  background:radial-gradient(circle at 45% 32%,#fffef9 0%,#f1d3c8b6 32%,transparent 75%);
+}
+.quick-prompts button .beauty-icon{
+  width:32px;
+  height:32px;
+  filter:drop-shadow(2px 3px 2px #422b263f);
+  flex-shrink:0;
+}
+.advisor__avatar .beauty-icon{
+  filter:drop-shadow(2px 3px 2px #60422549);
+}
+.advisor__intro-icon .beauty-icon,
+.announcement__product .beauty-icon{
+  filter:drop-shadow(1px 2px 1px #51352b4d);
+}
+.hero-art__orbit .beauty-icon{
+  filter:drop-shadow(3px 6px 3px #48302863);
+}
+.ritual__object .beauty-icon{
+  filter:drop-shadow(5px 8px 3px #130b0c63);
+}
+@media(max-width:620px){
+  .category-card__scene::before{width:85%;filter:blur(7px)}
+  .category-card__scene::after{height:11px;bottom:5%;filter:blur(3px)}
+  .quick-prompts button .beauty-icon{width:29px;height:29px}
+}
+@media(max-width:380px){
+  .category-card__scene::before{width:88%}
+  .quick-prompts button .beauty-icon{width:27px;height:27px}
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}

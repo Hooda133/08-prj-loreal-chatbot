@@ -2,6 +2,16 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## Atelier Studio — original premium icon collection
+
+The site's product artwork now uses **one consistent, original SVG icon system**, rather than a mixture of small symbols and older product-card sketches. The five shared designs include a glass serum dropper, sculpted lipstick, faceted perfume flacon, open powder compact and bronze haircare pump. They feature custom gradient materials (glass, translucent liquid, polished metal, black lacquer and soft powder), realistic edge highlights and subtle shadows.
+
+- The **four product-category cards**, floating showroom objects, hero accents, concierge avatar, suggested-question chips and decorative accents all reuse the same SVG symbols.
+- Product cards have refined lighting, a soft stage shadow and a restrained depth effect. Icons scale cleanly from small chatbot shortcuts to larger illustrations.
+- Illustrations are original, fictional **Atelier** products: not official L'Oréal product images, and no external stock imagery, photo licenses or new JavaScript dependencies were introduced.
+- SVGs in decorative placements are hidden from assistive technologies; functional buttons retain their accessible labels. Existing pause-motion and reduced-motion handling is preserved.
+- Verify with `node --test tests/chatbot-flow.test.mjs`; icon checks cover broken references, reused SVG definitions and card consistency.
+
 ## Features
 - Premium editorial homepage with animated original beauty still-life artwork
 - Five custom-dimensional SVG icons, plus moving product orbits, a luxury announcement ticker, animated product cards and a cinematic beauty-ritual showroom

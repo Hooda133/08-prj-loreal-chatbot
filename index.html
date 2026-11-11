@@ -13,67 +13,174 @@
 </head>
 <body>
   <a class="skip-link" href="#concierge">Skip to beauty advisor</a>
-  <!-- Compact, original dimensional SVG beauty icons; no external image assets. -->
+  <!-- Original Atelier Studio product vectors. Shared across product cards and chat;
+       independent student artwork, not photographs or official product renders. -->
   <svg class="beauty-icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" width="0" height="0">
     <defs>
-      <linearGradient id="ui-champagne" x1="0" y1="0" x2="1" y2=".1">
-        <stop stop-color="#6b4a43"/><stop offset=".24" stop-color="#dfb58b"/><stop offset=".52" stop-color="#fff1d6"/><stop offset=".76" stop-color="#bb8a68"/><stop offset="1" stop-color="#6a453d"/>
+      <!-- Material palette: glass, translucent liquid, lacquer, satin gold, polished chrome. -->
+      <linearGradient id="ui-gold" x1="0" y1="0" x2="1" y2=".08">
+        <stop stop-color="#654725"/><stop offset=".14" stop-color="#b78c53"/>
+        <stop offset=".32" stop-color="#fff0bf"/><stop offset=".49" stop-color="#c89f61"/>
+        <stop offset=".7" stop-color="#f8db9d"/><stop offset=".9" stop-color="#a47440"/>
+        <stop offset="1" stop-color="#614528"/>
       </linearGradient>
-      <linearGradient id="ui-bottle" x1="0" y1="0" x2="1" y2=".2">
-        <stop stop-color="#af796d" stop-opacity=".9"/><stop offset=".24" stop-color="#fff6e9"/><stop offset=".58" stop-color="#f0cfbb"/><stop offset=".85" stop-color="#d4a58f"/><stop offset="1" stop-color="#946b60"/>
+      <linearGradient id="ui-glass" x1="0" y1="0" x2="1" y2=".15">
+        <stop stop-color="#b78a75" stop-opacity=".95"/>
+        <stop offset=".11" stop-color="#ffffff" stop-opacity=".98"/>
+        <stop offset=".3" stop-color="#fff9eb" stop-opacity=".88"/>
+        <stop offset=".65" stop-color="#eacbb4" stop-opacity=".92"/>
+        <stop offset=".89" stop-color="#f9e9d8" stop-opacity=".98"/>
+        <stop offset="1" stop-color="#a97664" stop-opacity=".92"/>
       </linearGradient>
-      <linearGradient id="ui-rose" x1="0" y1="0" x2="1" y2="1">
-        <stop stop-color="#753044"/><stop offset=".46" stop-color="#d56880"/><stop offset="1" stop-color="#7b364e"/>
+      <linearGradient id="ui-amber" x1="0" y1="0" x2="1" y2=".18">
+        <stop stop-color="#6f382b"/><stop offset=".14" stop-color="#b8764f"/>
+        <stop offset=".33" stop-color="#fac98e"/><stop offset=".65" stop-color="#e2a46a"/>
+        <stop offset=".86" stop-color="#a96246"/><stop offset="1" stop-color="#6b3c35"/>
       </linearGradient>
-      <linearGradient id="ui-dark" x1="0" y1="0" x2="1" y2=".1">
-        <stop stop-color="#1e1a1c"/><stop offset=".42" stop-color="#615254"/><stop offset="1" stop-color="#211c1e"/>
+      <linearGradient id="ui-noir" x1="0" y1="0" x2="1" y2=".08">
+        <stop stop-color="#080809"/><stop offset=".18" stop-color="#3d3539"/>
+        <stop offset=".33" stop-color="#6b5e5a"/><stop offset=".45" stop-color="#1e1c20"/>
+        <stop offset=".78" stop-color="#29252a"/><stop offset="1" stop-color="#050608"/>
       </linearGradient>
+      <linearGradient id="ui-berry" x1="0" y1=".1" x2="1" y2=".3">
+        <stop stop-color="#581d37"/><stop offset=".2" stop-color="#b3415d"/>
+        <stop offset=".42" stop-color="#f48496"/><stop offset=".7" stop-color="#d64a67"/>
+        <stop offset="1" stop-color="#5b203c"/>
+      </linearGradient>
+      <linearGradient id="ui-satin" x1="0" y1="0" x2="1" y2=".12">
+        <stop stop-color="#eee1c7"/><stop offset=".17" stop-color="#ffffff"/>
+        <stop offset=".51" stop-color="#fbf7ec"/><stop offset=".86" stop-color="#e6d9bd"/>
+        <stop offset="1" stop-color="#bd9d72"/>
+      </linearGradient>
+      <linearGradient id="ui-roseglass" x1="0" y1="0" x2="1" y2=".18">
+        <stop stop-color="#af6471"/><stop offset=".15" stop-color="#ffe8e2"/>
+        <stop offset=".4" stop-color="#f3c5c4"/><stop offset=".72" stop-color="#e4a3ae"/>
+        <stop offset=".93" stop-color="#f9e2d7"/><stop offset="1" stop-color="#99616f"/>
+      </linearGradient>
+      <linearGradient id="ui-sheen" x1="0" y1="0" x2="1" y2="0">
+        <stop stop-color="#ffffff" stop-opacity="0"/>
+        <stop offset=".33" stop-color="#ffffff" stop-opacity=".78"/>
+        <stop offset=".72" stop-color="#ffffff" stop-opacity=".14"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="ui-mirror" x1="0" y1="0" x2=".9" y2="1">
+        <stop stop-color="#b6c5c9"/><stop offset=".19" stop-color="#fbfaf6"/>
+        <stop offset=".42" stop-color="#d4dde0"/><stop offset=".69" stop-color="#faf9f5"/>
+        <stop offset="1" stop-color="#93a9b0"/>
+      </linearGradient>
+      <radialGradient id="ui-powder" cx=".35" cy=".28" r=".9">
+        <stop stop-color="#f7d6c0"/><stop offset=".54" stop-color="#d7a48c"/>
+        <stop offset="1" stop-color="#9a624d"/>
+      </radialGradient>
+      <radialGradient id="ui-liquid" cx=".42" cy=".3" r=".8">
+        <stop stop-color="#ffe8bd" stop-opacity=".91"/>
+        <stop offset=".62" stop-color="#e5aa7e" stop-opacity=".85"/>
+        <stop offset="1" stop-color="#ab6275" stop-opacity=".83"/>
+      </radialGradient>
+      <filter id="ui-shadow" x="-.4" y="-.8" width="1.8" height="2.4">
+        <feGaussianBlur stdDeviation="2.1"/>
+      </filter>
+
+      <!-- 01: pearly pipette with amber liquid suspended inside a faceted serum bottle -->
       <symbol id="ui-serum" viewBox="0 0 80 80">
-        <ellipse cx="40" cy="71" rx="24" ry="5" fill="#573b31" opacity=".17"/>
-        <rect x="31" y="5" width="18" height="19" rx="3" fill="url(#ui-dark)"/>
-        <rect x="27" y="22" width="26" height="6" rx="2" fill="url(#ui-champagne)"/>
-        <rect x="21" y="27" width="38" height="41" rx="9" fill="url(#ui-bottle)" stroke="#fff4e7" stroke-width="1.8"/>
-        <rect x="28" y="38" width="24" height="22" rx="2" fill="#fff6ed" opacity=".81"/>
-        <path d="M26 32 Q23 47 26 61" fill="none" stroke="#fff" opacity=".77" stroke-width="3"/>
-        <path d="M33 46h14M35 50h10" stroke="#aa7c69" stroke-width="1.6" opacity=".85"/>
+        <ellipse cx="40" cy="73" rx="23" ry="3.6" fill="#3e281d" opacity=".29" filter="url(#ui-shadow)"/>
+        <rect x="33.6" y="7.5" width="12.8" height="17" rx="3" fill="url(#ui-noir)" stroke="#8a7964" stroke-width=".5"/>
+        <path d="M36.2 10v10M39 9.6v11M41.8 9.6v11M44.3 10v10" stroke="#fff1cb" stroke-width=".55" opacity=".25"/>
+        <path d="M35 8.7h10.2" stroke="#fff0d7" opacity=".66" stroke-width=".85"/>
+        <rect x="30.4" y="23.5" width="19.2" height="6.8" rx="1.5" fill="url(#ui-gold)" stroke="#fff0c8" stroke-width=".55"/>
+        <path d="M33 27.9H47" stroke="#6c4b2a" opacity=".5" stroke-width=".8"/>
+        <rect x="37.8" y="30" width="4.4" height="28" rx="2.1" fill="#fff8e5" opacity=".38"/>
+        <path d="M28.5 28.8H51.5Q57.5 28.8 58.5 36.3L59.9 62.1Q60.2 69.9 52.5 70.6H27.5Q19.8 69.9 20.1 62.1L21.5 36.3Q22.5 28.8 28.5 28.8Z" fill="url(#ui-glass)" stroke="#fff8e9" stroke-width="1.6"/>
+        <path d="M23.5 47Q39.5 50.2 56.5 46.6L57 62Q56.9 68.1 51.6 68.3H28.7Q23 68.1 23 61.8Z" fill="url(#ui-liquid)" opacity=".75"/>
+        <path d="M25.9 34.4Q24.4 47 25.7 60.5" fill="none" stroke="#fff" stroke-width="3.1" stroke-linecap="round" opacity=".83"/>
+        <path d="M54.5 35Q56.4 48.5 55 59.2" fill="none" stroke="#8d5c53" stroke-width="1.4" opacity=".23"/>
+        <rect x="27.1" y="43.1" width="25.8" height="20.3" rx="1.4" fill="url(#ui-satin)" stroke="#efdbc0" stroke-width=".65"/>
+        <path d="M28.9 44.8H51" stroke="#fff" stroke-width="1.4" opacity=".8"/>
+        <text x="40" y="51.3" fill="#554232" font-family="Georgia,serif" font-size="5.1" letter-spacing=".35" text-anchor="middle">ATELIER</text>
+        <path d="M33 54.6H47" stroke="#987344" stroke-width=".6"/>
+        <text x="40" y="59.9" fill="#886b52" font-family="Arial,sans-serif" font-size="3.6" letter-spacing="1" text-anchor="middle">SERUM</text>
+        <path d="M27.3 67.5Q39.6 70.1 52.3 67.4" fill="none" stroke="#fff5d8" stroke-width="1" opacity=".75"/>
+        <path d="M47 31.4l4 2.1" stroke="#fff" stroke-width="1.1" opacity=".64"/>
       </symbol>
+
+      <!-- 02: sculpted rose bullet, gold collar, black lacquered lipstick case -->
       <symbol id="ui-lipstick" viewBox="0 0 80 80">
-        <ellipse cx="40" cy="73" rx="25" ry="5" fill="#512a38" opacity=".16"/>
-        <g transform="rotate(-12 40 42)">
-          <path d="M29 11 Q39 4 51 5 V35 H29Z" fill="url(#ui-rose)"/>
-          <path d="M29 11 Q41 15 51 5 V13 Q42 23 29 19Z" fill="#f79ca4" opacity=".55"/>
-          <rect x="27" y="34" width="26" height="10" rx="1" fill="url(#ui-champagne)"/>
-          <rect x="25" y="43" width="30" height="29" rx="3" fill="url(#ui-dark)"/>
-          <path d="M31 47 V67" stroke="#fff" stroke-width="3" opacity=".19"/>
+        <ellipse cx="39" cy="72.6" rx="21.5" ry="4.1" fill="#2b1b1b" opacity=".27" filter="url(#ui-shadow)"/>
+        <g transform="rotate(-13 40 41)">
+          <path d="M29.1 14.4Q35.7 4.1 48.5 6.6Q51.8 7.1 51.8 12.2V32H29.1Z" fill="url(#ui-berry)" stroke="#672436" stroke-width=".65"/>
+          <path d="M29.2 14.4Q39 16 51.8 7.4V15.2Q38.6 24.8 29.2 21Z" fill="#fa98a3" opacity=".68"/>
+          <path d="M32 13.6Q37.4 9.6 42.3 9.8" stroke="#ffd0c7" opacity=".73" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M32.1 22Q30.9 26.3 32.7 31" stroke="#ffb2b3" opacity=".49" stroke-width="1.5" fill="none"/>
+          <rect x="27.2" y="31.4" width="26" height="11.1" rx="1.6" fill="url(#ui-gold)" stroke="#fff4d7" stroke-width=".65"/>
+          <path d="M29.1 33H51.5M28.6 40.2H51.6" stroke="#714825" stroke-width=".8" opacity=".52"/>
+          <path d="M34.5 33.7V40" stroke="white" opacity=".52" stroke-width="2.1"/>
+          <rect x="25.6" y="41.6" width="29.3" height="29.3" rx="3.3" fill="url(#ui-noir)" stroke="#857369" stroke-width=".85"/>
+          <path d="M29 45V66.4" stroke="url(#ui-sheen)" stroke-width="3.1" opacity=".67"/>
+          <path d="M52 45V66" stroke="#5f4e49" stroke-width="1.4" opacity=".75"/>
+          <path d="M26.9 65.6H53.9" stroke="#a88757" stroke-width="1.4"/>
+          <path d="M33 57.8H47" stroke="#c9ad7e" stroke-width=".65"/>
+          <text x="40.3" y="55.1" font-family="Georgia,serif" font-size="4.2" letter-spacing=".35" fill="#f3d9a8" text-anchor="middle">ATELIER</text>
+          <rect x="27.5" y="68.5" width="25.6" height="1.1" rx=".5" fill="#f2d399" opacity=".65"/>
         </g>
       </symbol>
+
+      <!-- 03: faceted, rose-liquid fragrance bottle with heavy glass base -->
       <symbol id="ui-perfume" viewBox="0 0 80 80">
-        <ellipse cx="40" cy="72" rx="30" ry="5" fill="#59362f" opacity=".17"/>
-        <rect x="31" y="6" width="18" height="16" rx="2" fill="url(#ui-champagne)"/>
-        <rect x="27" y="21" width="26" height="6" rx="2" fill="#d8af8d"/>
-        <rect x="12" y="26" width="56" height="43" rx="11" fill="url(#ui-bottle)" stroke="#fff6e9" stroke-width="2"/>
-        <path d="M16 49 Q38 63 64 49 V59 Q64 65 57 65 H23 Q16 65 16 59Z" fill="#d89b94" opacity=".48"/>
-        <rect x="24" y="40" width="32" height="20" rx="2" fill="#fffaf1" opacity=".75"/>
-        <path d="M20 31 Q16 48 20 59" stroke="white" stroke-width="3" opacity=".8" fill="none"/>
-        <path d="M33 49h14M35 53h10" stroke="#a98579" stroke-width="1.4"/>
+        <ellipse cx="40" cy="73" rx="29" ry="4" fill="#3a2629" opacity=".25" filter="url(#ui-shadow)"/>
+        <rect x="31.5" y="6.5" width="17" height="17.7" rx="2.8" fill="url(#ui-gold)" stroke="#fff2d5" stroke-width=".9"/>
+        <path d="M34.9 9.2h9.9" stroke="#fff9e7" stroke-width="1.4" opacity=".69"/>
+        <path d="M46 10v11.2" stroke="#69512c" stroke-width=".8" opacity=".45"/>
+        <rect x="29.5" y="23.1" width="21" height="6.8" rx="1.3" fill="url(#ui-noir)" stroke="#bfa67b" stroke-width=".7"/>
+        <path d="M16.8 29.5H63.2Q67.5 29.5 68 34L69.4 63Q69.5 69.5 63 70.2H17Q10.5 69.5 10.6 63L12 34Q12.5 29.5 16.8 29.5Z" fill="url(#ui-roseglass)" stroke="#fff6e6" stroke-width="1.7"/>
+        <path d="M15 34l5.5-2.2V66.5L15.3 64Z" fill="#fff" opacity=".23"/>
+        <path d="M65 33l-5.5-1.2V67L65.7 64Z" fill="#94586f" opacity=".19"/>
+        <path d="M15.3 49.4Q41 54.9 65 48.6L64.6 61.5Q64.4 66.4 59 66.9H20.4Q15.5 66.4 15.3 61.5Z" fill="url(#ui-liquid)" opacity=".68"/>
+        <path d="M20.5 32.2L23 64" stroke="#fff" stroke-width="3.5" opacity=".62" stroke-linecap="round"/>
+        <path d="M61.7 33L59.6 64" stroke="#fff" stroke-width="1.4" opacity=".57"/>
+        <rect x="24.5" y="41.3" width="31" height="21.4" rx="1.2" fill="url(#ui-satin)" stroke="#fff9ee" stroke-width="1.1"/>
+        <path d="M28 44.4H52" stroke="#bc996d" stroke-width=".55"/>
+        <text x="40" y="51.3" font-family="Georgia,serif" font-size="5.5" letter-spacing=".3" text-anchor="middle" fill="#654637">ATELIER</text>
+        <path d="M34 54H46" stroke="#b99b7d" stroke-width=".6"/>
+        <text x="40" y="59.5" font-family="Arial,sans-serif" font-size="3.7" letter-spacing=".8" text-anchor="middle" fill="#835d54">PARFUM</text>
+        <path d="M17 66.9Q40 70.8 63 66.9" stroke="#fff8df" stroke-width="1.5" opacity=".85" fill="none"/>
+        <path d="M14 36l3-3" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
       </symbol>
+
+      <!-- 04: open jewel-like compact, soft mirror reflection and blush powder -->
       <symbol id="ui-compact" viewBox="0 0 80 80">
-        <ellipse cx="40" cy="72" rx="30" ry="5" fill="#594035" opacity=".18"/>
-        <path d="M17 40c0-20 46-20 46 0v10H17Z" fill="url(#ui-champagne)" stroke="#fff0d1" stroke-width="1.5"/>
-        <ellipse cx="40" cy="42" rx="24" ry="15" fill="#dcb9a8" stroke="#fff3dc" stroke-width="3"/>
-        <ellipse cx="40" cy="42" rx="18" ry="10" fill="#ba817c"/>
-        <ellipse cx="37" cy="38" rx="10" ry="4" fill="#e9bdb2" opacity=".64"/>
-        <path d="M13 47h54v9c0 9-11 16-27 16S13 65 13 56Z" fill="url(#ui-champagne)" stroke="#fff2d9" stroke-width="1.5"/>
-        <path d="M19 53 Q40 64 61 53" fill="none" stroke="#fff5e4" stroke-width="2" opacity=".69"/>
+        <ellipse cx="40" cy="74" rx="29" ry="3.6" fill="#35251b" opacity=".26" filter="url(#ui-shadow)"/>
+        <path d="M15.5 43Q15.5 14 40 12Q64.5 14 64.5 43L62 47H18Z" fill="url(#ui-gold)" stroke="#fef0c8" stroke-width="1.1"/>
+        <path d="M20 42Q20.6 20.2 40 18Q59.4 20.2 60 42L57 44H23Z" fill="url(#ui-mirror)" stroke="#886e4e" stroke-width=".85"/>
+        <path d="M22.9 39Q30 22.3 51.6 21.8L24 42Z" fill="#fff" opacity=".39"/>
+        <path d="M42 21Q52 24 56.2 35" stroke="#fff" stroke-width="1.65" fill="none" stroke-linecap="round" opacity=".67"/>
+        <path d="M16.5 43.9H63.5Q68 43.9 69 48.5L70.2 58.8Q69.2 70.8 40 72.4Q10.8 70.8 9.8 58.8L11 48.5Q12 43.9 16.5 43.9Z" fill="url(#ui-gold)" stroke="#fff0c8" stroke-width="1.2"/>
+        <ellipse cx="40" cy="48.2" rx="28" ry="9.4" fill="#ae784f" stroke="#ffe9bb" stroke-width="1.1"/>
+        <ellipse cx="40" cy="47.1" rx="25" ry="7.2" fill="url(#ui-powder)" stroke="#f9d6ad" stroke-width=".75"/>
+        <path d="M21 45Q41 40.6 60 45" fill="none" stroke="#ffecdb" opacity=".5" stroke-width="1.6"/>
+        <path d="M13.5 55Q40 65.3 66.3 55" fill="none" stroke="#fff2cc" stroke-width="1.7" opacity=".68"/>
+        <path d="M15.2 61.1Q39.9 70 64.9 61.1" fill="none" stroke="#815d36" stroke-width=".75" opacity=".6"/>
+        <rect x="35.2" y="60.1" width="9.6" height="4.1" rx="1.2" fill="url(#ui-noir)" stroke="#f9d59c" stroke-width=".7"/>
+        <path d="M19 66.4Q40 72.8 61 66.4" stroke="#fff5d6" stroke-width="1" opacity=".47" fill="none"/>
       </symbol>
+
+      <!-- 05: bronze pump, deep amber hair serum and soft-cream label -->
       <symbol id="ui-hair" viewBox="0 0 80 80">
-        <ellipse cx="40" cy="73" rx="23" ry="5" fill="#53332c" opacity=".17"/>
-        <rect x="33" y="11" width="13" height="19" rx="2" fill="url(#ui-dark)"/>
-        <path d="M35 11V6h27v7H46" fill="none" stroke="#292123" stroke-width="5" stroke-linejoin="round"/>
-        <rect x="24" y="28" width="32" height="43" rx="8" fill="url(#ui-champagne)" stroke="#ffead6" stroke-width="1.7"/>
-        <rect x="28" y="45" width="24" height="20" rx="2" fill="#fff5e9" opacity=".79"/>
-        <path d="M32 37Q30 49 32 63" stroke="white" stroke-width="3" fill="none" opacity=".7"/>
-        <path d="M34 53h12M36 57h8" stroke="#976b59" stroke-width="1.3"/>
+        <ellipse cx="41" cy="73.7" rx="23" ry="3.2" fill="#302521" opacity=".27" filter="url(#ui-shadow)"/>
+        <rect x="33.1" y="17.2" width="14" height="12.2" rx="2.4" fill="url(#ui-noir)" stroke="#98816a" stroke-width=".65"/>
+        <path d="M36.5 18V9.5H61Q64 9.5 64 12.8V16.5H57.4V13.8H45V18Z" fill="url(#ui-gold)" stroke="#7f5d3d" stroke-width=".65"/>
+        <rect x="55.3" y="13.3" width="10.2" height="3.8" rx="1.2" fill="url(#ui-noir)"/>
+        <path d="M39 17V9.7" stroke="#fff9e4" stroke-width="1.5" opacity=".66"/>
+        <rect x="22.2" y="28" width="35.6" height="42.1" rx="9.1" fill="url(#ui-amber)" stroke="#f1d1a8" stroke-width="1.2"/>
+        <path d="M24.8 36.4Q27.6 30 34 30H48.2" stroke="#fff4df" opacity=".65" stroke-width="1.3" fill="none"/>
+        <path d="M27.9 34Q26.8 53.7 28.8 63.7" stroke="#ffe5bc" stroke-width="3.2" opacity=".67" stroke-linecap="round" fill="none"/>
+        <path d="M53.5 33.7Q55.6 49.4 53.2 63" stroke="#5b2822" stroke-width="1.5" opacity=".35" fill="none"/>
+        <path d="M25 58.5Q40 62.4 55 58.1V63Q55 68 49.6 68H30.4Q25 68 25 63Z" fill="#5f3025" opacity=".14"/>
+        <rect x="29" y="43.1" width="22.2" height="19.9" rx="1.3" fill="url(#ui-satin)" stroke="#ffe8c8" stroke-width=".65"/>
+        <path d="M31 46H49" stroke="#e2cbaa" stroke-width=".7"/>
+        <text x="40.1" y="51.8" font-family="Georgia,serif" font-size="4.9" letter-spacing=".25" fill="#63452f" text-anchor="middle">ATELIER</text>
+        <path d="M34.7 54.8H45.4" stroke="#9d7452" stroke-width=".65"/>
+        <text x="40" y="60" font-family="Arial,sans-serif" font-size="3.5" letter-spacing=".8" fill="#8b6c4e" text-anchor="middle">HAIR</text>
+        <path d="M29 68H51" stroke="#ffdfaf" stroke-width="1" opacity=".65"/>
       </symbol>
     </defs>
   </svg>
@@ -222,22 +329,22 @@
       <div class="category-grid" id="suggestions">
         <button class="category-card category-card--skin" type="button" data-prompt="Help me create a simple personalized L'Oréal skincare routine. Ask me about my skin type and concerns first." aria-label="Explore Skincare: The routine that feels like you.">
   <span class="category-card__number">01 / THE SKIN EDIT</span>
-  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="serumglass" x1="0" x2="1"><stop stop-color="#fff9ec"/><stop offset=".38" stop-color="#ffe3b9"/><stop offset=".8" stop-color="#d9a36e"/><stop offset="1" stop-color="#fff0d1"/></linearGradient><linearGradient id="serumcap" x1="0" x2="1"><stop stop-color="#2d2829"/><stop offset=".5" stop-color="#75665f"/><stop offset="1" stop-color="#1b171b"/></linearGradient></defs><ellipse cx="61" cy="109" rx="35" ry="7" fill="#64351d" opacity=".14"/><rect x="47" y="8" width="26" height="29" rx="4" fill="url(#serumcap)"/><rect x="42" y="33" width="36" height="9" rx="3" fill="#e9c79e"/><rect x="31" y="41" width="58" height="62" rx="13" fill="url(#serumglass)" stroke="#fff9" stroke-width="2"/><rect x="39" y="55" width="42" height="35" rx="2" fill="#fff9ef" opacity=".8"/><text x="60" y="68" font-size="9" text-anchor="middle" fill="#7d5541" font-family="serif">L'ORÉAL</text><text x="60" y="79" font-size="5" text-anchor="middle" fill="#846d59" letter-spacing="1.5">SERUM</text><path d="M38 50 Q34 73 39 91" stroke="white" stroke-width="4" opacity=".55" fill="none"/></svg></span></span>
+  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg class="beauty-icon beauty-icon--showcase" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span></span>
   <span class="category-card__bottom"><span><strong>Skincare</strong><small>The routine that feels like you.</small></span><span class="category-card__arrow" aria-hidden="true">↗</span></span>
 </button>
 <button class="category-card category-card--makeup" type="button" data-prompt="Help me find L'Oréal makeup for a polished everyday look. Ask about my skin tone, style, and budget." aria-label="Explore Makeup: Your look, your rules.">
   <span class="category-card__number">02 / THE MAKEUP EDIT</span>
-  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="lipgold" x1="0" x2="1"><stop stop-color="#7b5546"/><stop offset=".24" stop-color="#f8d8a0"/><stop offset=".65" stop-color="#b68257"/><stop offset="1" stop-color="#724332"/></linearGradient><linearGradient id="lipred" x1="0" x2="1"><stop stop-color="#7d253a"/><stop offset=".5" stop-color="#d84f67"/><stop offset="1" stop-color="#731e39"/></linearGradient></defs><ellipse cx="62" cy="110" rx="29" ry="6" fill="#4e2034" opacity=".16"/><g transform="rotate(-13 60 60)"><path d="M46 18 Q52 7 75 9 L75 44 L46 44 Z" fill="url(#lipred)"/><path d="M46 18 Q60 22 75 9 L75 18 Q61 29 46 25Z" fill="#f58b8b" opacity=".5"/><rect x="43" y="44" width="35" height="15" rx="2" fill="url(#lipgold)"/><rect x="41" y="58" width="39" height="47" rx="5" fill="#241d23"/><path d="M49 61 V100" stroke="#ffffff" opacity=".18" stroke-width="4"/><rect x="41" y="59" width="39" height="5" fill="url(#lipgold)"/></g></svg></span></span>
+  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg class="beauty-icon beauty-icon--showcase" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span></span>
   <span class="category-card__bottom"><span><strong>Makeup</strong><small>Your look, your rules.</small></span><span class="category-card__arrow" aria-hidden="true">↗</span></span>
 </button>
 <button class="category-card category-card--hair" type="button" data-prompt="Recommend a personalized L'Oréal haircare routine. First ask about my hair type and main concerns." aria-label="Explore Haircare: A little love for every strand.">
   <span class="category-card__number">03 / THE HAIR EDIT</span>
-  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="hairglass" x1="0" x2="1"><stop stop-color="#76493b"/><stop offset=".25" stop-color="#e4a87c"/><stop offset=".66" stop-color="#c17c53"/><stop offset="1" stop-color="#6a3e3c"/></linearGradient><linearGradient id="hairpump" x1="0" x2="1"><stop stop-color="#282a2b"/><stop offset=".55" stop-color="#74706b"/><stop offset="1" stop-color="#1d1d21"/></linearGradient></defs><ellipse cx="60" cy="111" rx="31" ry="6" fill="#3b251e" opacity=".17"/><rect x="52" y="11" width="17" height="27" rx="2" fill="url(#hairpump)"/><path d="M53 11 V7 H85 Q89 7 89 12 V15 H64 V20 H53Z" fill="#313034"/><rect x="40" y="36" width="42" height="69" rx="11" fill="url(#hairglass)" stroke="#ffd6b5" stroke-width="1.5"/><rect x="43" y="60" width="36" height="30" rx="2" fill="#f9e5d4" opacity=".88"/><text x="61" y="73" text-anchor="middle" font-size="8" font-family="serif" fill="#664333">L'ORÉAL</text><text x="61" y="83" text-anchor="middle" font-size="5" letter-spacing="1" fill="#8e6b51">HAIRCARE</text><path d="M46 43 Q43 58 46 91" fill="none" stroke="#fff" stroke-width="3" opacity=".3"/></svg></span></span>
+  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg class="beauty-icon beauty-icon--showcase" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-hair"></use></svg></span></span>
   <span class="category-card__bottom"><span><strong>Haircare</strong><small>A little love for every strand.</small></span><span class="category-card__arrow" aria-hidden="true">↗</span></span>
 </button>
 <button class="category-card category-card--scent" type="button" data-prompt="Help me discover a L'Oréal fragrance that suits my personality. Ask about scent notes and when I'd wear it." aria-label="Explore Fragrance: Find the scent that stays.">
   <span class="category-card__number">04 / THE SCENT EDIT</span>
-  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="perfglass" x1="0" x2="1"><stop stop-color="#ffe8d4"/><stop offset=".24" stop-color="#fffaf3"/><stop offset=".66" stop-color="#d7a4a5"/><stop offset="1" stop-color="#f8e9d9"/></linearGradient><linearGradient id="perfmetal" x1="0" x2="1"><stop stop-color="#8f7357"/><stop offset=".5" stop-color="#f9e3b6"/><stop offset="1" stop-color="#84664e"/></linearGradient></defs><ellipse cx="61" cy="110" rx="36" ry="7" fill="#614035" opacity=".15"/><rect x="49" y="8" width="25" height="24" rx="2" fill="url(#perfmetal)"/><rect x="45" y="29" width="33" height="9" rx="2" fill="#e5c49c"/><rect x="24" y="36" width="76" height="67" rx="16" fill="url(#perfglass)" stroke="#fff" stroke-width="2"/><path d="M29 70 Q60 90 95 69 V87 Q95 99 81 99 H40 Q28 99 29 87Z" fill="#d9959e" opacity=".38"/><rect x="41" y="60" width="42" height="28" fill="#fff6ed" opacity=".77"/><text x="62" y="72" text-anchor="middle" font-family="serif" font-size="9" fill="#7d575b">L'ORÉAL</text><text x="62" y="81" text-anchor="middle" letter-spacing="1.1" font-size="5" fill="#8d6870">PARFUM</text><path d="M33 43 Q26 65 34 88" fill="none" stroke="#fff" stroke-width="4" opacity=".7"/></svg></span></span>
+  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg class="beauty-icon beauty-icon--showcase" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span></span>
   <span class="category-card__bottom"><span><strong>Fragrance</strong><small>Find the scent that stays.</small></span><span class="category-card__arrow" aria-hidden="true">↗</span></span>
 </button>
       </div>
