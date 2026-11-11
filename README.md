@@ -53,9 +53,9 @@ The conversation uses two separate visual styles that are distinguishable by mor
 
 ## Friendlier off-topic responses
 
-When visitors ask something outside L’Oréal products and beauty routines, the Cloudflare Worker now uses a kind, natural reply instead of a terse boundary warning:
+When visitors ask something outside L’Oréal products and beauty routines, the Cloudflare Worker uses a short, natural redirection instead of an awkward opening like “Thanks for asking!”:
 
-> Thanks for asking! I specialize in L’Oréal beauty, so that topic is a little outside what I can help with here. I’d be happy to help you explore skincare, makeup, haircare, or fragrances, though. Is there a L’Oréal product or beauty routine you’d like to know more about?
+> That’s outside my specialty, but I’d be happy to help with L’Oréal skincare, makeup, haircare, or fragrances. What would you like to explore?
 
 Both the structured out-of-scope case and an upstream model refusal return this same safe response. The system prompt still restricts answers to L’Oréal product guidance; visitor messages never change it. The static website, Worker endpoint, CORS settings and API key remain unchanged.
 
