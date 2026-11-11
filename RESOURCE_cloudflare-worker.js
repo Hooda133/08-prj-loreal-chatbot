@@ -6,7 +6,7 @@
 // Deploy this file separately in the Cloudflare Dashboard after merging.
 // Updating GitHub alone does not update the running Worker.
 
-const OUT_OF_SCOPE_REPLY = "That’s outside my specialty, but I’d be happy to help with L’Oréal skincare, makeup, haircare, or fragrances. What would you like to explore?";
+const OUT_OF_SCOPE_REPLY = "Sorry, that’s outside my specialty, but I’d be happy to help with L’Oréal skincare, makeup, haircare, or fragrances. What would you like to explore?";
 
 const SYSTEM_PROMPT = `You are Beauty Atelier, a dedicated beauty advisor and beauty concierge for an independent student project inspired by L'Oréal. You are NOT an official L'Oréal representative.
 
