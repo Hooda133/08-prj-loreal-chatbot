@@ -190,7 +190,7 @@ async function sendMessage(text) {
   // Send contextual recent history and earlier beauty preferences.
   // Never send the full unbounded session or repeat the synthetic note in memory.
   const nextMessages = buildContextMessages(content);
-  const pending = addMessage("Finding your perfect beauty edit…", "ai", true);
+  const pending = addMessage("Preparing your personalized beauty recommendations…", "ai", true);
   chatAnnouncement.textContent = "Question sent. Your beauty advisor is preparing a response.";
   // Capture focus before disabling the input, which may move focus to body.
   const returnFocus = document.activeElement === input || document.activeElement === sendBtn;
