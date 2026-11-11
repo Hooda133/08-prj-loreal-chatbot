@@ -51,6 +51,16 @@ The conversation uses two separate visual styles that are distinguishable by mor
 
 **Verify:** Run `node --test tests/chatbot-flow.test.mjs`. Automated tests cover earlier preferences surviving long chats, correct recent context, preview reset on input, clean New chat, Worker request-size bounds and prior Cloudflare safety checks. Live acceptance test: say “My skin is oily and I prefer lightweight L’Oréal products,” ask five or six more relevant questions, then ask “What skin type did I tell you?”; verify it can still use that detail. For the preview, type another question and confirm the previous “YOU ASKED” line clears immediately.
 
+## Friendlier off-topic responses
+
+When visitors ask something outside L’Oréal products and beauty routines, the Cloudflare Worker now uses a kind, natural reply instead of a terse boundary warning:
+
+> Thanks for asking! I specialize in L’Oréal beauty, so that topic is a little outside what I can help with here. I’d be happy to help you explore skincare, makeup, haircare, or fragrances, though. Is there a L’Oréal product or beauty routine you’d like to know more about?
+
+Both the structured out-of-scope case and an upstream model refusal return this same safe response. The system prompt still restricts answers to L’Oréal product guidance; visitor messages never change it. The static website, Worker endpoint, CORS settings and API key remain unchanged.
+
+**Deployment note:** After merging, manually update the existing Cloudflare Worker from `RESOURCE_cloudflare-worker.js` and select **Save and Deploy**. A GitHub commit alone does not update the deployed Worker.
+
 ## Assignment requirement: L’Oréal-only answers and secure Cloudflare routing
 
 **Requirement:** “Chatbot refuses unrelated questions and only answers queries about L’Oréal products and routines. Chatbot requests are safely routed through Cloudflare Worker.”
