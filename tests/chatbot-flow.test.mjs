@@ -667,3 +667,17 @@ test("Product-card and concierge icons share the same pack without broken refere
   assert.match(css, /\.category-card__visual \.beauty-icon--showcase\s*\{/);
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
 });
+
+test("Chat pending message uses professional, user-friendly wording", async () => {
+  let resolveResponse;
+  const app = createFrontend(async () => new Promise(resolve => { resolveResponse = resolve; }));
+  app.elements.userInput.value = "Recommend L’Oréal skincare for dry skin.";
+  app.elements.chatForm.listeners.submit({ preventDefault() {} });
+  assert.match(app.elements.chatWindow.nodes.at(-1).textContent, /^Preparing your personalized beauty recommendations/);
+  assert.doesNotMatch(app.elements.chatWindow.textContent, /Finding your perfect beauty edit/);
+  resolveResponse({ ok: true, async json() {
+    return { choices: [{ message: { content: "A L’Oréal moisturizing routine could help." } }] };
+  } });
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.match(app.elements.chatWindow.nodes.at(-1).textContent, /moisturizing routine/);
+});
