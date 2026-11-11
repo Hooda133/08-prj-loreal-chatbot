@@ -1,0 +1,51 @@
+name: Visual preview - beauty illustrations
+
+on:
+  pull_request:
+    paths:
+      - "index.html"
+      - "style.css"
+      - ".github/workflows/beauty-visual-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout website
+        uses: actions/checkout@v4
+
+      - name: Start local preview
+        run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 >/tmp/beauty-server.log 2>&1 &
+          sleep 2
+
+      - name: Screenshot desktop and narrow layout
+        shell: bash
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          echo "Browser: $CHROME"
+          "$CHROME" --headless --no-sandbox --disable-dev-shm-usage --hide-scrollbars \
+            --disable-gpu --force-device-scale-factor=1 --virtual-time-budget=3500 \
+            --window-size=1440,3600 --screenshot=/tmp/beauty-desktop.png \
+            http://127.0.0.1:8000/
+          "$CHROME" --headless --no-sandbox --disable-dev-shm-usage --hide-scrollbars \
+            --disable-gpu --force-device-scale-factor=1 --virtual-time-budget=3500 \
+            --window-size=420,4200 --screenshot=/tmp/beauty-narrow.png \
+            http://127.0.0.1:8000/
+          test -s /tmp/beauty-desktop.png
+          test -s /tmp/beauty-narrow.png
+
+      - name: Upload visual previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beauty-visual-previews
+          path: |
+            /tmp/beauty-desktop.png
+            /tmp/beauty-narrow.png
+          if-no-files-found: ignore
