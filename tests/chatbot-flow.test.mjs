@@ -813,3 +813,10 @@ test("Final QA: multiword and hyphenated name corrections retain exact preferred
   assert.doesNotMatch(note, /Preferred name.*Mary Jane/);
   assert.match(note, /oily skin/);
 });
+
+
+test("Final QA: pausing motion cannot hide newly created chat messages", async () => {
+  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
+  assert.match(css, /\.motion-paused \.chat-window \.message\s*\{\s*animation:none!important;\s*opacity:1!important;/);
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
+});
