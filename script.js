@@ -327,19 +327,27 @@ function handleSuggestedPrompt(event) {
 suggestions.addEventListener("click", handleSuggestedPrompt);
 miniPrompts.addEventListener("click", handleSuggestedPrompt);
 
-resetBtn.addEventListener("click", () => newChat(true));
+function showTouchComposer() {
+  // Center the input within the visible page before the virtual keyboard opens.
+  // This also leaves part of the conversation visible above the form.
+  form.scrollIntoView({
+    behavior: motionIsAllowed() ? "smooth" : "auto",
+    block: "center"
+  });
+}
+
+resetBtn.addEventListener("click", () => {
+  newChat(true);
+  if (!window.matchMedia("(pointer: fine)").matches) showTouchComposer();
+});
 startButton.addEventListener("click", () => {
   if (window.matchMedia("(pointer: fine)").matches) {
     scrollToAdvisor();
     input.focus({ preventScroll: true });
   } else {
-    // A touch keyboard shrinks the visible viewport, so focusing immediately
-    // after scrolling to the top of this tall chat panel hides the input.
-    // Center the composer on-screen first; tap the input to open the keyboard.
-    form.scrollIntoView({
-      behavior: motionIsAllowed() ? "smooth" : "auto",
-      block: "center"
-    });
+    // Focusing immediately opens a touch keyboard, covering the composer.
+    // Show the message box first and let the visitor choose when to type.
+    showTouchComposer();
   }
 });
 
