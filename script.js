@@ -75,8 +75,24 @@ function buildContextMessages(question) {
   const older = messages.slice(0, Math.max(0, messages.length - RECENT_CONTEXT_MESSAGES));
   const keyDetails = older
     .filter(message => message.role === "user" && PERSONAL_DETAIL_CUE.test(message.content))
+    .map(message => {
+      let text = message.content;
+      const earlierName = nameFromIntroduction(text);
+      if (earlierName && preferredName && earlierName !== preferredName) {
+        // A corrected name supersedes the old one, without discarding any
+        // other beauty preferences shared in the same earlier message.
+        const intro = text.match(/\b(?:my name is|my name's|you can call me|please call me|call me|i go by|i am called|i'm called|i prefer to be called)\s+/iu);
+        if (intro) {
+          text = (text.slice(0, intro.index) +
+            text.slice(intro.index + intro[0].length + earlierName.length))
+            .replace(/^\s*[,.;:!?]?\s*(?:and\s+)?/iu, "").trim();
+        }
+      }
+      return text;
+    })
+    .filter(Boolean)
     .slice(-3)
-    .map(message => "- " + message.content.replace(/\s+/g, " ").slice(0, 230));
+    .map(text => "- " + text.replace(/\s+/g, " ").slice(0, 230));
 
   const details = [
     ...(preferredName ? ["- Preferred name (latest name the visitor explicitly gave): " + preferredName] : []),
