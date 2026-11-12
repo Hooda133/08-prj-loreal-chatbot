@@ -49,6 +49,20 @@ The conversation uses two separate visual styles that are distinguishable by mor
 
 **Verification:** Run `node --test tests/chatbot-flow.test.mjs` and review the Lighthouse accessibility check. New automated checks verify each message's speaker role, visible style hooks, alignment rules and responsive mobile rules. Inspect chat messages on a mobile device to confirm wrapping and spacing.
 
+## Assignment improvement: remember the visitor's name across long chats
+
+The chatbot now retains the **most recently and explicitly introduced name** as part of its temporary, in-page conversation context. For example, visitors can say “My name is Amira, and my skin is dry” or “Please call me Noor.” The last name provided wins if the visitor corrects it.
+
+- The name is retained separately from the rolling transcript, so it remains available even after the oldest chat messages fall out of the context window.
+- It is sent to the Cloudflare Worker as **ordinary visitor context**, along with previous beauty preferences and recent questions, with the latest L’Oréal product/routine question last. The server's system prompt is unchanged and remains authoritative.
+- Earlier statements of a different name are omitted from the compact older-history summary while other beauty preferences in those messages are preserved.
+- Names are **not guessed** from assistant text or generic questions; only successful conversations with an explicit visitor introduction update the name.
+- **New chat**, refreshing the page or opening a new tab clears the temporary name. It is not saved to localStorage, cookies or a database.
+- The context payload continues to respect the Worker's **12-message maximum** and **1,000-character-per-message limit**. The chatbot remains limited to L’Oréal-related beauty topics.
+- A regression test covers more than 40 consecutive follow-ups (beyond the 80-message rolling transcript), name correction, the New chat reset and unsuccessful requests.
+
+**Review:** Run `node --test tests/chatbot-flow.test.mjs`. For a live check, introduce yourself while asking about a L’Oréal routine, continue the beauty conversation, and ask for a recommendation personalized to the name and skin type you shared. This adds name-aware context; it does not make the L’Oréal-only chatbot a general-purpose personal assistant.
+
 ## Assignment requirement: conversational context and question preview
 
 **Requirement:** “Chatbot remembers details from earlier messages and responds with context awareness. Each user question is briefly shown above the AI response before resetting on next input.”
