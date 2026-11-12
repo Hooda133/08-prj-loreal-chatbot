@@ -131,7 +131,8 @@ try {
     previewDisplay: getComputedStyle(document.querySelector("#questionPreview")).display,
     motionDisplay: getComputedStyle(document.querySelector("#motionToggle")).display,
     heroVisible: !!document.querySelector(".hero-story h1"),
-    prompts: document.querySelectorAll(".quick-prompts button").length
+    prompts: document.querySelectorAll(".quick-prompts button").length,
+    secondaryNavDisplay: getComputedStyle(document.querySelector(".header-nav__ritual")).display
   }));
   if (mobileState.overflow > 2) {
     const offscreen = await mobile.evaluate(() => [...document.querySelectorAll("body *")].map(el => {
@@ -163,6 +164,7 @@ try {
   assert.equal(mobileState.motionDisplay, "none", "Reduced motion should hide the motion toggle");
   assert.equal(mobileState.heroVisible, true);
   assert.equal(mobileState.prompts, 3);
+  assert.equal(mobileState.secondaryNavDisplay, "none", "Secondary navigation must be hidden on phones");
 
   await mobile.focus("#userInput");
   const singleOutline = await mobile.evaluate(() => ({
@@ -180,6 +182,15 @@ try {
   assert.ok(mobileConversation.overflow <= 2, "Mobile chat overflow: " + mobileConversation.overflow);
   assert.equal(mobileConversation.replyVisible, true);
   await mobile.screenshot({ path: "/tmp/final-beauty-mobile.png", fullPage: true });
+  for (const width of [320, 768]) {
+    await mobile.setViewport({ width, height: 840, deviceScaleFactor: 1 });
+    const extra = await mobile.evaluate(() => ({
+      overflow: document.documentElement.scrollWidth - innerWidth,
+      secondaryNavDisplay: getComputedStyle(document.querySelector(".header-nav__ritual")).display
+    }));
+    assert.ok(extra.overflow <= 2, width + "px responsive overflow: " + extra.overflow);
+    assert.equal(extra.secondaryNavDisplay, "none", "Responsive navigation should fit at " + width + "px");
+  }
   await mobile.close();
 
   assert.deepEqual(failures, [], "There must be no uncaught browser JavaScript errors");
