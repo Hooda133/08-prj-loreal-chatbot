@@ -121,6 +121,14 @@ try {
   await desktop.click("#motionToggle");
   const motionPaused = await desktop.evaluate(() => document.body.classList.contains("motion-paused"));
   assert.equal(motionPaused, true, "Pause motion control must work");
+  // A paused fade-in animation must not make a freshly rendered message invisible.
+  const messageOpacity = await desktop.evaluate(() =>
+    getComputedStyle(document.querySelector(".chat-window .message")).opacity);
+  assert.equal(messageOpacity, "1", "Paused motion must never hide chat messages");
+  await desktop.click("#resetBtn");
+  const newlyCreatedMessageOpacity = await desktop.evaluate(() =>
+    getComputedStyle(document.querySelector(".chat-window .message")).opacity);
+  assert.equal(newlyCreatedMessageOpacity, "1", "New chat remains visible while motion is paused");
 
   await desktop.screenshot({ path: "/tmp/final-beauty-desktop.png", fullPage: true });
   await desktop.close();
