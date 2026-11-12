@@ -1310,6 +1310,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-vi
   .quick-prompts button .beauty-icon{width:27px;height:27px}
 }
 
+/* FINAL MOBILE FIX: hide the secondary navigation link with a selector
+   specific enough to override the generic .header-nav a display rule. */
+@media(max-width:940px){
+  .header-nav a.header-nav__ritual{display:none}
+}
+
+/* Pause ambient motion without freezing newly created chat bubbles at
+   opacity:0 (the first frame of their entrance animation). */
+.motion-paused .chat-window .message{
+  animation:none!important;
+  opacity:1!important;
+  transform:none!important;
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}

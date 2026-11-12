@@ -769,3 +769,54 @@ test("Personal names are not invented from generic beauty questions or unsuccess
   await ask("Could you suggest a L’Oréal moisturizer?");
   assert.doesNotMatch(captured.at(-1).messages[0].content, /Preferred name/);
 });
+
+
+test("Final QA: introduced name does not accidentally include the next sentence", async () => {
+  const captured = [];
+  const app = createFrontend(async (_, opts) => {
+    captured.push(JSON.parse(opts.body));
+    return { ok: true, async json() {
+      return { choices: [{ message: { content: "Your L’Oréal routine is ready." } }] };
+    } };
+  });
+  const ask = async question => {
+    app.elements.userInput.value = question;
+    app.elements.chatForm.listeners.submit({ preventDefault() {} });
+    await new Promise(resolve => setTimeout(resolve, 0));
+  };
+  await ask("My name is Emma. Can you recommend L’Oréal skincare?");
+  for (let n = 1; n <= 6; n++) await ask("Recommend L’Oréal routine step " + n + ".");
+  const note = captured.at(-1).messages[0].content;
+  assert.match(note, /Preferred name.*Emma/);
+  assert.doesNotMatch(note, /Preferred name.*(?:Emma\. Can|Emma Can)/);
+  assert.equal(captured.at(-1).messages.length <= 12, true);
+});
+
+test("Final QA: multiword and hyphenated name corrections retain exact preferred name", async () => {
+  const sent = [];
+  const app = createFrontend(async (_, opts) => {
+    sent.push(JSON.parse(opts.body));
+    return { ok: true, async json() {
+      return { choices: [{ message: { content: "Here are L’Oréal product ideas." } }] };
+    } };
+  });
+  const ask = async question => {
+    app.elements.userInput.value = question;
+    app.elements.chatForm.listeners.submit({ preventDefault() {} });
+    await new Promise(resolve => setTimeout(resolve, 0));
+  };
+  await ask("My name is Mary Jane. I prefer L’Oréal skincare for oily skin.");
+  await ask("Please call me Ana-Maria, and suggest a L’Oréal serum.");
+  for (let n = 1; n <= 6; n++) await ask("Another L’Oréal routine question " + n + ".");
+  const note = sent.at(-1).messages[0].content;
+  assert.match(note, /Preferred name.*Ana-Maria/);
+  assert.doesNotMatch(note, /Preferred name.*Mary Jane/);
+  assert.match(note, /oily skin/);
+});
+
+
+test("Final QA: pausing motion cannot hide newly created chat messages", async () => {
+  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
+  assert.match(css, /\.motion-paused \.chat-window \.message\s*\{\s*animation:none!important;\s*opacity:1!important;/);
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
+});
