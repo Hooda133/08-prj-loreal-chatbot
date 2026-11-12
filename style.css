@@ -1316,6 +1316,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-vi
   .header-nav a.header-nav__ritual{display:none}
 }
 
+/* Pause ambient motion without freezing newly created chat bubbles at
+   opacity:0 (the first frame of their entrance animation). */
+.motion-paused .chat-window .message{
+  animation:none!important;
+  opacity:1!important;
+  transform:none!important;
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
