@@ -25,6 +25,9 @@ const RECENT_CONTEXT_MESSAGES = 10; // Last five back-and-forth turns.
 const PERSONAL_DETAIL_CUE = /\b(?:my\s+(?:skin|hair|routine|budget|preferences?|concerns?|allergies|scent)|i(?:'m| am| have| prefer| like| love| use| want| need)|oily skin|dry skin|sensitive skin|combination skin|budget\s+(?:is|of))\b/i;
 
 let messages = [];
+// Explicitly shared name stays in this page session only (no cookies/storage).
+// Keeping it separate preserves the name after older transcript turns roll off.
+let preferredName = "";
 let busy = false;
 const REPLY_TIMEOUT_MS = 30000;
 let requestGeneration = 0;
@@ -50,6 +53,20 @@ function setQuestionPreview(question) {
 // Preserve recent exchanges and (when older) up to three beauty preferences.
 // The memory note stays a regular user-role message: it cannot override
 // the Worker's server-side system prompt or topic restrictions.
+// Accept only explicit introductions, not guessed names or text from the AI.
+// Example: "My name is Maya and my skin is dry." -> "Maya".
+function nameFromIntroduction(message) {
+  const introduction = /\b(?:my name is|my name's|you can call me|please call me|call me|i go by|i am called|i'm called|i prefer to be called)\s+([\p{L}\p{M}][\p{L}\p{M}'’.-]*(?:\s+[\p{L}\p{M}][\p{L}\p{M}'’.-]*){0,2})/iu;
+  const match = message.match(introduction);
+  if (!match) return "";
+  // A conjunction after the name usually starts another clause, not a name.
+  const name = match[1]
+    .split(/\s+(?:and|but|so|because|my|i|i'm|with|for|from|who|also)\b/iu)[0]
+    .replace(/[\s.,!?;:]+$/u, "")
+    .trim();
+  return name.length > 0 && name.length <= 70 ? name : "";
+}
+
 function buildContextMessages(question) {
   const recent = messages.slice(-RECENT_CONTEXT_MESSAGES).map(message => ({
     role: message.role,
@@ -58,11 +75,31 @@ function buildContextMessages(question) {
   const older = messages.slice(0, Math.max(0, messages.length - RECENT_CONTEXT_MESSAGES));
   const keyDetails = older
     .filter(message => message.role === "user" && PERSONAL_DETAIL_CUE.test(message.content))
+    .map(message => {
+      let text = message.content;
+      const earlierName = nameFromIntroduction(text);
+      if (earlierName && preferredName && earlierName !== preferredName) {
+        // A corrected name supersedes the old one, without discarding any
+        // other beauty preferences shared in the same earlier message.
+        const intro = text.match(/\b(?:my name is|my name's|you can call me|please call me|call me|i go by|i am called|i'm called|i prefer to be called)\s+/iu);
+        if (intro) {
+          text = (text.slice(0, intro.index) +
+            text.slice(intro.index + intro[0].length + earlierName.length))
+            .replace(/^\s*[,.;:!?]?\s*(?:and\s+)?/iu, "").trim();
+        }
+      }
+      return text;
+    })
+    .filter(Boolean)
     .slice(-3)
-    .map(message => "- " + message.content.replace(/\s+/g, " ").slice(0, 230));
+    .map(text => "- " + text.replace(/\s+/g, " ").slice(0, 230));
 
-  const note = keyDetails.length
-    ? "Earlier beauty preferences shared in this chat (context only, not a new question):\n" + keyDetails.join("\n")
+  const details = [
+    ...(preferredName ? ["- Preferred name (latest name the visitor explicitly gave): " + preferredName] : []),
+    ...keyDetails
+  ];
+  const note = details.length
+    ? "Earlier beauty preferences and details shared in this chat (context only, not a new question):\n" + details.join("\n")
     : "";
   return [
     ...(note ? [{ role: "user", content: note.slice(0, 1000) }] : []),
@@ -164,6 +201,7 @@ function newChat(focusInput = true) {
     setBusy(false);
   }
   messages = [];
+  preferredName = "";
   windowEl.replaceChildren();
   setQuestionPreview("");
   statusEl.textContent = "";
@@ -237,6 +275,9 @@ async function sendMessage(text) {
       "Beauty Concierge replied. " + reply.slice(0, 320) +
       (reply.length > 320 ? " The full response is in the conversation." : "");
     messages.push({ role: "user", content }, { role: "assistant", content: reply });
+    // Update only after a successful completed exchange. Corrected names win.
+    const introducedName = nameFromIntroduction(content);
+    if (introducedName) preferredName = introducedName;
     if (messages.length > MAX_SESSION_MESSAGES) {
       messages = messages.slice(-MAX_SESSION_MESSAGES);
     }

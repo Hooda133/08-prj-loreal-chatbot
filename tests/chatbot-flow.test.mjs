@@ -681,3 +681,91 @@ test("Chat pending message uses professional, user-friendly wording", async () =
   await new Promise(resolve => setTimeout(resolve, 10));
   assert.match(app.elements.chatWindow.nodes.at(-1).textContent, /moisturizing routine/);
 });
+
+
+test("Explicit visitor name remains in context after the original message rolls out", async () => {
+  const captured = [];
+  const app = createFrontend(async (_, options) => {
+    captured.push(JSON.parse(options.body));
+    return { ok: true, async json() {
+      return { choices: [{ message: { content: "Here is a L’Oréal beauty recommendation." } }] };
+    } };
+  });
+  const ask = async question => {
+    app.elements.userInput.value = question;
+    app.elements.chatForm.listeners.submit({ preventDefault() {} });
+    await new Promise(resolve => setTimeout(resolve, 0));
+  };
+
+  await ask("My name is Amira and my skin is dry. Suggest a L’Oréal moisturizer.");
+  // 43 extra exchanges exceed the 80-message session transcript cap.
+  for (let step = 1; step <= 43; step++) {
+    await ask("Could you refine L’Oréal routine step " + step + "?");
+  }
+  const last = captured.at(-1).messages;
+  assert.ok(last.length <= 12, "Cloudflare Worker supports up to twelve context messages");
+  assert.ok(last.every(m => m.content.length <= 1000));
+  assert.equal(last[0].role, "user");
+  assert.match(last[0].content, /Preferred name.*Amira/);
+  assert.equal(last.at(-1).content, "Could you refine L’Oréal routine step 43?");
+  assert.equal(last.filter(m => m.role === "system").length, 0);
+  assert.equal(last.slice(1).some(m => /My name is Amira/.test(m.content)), false,
+    "The original introduction no longer appears in the recent history");
+});
+
+test("Name corrections take precedence; skincare preferences remain; New chat clears name", async () => {
+  const captured = [];
+  const app = createFrontend(async (_, options) => {
+    captured.push(JSON.parse(options.body));
+    return { ok: true, async json() {
+      return { choices: [{ message: { content: "Personalized L’Oréal guidance." } }] };
+    } };
+  });
+  const ask = async question => {
+    app.elements.userInput.value = question;
+    app.elements.chatForm.listeners.submit({ preventDefault() {} });
+    await new Promise(resolve => setTimeout(resolve, 0));
+  };
+
+  await ask("My name is Maya and my skin is dry. I prefer L’Oréal moisturizer.");
+  await ask("Actually, please call me Noor. Which L’Oréal serum is good?");
+  for (let i = 0; i < 6; i++) await ask("Tell me more about L’Oréal routine step " + i + ".");
+  const last = captured.at(-1).messages;
+  assert.match(last[0].content, /Preferred name.*Noor/);
+  assert.doesNotMatch(last[0].content, /Maya/);
+  assert.match(last[0].content, /my skin is dry/i);
+  assert.equal(last.filter(m => /Earlier beauty preferences and details/.test(m.content)).length, 1);
+
+  app.elements.resetBtn.listeners.click();
+  await ask("What L’Oréal fragrance would suit me?");
+  const reset = captured.at(-1).messages;
+  assert.equal(reset.length, 1);
+  assert.equal(reset[0].role, "user");
+  assert.doesNotMatch(JSON.stringify(reset), /Maya|Noor/);
+});
+
+test("Personal names are not invented from generic beauty questions or unsuccessful requests", async () => {
+  const captured = [];
+  let failFirst = true;
+  const app = createFrontend(async (_, options) => {
+    captured.push(JSON.parse(options.body));
+    if (failFirst) {
+      failFirst = false;
+      return { ok: false, async json() { return { error: "Please retry." }; } };
+    }
+    return { ok: true, async json() {
+      return { choices: [{ message: { content: "Try a gentle L’Oréal cleanser." } }] };
+    } };
+  });
+  const ask = async question => {
+    app.elements.userInput.value = question;
+    app.elements.chatForm.listeners.submit({ preventDefault() {} });
+    await new Promise(resolve => setTimeout(resolve, 0));
+  };
+  await ask("My name is Zara. Suggest a L’Oréal cleanser.");
+  await ask("I prefer skincare for sensitive skin.");
+  assert.equal(captured.at(-1).messages.length, 1);
+  assert.doesNotMatch(JSON.stringify(captured.at(-1)), /Preferred name|Zara/);
+  await ask("Could you suggest a L’Oréal moisturizer?");
+  assert.doesNotMatch(captured.at(-1).messages[0].content, /Preferred name/);
+});
