@@ -54,14 +54,15 @@ function setQuestionPreview(question) {
 // The memory note stays a regular user-role message: it cannot override
 // the Worker's server-side system prompt or topic restrictions.
 // Accept only explicit introductions, not guessed names or text from the AI.
-// Example: "My name is Maya and my skin is dry." -> "Maya".
+// Example: "My name is Maya. Can you recommend skincare?" -> "Maya".
+// Keep punctuation out of name tokens to avoid capturing the next sentence.
 function nameFromIntroduction(message) {
-  const introduction = /\b(?:my name is|my name's|you can call me|please call me|call me|i go by|i am called|i'm called|i prefer to be called)\s+([\p{L}\p{M}][\p{L}\p{M}'’.-]*(?:\s+[\p{L}\p{M}][\p{L}\p{M}'’.-]*){0,2})/iu;
+  const introduction = /\b(?:my name is|my name's|you can call me|please call me|call me|i go by|i am called|i'm called|i prefer to be called)\s+([\p{L}\p{M}]+(?:[-'’][\p{L}\p{M}]+)*(?:\s+[\p{L}\p{M}]+(?:[-'’][\p{L}\p{M}]+)*){0,2})/iu;
   const match = message.match(introduction);
   if (!match) return "";
   // A conjunction after the name usually starts another clause, not a name.
   const name = match[1]
-    .split(/\s+(?:and|but|so|because|my|i|i'm|with|for|from|who|also)\b/iu)[0]
+    .split(/\s+(?:and|but|so|because|my|i|i'm|with|for|from|who|also|please|can|could|would|what|when|where|which|do|does|how|tell|recommend|suggest)\b/iu)[0]
     .replace(/[\s.,!?;:]+$/u, "")
     .trim();
   return name.length > 0 && name.length <= 70 ? name : "";
