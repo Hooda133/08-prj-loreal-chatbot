@@ -210,7 +210,9 @@ function newChat(focusInput = true) {
   input.value = "";
   addMessage(GREETING, "ai");
   if (focusInput) chatAnnouncement.textContent = "New conversation started. The beauty advisor is ready.";
-  if (focusInput) input.focus();
+  // On phones the virtual keyboard can cover the composer if we focus
+  // automatically. Let visitors see the input before choosing to type.
+  if (focusInput && window.matchMedia("(pointer: fine)").matches) input.focus();
 }
 
 async function sendMessage(text) {
@@ -325,10 +327,28 @@ function handleSuggestedPrompt(event) {
 suggestions.addEventListener("click", handleSuggestedPrompt);
 miniPrompts.addEventListener("click", handleSuggestedPrompt);
 
-resetBtn.addEventListener("click", () => newChat(true));
+function showTouchComposer() {
+  // Center the input within the visible page before the virtual keyboard opens.
+  // This also leaves part of the conversation visible above the form.
+  form.scrollIntoView({
+    behavior: motionIsAllowed() ? "smooth" : "auto",
+    block: "center"
+  });
+}
+
+resetBtn.addEventListener("click", () => {
+  newChat(true);
+  if (!window.matchMedia("(pointer: fine)").matches) showTouchComposer();
+});
 startButton.addEventListener("click", () => {
-  scrollToAdvisor();
-  input.focus({ preventScroll: true });
+  if (window.matchMedia("(pointer: fine)").matches) {
+    scrollToAdvisor();
+    input.focus({ preventScroll: true });
+  } else {
+    // Focusing immediately opens a touch keyboard, covering the composer.
+    // Show the message box first and let the visitor choose when to type.
+    showTouchComposer();
+  }
 });
 
 // Show the hero on initial page load instead of scrolling to the input.
