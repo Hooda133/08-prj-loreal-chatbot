@@ -144,6 +144,19 @@ try {
     }).filter(item => item.right > innerWidth + 3 || item.left < -3)
       .sort((a, b) => b.right - a.right).slice(0, 18));
     console.log("Mobile overflow contributors:", JSON.stringify(offscreen));
+    const outsideTicker = await mobile.evaluate(() => [...document.querySelectorAll("body *")]
+      .filter(el => !el.closest(".luxury-ticker"))
+      .map(el => {
+        const r = el.getBoundingClientRect();
+        return { tag: el.tagName, className: typeof el.className === "string" ? el.className.slice(0, 75) : "svg",
+          right: Math.round(r.right), left: Math.round(r.left),
+          scrollWidth: el.scrollWidth, clientWidth: el.clientWidth };
+      })
+      .filter(el => el.right > innerWidth + 2 || el.left < -2)
+      .sort((a,b) => b.right - a.right)
+      .slice(0, 24));
+    console.log("Mobile offenders EXCLUDING ticker:", JSON.stringify(outsideTicker));
+    await mobile.screenshot({ path: "/tmp/final-beauty-mobile.png", fullPage: true });
   }
   assert.ok(mobileState.overflow <= 2, "375px mobile overflow: " + mobileState.overflow);
   assert.equal(mobileState.previewDisplay, "none");
