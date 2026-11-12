@@ -210,7 +210,9 @@ function newChat(focusInput = true) {
   input.value = "";
   addMessage(GREETING, "ai");
   if (focusInput) chatAnnouncement.textContent = "New conversation started. The beauty advisor is ready.";
-  if (focusInput) input.focus();
+  // On phones the virtual keyboard can cover the composer if we focus
+  // automatically. Let visitors see the input before choosing to type.
+  if (focusInput && window.matchMedia("(pointer: fine)").matches) input.focus();
 }
 
 async function sendMessage(text) {
@@ -327,8 +329,18 @@ miniPrompts.addEventListener("click", handleSuggestedPrompt);
 
 resetBtn.addEventListener("click", () => newChat(true));
 startButton.addEventListener("click", () => {
-  scrollToAdvisor();
-  input.focus({ preventScroll: true });
+  if (window.matchMedia("(pointer: fine)").matches) {
+    scrollToAdvisor();
+    input.focus({ preventScroll: true });
+  } else {
+    // A touch keyboard shrinks the visible viewport, so focusing immediately
+    // after scrolling to the top of this tall chat panel hides the input.
+    // Center the composer on-screen first; tap the input to open the keyboard.
+    form.scrollIntoView({
+      behavior: motionIsAllowed() ? "smooth" : "auto",
+      block: "center"
+    });
+  }
 });
 
 // Show the hero on initial page load instead of scrolling to the input.
