@@ -133,6 +133,18 @@ try {
     heroVisible: !!document.querySelector(".hero-story h1"),
     prompts: document.querySelectorAll(".quick-prompts button").length
   }));
+  if (mobileState.overflow > 2) {
+    const offscreen = await mobile.evaluate(() => [...document.querySelectorAll("body *")].map(el => {
+      const rect = el.getBoundingClientRect();
+      return {
+        tag: el.tagName, className: typeof el.className === "string" ? el.className.slice(0, 90) : "svg",
+        left: Math.round(rect.left), right: Math.round(rect.right),
+        scrollWidth: el.scrollWidth, clientWidth: el.clientWidth
+      };
+    }).filter(item => item.right > innerWidth + 3 || item.left < -3)
+      .sort((a, b) => b.right - a.right).slice(0, 18));
+    console.log("Mobile overflow contributors:", JSON.stringify(offscreen));
+  }
   assert.ok(mobileState.overflow <= 2, "375px mobile overflow: " + mobileState.overflow);
   assert.equal(mobileState.previewDisplay, "none");
   assert.equal(mobileState.motionDisplay, "none", "Reduced motion should hide the motion toggle");
