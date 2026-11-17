@@ -1,0 +1,125 @@
+/* Beauty Atelier — real-product discovery and personal ritual studio.
+   Deliberately separate from legacy styling so existing chat remains intact. */
+.builder-section{padding:96px 0 110px;background:#f7f4ef;color:#211e1b;scroll-margin-top:22px}
+.builder-section button,.builder-section select,.builder-section input{font:inherit}
+.builder-section button{cursor:pointer}
+.builder-section button:focus-visible,.builder-section select:focus-visible,.builder-section input:focus-visible,.builder-section a:focus-visible{outline:3px solid #8b6232;outline-offset:3px}
+.builder-intro{max-width:760px;margin-bottom:42px}
+.builder-eyebrow,.catalog-header__eyebrow,.builder-side__top,.builder-field label,.builder-selections__heading,.catalog-field label,.routine-kicker{font:700 11px/1.4 "DM Sans",sans-serif;letter-spacing:.16em}
+.builder-eyebrow{color:#825c4b;display:block;margin-bottom:16px}
+.builder-eyebrow span{color:#8d8580}
+.builder-intro h2{font:400 clamp(48px,6vw,80px)/1.04 "Bodoni Moda",serif;letter-spacing:-.045em;margin:0 0 18px}
+.builder-intro h2 em{font-weight:400;color:#946f66}
+.builder-intro>p{font:400 16px/1.75 "DM Sans",sans-serif;max-width:730px;color:#665e57;margin:0}
+.builder-layout{display:grid;grid-template-columns:minmax(0,1fr) 335px;gap:24px;align-items:start}
+.catalog-panel{min-width:0;padding:26px;background:#fff;border:1px solid #e4dcd3}
+.catalog-header{display:flex;gap:16px;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+.catalog-header__eyebrow{color:#957266}
+.catalog-header h3{font:400 32px/1.2 "Bodoni Moda",serif;letter-spacing:-.03em;margin:10px 0 0}
+.catalog-counter{font:600 11px/1.4 "DM Sans",sans-serif;color:#74685f;background:#f5f1eb;padding:8px 11px;white-space:nowrap}
+.catalog-filters{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(170px,1fr);gap:12px;margin-bottom:23px}
+.catalog-field label{display:block;margin:0 0 7px;color:#6d6258;font-size:10px}
+.catalog-field input,.catalog-field select,.builder-field select{width:100%;height:46px;border:1px solid #c9bfb4;border-radius:2px;background:#fff;color:#25211e;padding:0 13px;font:500 13px "DM Sans",sans-serif;min-width:0}
+.catalog-field input::placeholder{color:#857e75}
+.catalog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.catalog-card{display:flex;flex-direction:column;min-width:0;background:#fdfcf9;border:1px solid #e7dfd4;padding:13px 14px 14px;transition:border-color .2s,box-shadow .2s,transform .2s}
+.catalog-card:hover{border-color:#bf9c83;box-shadow:0 11px 26px #37291b12;transform:translateY(-2px)}
+.catalog-card__art{height:138px;display:grid;place-items:center;position:relative;overflow:hidden;margin-bottom:14px;background:radial-gradient(circle at 50% 44%,#f4e6db,#e7d4c7 63%,#dcc8bb)}
+.catalog-card__art:before{content:"";position:absolute;inset:16px 18% 4px;border:1px solid #ffffff8f;border-bottom:0;border-radius:60% 60% 0 0}
+.catalog-card__art--serum{background:radial-gradient(circle at 50% 40%,#fff2e6,#e4c6b2 75%)}
+.catalog-card__art--moisturizer{background:radial-gradient(circle at 50% 40%,#f3e9da,#cfc7b0 75%)}
+.catalog-card__art--sunscreen{background:radial-gradient(circle at 50% 40%,#f8edd7,#dac6a0 75%)}
+.catalog-card__art .beauty-icon{height:118px;width:118px;filter:drop-shadow(8px 12px 9px #49322135);position:relative;z-index:1}
+.catalog-card__eyebrow{font:800 9px/1.5 "DM Sans",sans-serif;color:#806954;letter-spacing:.15em;margin-bottom:9px}
+.catalog-card__title{font:600 17px/1.35 "DM Sans",sans-serif;letter-spacing:-.03em;min-height:46px;margin:0 0 8px;color:#231d19}
+.catalog-card__description{font:400 12px/1.55 "DM Sans",sans-serif;color:#655a50;margin:0 0 12px;flex:1}
+.catalog-link{display:inline-block;align-self:flex-start;color:#5e4238;text-decoration:underline;text-underline-offset:4px;font:700 11px/1.5 "DM Sans",sans-serif;margin-bottom:13px}
+.catalog-link:hover{color:#2e201b}
+.catalog-card__actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:auto}
+.catalog-button{border:1px solid #33302d;background:transparent;color:#25211c;padding:10px 11px;min-height:42px;font:700 11px/1.2 "DM Sans",sans-serif;letter-spacing:.01em;flex:1}
+.catalog-button--save{background:#27211d;color:#fff}
+.catalog-button--save[aria-pressed="true"]{background:#f4eee7;color:#45372a;border-color:#a79078}
+.catalog-button--ask:hover,.catalog-button--save:hover{filter:brightness(.9)}
+.catalog-disclaimer{font:400 11px/1.65 "DM Sans",sans-serif;color:#74695d;margin:22px 0 0}
+.catalog-disclaimer a{color:#51382c;text-underline-offset:3px}
+.catalog-empty{padding:30px 15px;font:500 14px/1.6 "DM Sans",sans-serif;color:#65574c}
+.builder-side{position:sticky;top:16px;border:1px solid #b8a593;background:#eae0d3;padding:27px 25px;box-shadow:0 12px 30px #47312110}
+.builder-side__top{display:flex;justify-content:space-between;gap:6px;align-items:center;color:#6e5145;font-size:9px}
+.builder-side__badge{font-size:9px;letter-spacing:.09em;background:#f5f0e9;padding:7px}
+.builder-side h3{font:400 44px/1.05 "Bodoni Moda",serif;letter-spacing:-.04em;margin:29px 0 15px}
+.builder-side h3 em{color:#8a5c4e;font-weight:400}
+.builder-side>p{font:400 13px/1.65 "DM Sans",sans-serif;color:#5f534c;margin:0 0 25px}
+.builder-field{margin-bottom:17px}
+.builder-field label{display:block;margin-bottom:8px;color:#4e3d34;font-size:10px}
+.builder-field select{height:48px;background:#faf8f3;border-color:#bbac99;font-size:13px}
+.builder-selections{border-top:1px solid #c7b8a6;margin-top:25px;padding-top:18px}
+.builder-selections__heading{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10px;color:#46382e}
+.builder-selections__heading span{font:600 11px/1.3 "DM Sans",sans-serif;letter-spacing:0}
+.selected-products{display:flex;flex-wrap:wrap;gap:7px;min-height:47px;margin:13px 0 17px}
+.selected-empty{font:400 11px/1.6 "DM Sans",sans-serif;color:#70645a}
+.saved-chip{background:#f8f4eb;border:1px solid #bfae9b;padding:7px 9px;text-align:left;font:600 10px/1.4 "DM Sans",sans-serif;color:#473a30;overflow-wrap:anywhere}
+.saved-chip:hover{background:#fff}
+.routine-primary{border:1px solid #251f1d;background:#251f1d;color:#fff;padding:16px 19px;min-height:49px;font:800 11px/1.5 "DM Sans",sans-serif;letter-spacing:.11em;transition:background .2s,transform .2s}
+.routine-primary:hover{background:#534139;transform:translateY(-1px)}
+.builder-generate{width:100%;display:flex;align-items:center;justify-content:space-between}
+.builder-side>p.builder-side__fineprint{font-size:10px;line-height:1.6;margin:14px 0 0}
+.routine-result{background:#fff;border:1px solid #e1d7cc;margin-top:25px;padding:29px 31px;scroll-margin-top:30px}
+.routine-result__empty{min-height:100px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.routine-result__empty span{font:700 10px "DM Sans",sans-serif;letter-spacing:.14em;color:#916c5c}
+.routine-result__empty p{font:400 25px "Bodoni Moda",serif;margin:10px 0 7px}
+.routine-result__empty small{font:400 12px "DM Sans",sans-serif;color:#6d6257}
+.routine-kicker{color:#916c5c}
+.routine-result__heading h3{font:400 clamp(30px,4vw,43px)/1.2 "Bodoni Moda",serif;margin:12px 0}
+.routine-result__heading p{font:400 13px/1.6 "DM Sans",sans-serif;color:#5b514b;margin:0 0 25px}
+.routine-result__columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.routine-result__panel{background:#faf7f2;border:1px solid #e6dbcb;padding:23px}
+.routine-result__panel h4{font:400 26px/1.2 "Bodoni Moda",serif;margin:0 0 21px}
+.routine-result__steps{list-style:decimal;margin:0;padding-left:21px}
+.routine-result__step{padding:0 0 18px 5px;margin-bottom:18px;border-bottom:1px solid #e6dbcb}
+.routine-result__step:last-child{margin:0;padding-bottom:0;border-bottom:0}
+.routine-result__step::marker{font:700 13px "DM Sans",sans-serif;color:#92735d}
+.routine-result__step-copy{display:flex;flex-direction:column;gap:5px}
+.routine-result__step-label{font:800 10px/1.5 "DM Sans",sans-serif;letter-spacing:.1em;color:#8c6e58;text-transform:uppercase}
+.routine-result__step-copy strong{font:700 14px/1.4 "DM Sans",sans-serif;color:#29231e}
+.routine-result__step-copy small{font:400 12px/1.5 "DM Sans",sans-serif;color:#6b5e53}
+.routine-result__step .catalog-link{margin:9px 0 0}
+.routine-result__notes{font:400 12px/1.6 "DM Sans",sans-serif;color:#685b51;padding-left:19px;margin:22px 0}
+.routine-result__notes li{margin:4px 0}
+.routine-result__actions{display:flex;flex-wrap:wrap;gap:12px}
+.routine-secondary{background:#fff;border:1px solid #756452;color:#29221d;min-height:49px;padding:15px 19px;font:800 11px/1.5 "DM Sans",sans-serif;letter-spacing:.1em}
+.routine-secondary:hover{background:#f7f1e8}
+@media(max-width:1050px){
+  .builder-layout{grid-template-columns:minmax(0,1fr) 300px;gap:16px}
+  .catalog-panel{padding:20px}
+  .builder-side{padding:23px 18px}
+  .catalog-filters{grid-template-columns:1fr}
+}
+@media(max-width:850px){
+  .builder-section{padding:68px 0 77px}
+  .builder-layout{grid-template-columns:1fr}
+  .builder-side{position:static;grid-row:1;padding:26px}
+  .catalog-filters{grid-template-columns:minmax(0,1.25fr) minmax(150px,1fr)}
+}
+@media(max-width:570px){
+  .builder-section{padding:50px 0 65px}
+  .builder-intro{margin-bottom:24px}
+  .builder-intro h2{font-size:48px}
+  .builder-intro>p{font-size:13px}
+  .builder-eyebrow span{display:none}
+  .catalog-panel{padding:15px}
+  .catalog-header{display:block}
+  .catalog-header h3{font-size:27px}
+  .catalog-counter{display:inline-block;margin-top:13px}
+  .catalog-filters,.catalog-grid,.routine-result__columns{grid-template-columns:1fr}
+  .catalog-card__art{height:155px}
+  .catalog-card__title{min-height:0}
+  .catalog-card__actions{flex-wrap:nowrap}
+  .builder-side{padding:22px}
+  .builder-side h3{font-size:40px}
+  .routine-result{padding:19px 14px}
+  .routine-result__panel{padding:18px 16px}
+  .routine-result__actions .routine-primary,.routine-result__actions .routine-secondary{width:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  .catalog-card,.routine-primary{transition:none;transform:none!important}
+}
