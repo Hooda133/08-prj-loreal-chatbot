@@ -139,6 +139,11 @@
       announceText("The AI chat is not ready. Please refresh the page.");
       return;
     }
+    // The existing chat permits only one pending AI request at a time.
+    if (document.getElementById("sendBtn").disabled) {
+      announceText("The Beauty Concierge is answering another question. Try again when that reply finishes.");
+      return;
+    }
     const advisorPanel = document.getElementById("concierge");
     advisorPanel.scrollIntoView({ behavior: "smooth", block: "start" });
     window.sendMessage(question);
