@@ -2,6 +2,49 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## New: real-product routine builder
+
+The **Find your ritual** studio adds a searchable L'Oréal Paris skincare catalog and a
+personalized morning/evening routine generator without changing the existing secure
+chat architecture.
+
+- **Browse real products:** `product-catalog.js` contains 11 named products,
+  sourced from publicly available pages on `lorealparisusa.com` and reviewed in
+  November 2026. Each card includes an official product link, category, concise
+  description, and original student artwork (not a misleading product photo).
+- **Choose your favorites:** visitors can search/filter by category, save/remove
+  products in their current page session, and ask the AI about a specific item.
+- **Build a routine:** choose skin type, primary goal, and morning/evening preference.
+  `routine-builder.js` selects suitable saved products first, fills remaining
+  steps from the verified catalog, orders cleanser → serum → moisturizer → AM SPF,
+  avoids stacking glycolic exfoliants, and excludes stronger acid products from
+  the sensitive-skin starter routine. Results have official source links.
+- **Refine with AI:** the *Refine with Beauty AI* button sends the actual chosen
+  product names and profile to the existing Cloudflare beauty chatbot as a
+  bounded user message. The Worker remains solely responsible for OpenAI calls,
+  scope enforcement, and API-key security.
+- **Share your plan:** Copy My Routine copies product names and official URLs,
+  where the browser permits clipboard access.
+
+**Data honesty:** This is a **static, curated, source-linked product snapshot**,
+not a live L'Oréal API feed. Current prices, shade availability, inventories,
+formulas, or stock are deliberately not asserted. Product records can be updated
+from official pages as the catalog changes. The AI is not given unrestricted
+access to L'Oréal's internal catalog; it uses the selected verified names plus
+its existing general beauty knowledge. This is an independent student project,
+not an L'Oréal-approved diagnostic or recommendation service.
+
+**Privacy and caution:** saved selections and preferences are only kept in
+the current webpage session. Asking the AI sends the routine/profile in the
+existing Cloudflare request; no product question is sent directly to OpenAI
+from the browser. Patch testing, conservative exfoliation, and official
+directions are recommended. Medical diagnosis is out of scope.
+
+**Checks:** Run `node --test tests/chatbot-flow.test.mjs tests/routine-builder.test.mjs`.
+After a PR is merged, verify mobile/desktop search, selecting/removing,
+AM/PM plans, copy, and the AI handoff on the published GitHub Pages page.
+No Worker redeployment is required for this frontend-only feature.
+
 ## Atelier Studio — original premium icon collection
 
 The site's product artwork now uses **one consistent, original SVG icon system**, rather than a mixture of small symbols and older product-card sketches. The five shared designs include a glass serum dropper, sculpted lipstick, faceted perfume flacon, open powder compact and bronze haircare pump. They feature custom gradient materials (glass, translucent liquid, polished metal, black lacquer and soft powder), realistic edge highlights and subtle shadows.
