@@ -4,9 +4,13 @@ on:
   pull_request:
     paths:
       - "script.js"
+      - "product-catalog.js"
+      - "routine-builder.js"
+      - "routine-builder.css"
       - "RESOURCE_cloudflare-worker.js"
       - "index.html"
       - "tests/chatbot-flow.test.mjs"
+      - "tests/routine-builder.test.mjs"
       - ".github/workflows/chatbot-checks.yml"
   workflow_dispatch:
 
@@ -27,4 +31,4 @@ jobs:
           node-version: "22"
 
       - name: Verify complete chatbot requirement
-        run: node --test tests/chatbot-flow.test.mjs
+        run: node --test tests/chatbot-flow.test.mjs tests/routine-builder.test.mjs
