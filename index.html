@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="routine-builder.css" />
 </head>
 <body>
   <a class="skip-link" href="#concierge">Skip to beauty advisor</a>
@@ -196,7 +197,7 @@
     </a>
     <nav class="header-nav" aria-label="Main navigation">
       <a href="#discover">THE BEAUTY EDIT</a>
-      <a class="header-nav__ritual" href="#ritual">OUR APPROACH</a>
+      <a class="header-nav__ritual" href="#routine-builder">BUILD A ROUTINE</a>
       <a href="#concierge" class="header-nav__cta">MEET YOUR ADVISOR <span aria-hidden="true">↗</span></a>
     </nav>
   </header>
@@ -321,6 +322,84 @@
         </div>
       </div>
     </div>
+    <!-- Real-product routine builder: sourced from official L'Oréal Paris pages. -->
+    <section class="builder-section" id="routine-builder" aria-labelledby="routine-title">
+      <div class="page-width">
+        <div class="builder-intro">
+          <span class="builder-eyebrow">THE PERSONAL EDIT <span>— AN INTERACTIVE BEAUTY STUDIO</span></span>
+          <h2 id="routine-title">Find your <em>ritual.</em></h2>
+          <p>Explore real L’Oréal Paris skincare, save the formulas that catch your eye, and create a morning or evening routine tailored to your needs. Then ask our AI concierge to make it even more personal.</p>
+        </div>
+        <div class="builder-layout">
+          <div class="catalog-panel">
+            <div class="catalog-header">
+              <div><span class="catalog-header__eyebrow">01 / THE PRODUCT LIBRARY</span><h3>Discover the collection.</h3></div>
+              <span class="catalog-counter" id="productCount">Loading products…</span>
+            </div>
+            <div class="catalog-filters">
+              <div class="catalog-field catalog-field--search">
+                <label for="productSearch">SEARCH PRODUCTS</label>
+                <input id="productSearch" type="search" placeholder="Try hyaluronic, SPF, cleanser…" autocomplete="off" />
+              </div>
+              <div class="catalog-field">
+                <label for="productCategory">CATEGORY</label>
+                <select id="productCategory">
+                  <option value="all">All products</option>
+                  <option value="cleanser">Cleansers</option>
+                  <option value="serum">Serums</option>
+                  <option value="moisturizer">Moisturizers</option>
+                  <option value="sunscreen">SPF protection</option>
+                </select>
+              </div>
+            </div>
+            <div class="catalog-grid" id="productGrid" aria-label="Real L’Oréal Paris skincare product catalog"></div>
+            <p class="catalog-disclaimer">Curated from official L’Oréal Paris USA product pages, checked November 2026. Product details, availability and formulas can change. Artwork is original student illustration, not product photography. <a href="https://www.lorealparisusa.com/skin-care" target="_blank" rel="noopener noreferrer">Explore the official catalog ↗</a></p>
+          </div>
+          <aside class="builder-side" aria-labelledby="builder-side-title">
+            <div class="builder-side__top"><span>02 / YOUR PERSONAL FORMULA</span><span class="builder-side__badge">MADE FOR YOU</span></div>
+            <h3 id="builder-side-title">Your skin.<br /><em>Your edit.</em></h3>
+            <p>Three quick choices. Your saved products are considered first, when suitable.</p>
+            <div class="builder-field">
+              <label for="routineSkin">WHAT IS YOUR SKIN TYPE?</label>
+              <select id="routineSkin">
+                <option value="normal">Normal</option>
+                <option value="dry">Dry</option>
+                <option value="oily">Oily</option>
+                <option value="combination">Combination</option>
+                <option value="sensitive">Sensitive</option>
+              </select>
+            </div>
+            <div class="builder-field">
+              <label for="routineConcern">YOUR MAIN SKIN GOAL</label>
+              <select id="routineConcern">
+                <option value="hydration">Hydration &amp; comfort</option>
+                <option value="radiance">Radiance &amp; dark spots</option>
+                <option value="firmness">Fine lines &amp; firmness</option>
+                <option value="texture">Texture &amp; uneven tone</option>
+              </select>
+            </div>
+            <div class="builder-field">
+              <label for="routineTime">CHOOSE YOUR RITUAL</label>
+              <select id="routineTime">
+                <option value="both">Morning + evening</option>
+                <option value="am">Morning only</option>
+                <option value="pm">Evening only</option>
+              </select>
+            </div>
+            <div class="builder-selections">
+              <div class="builder-selections__heading"><strong>YOUR SAVED EDIT</strong><span id="pickedCount">0 saved</span></div>
+              <div id="chosenProducts" class="selected-products" aria-label="Selected products"></div>
+            </div>
+            <button type="button" class="routine-primary builder-generate" id="buildRoutine">BUILD MY ROUTINE <span aria-hidden="true">↗</span></button>
+            <p class="builder-side__fineprint">Educational beauty guidance, not medical advice. Start slowly, patch-test new products, and follow official directions.</p>
+          </aside>
+        </div>
+        <div id="routineResult" class="routine-result" aria-label="Your personalized routine" tabindex="-1">
+          <div class="routine-result__empty"><span>03 / YOUR PERSONALIZED PLAN</span><p>Your personalized routine will appear here.</p><small>Select your preferences and choose Build My Routine.</small></div>
+        </div>
+        <div id="routineStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+      </div>
+    </section>
     <section class="discover page-width" id="discover" aria-labelledby="discover-title">
       <div class="section-title">
         <div><span class="section-title__eyebrow">A WORLD TO EXPLORE <span>— THE EDIT / 01</span></span><h2 id="discover-title">Your next <em>obsession.</em></h2></div>
@@ -381,5 +460,7 @@
   </main>
   <footer class="site-footer page-width"><div><strong>BEAUTY ATELIER</strong><span>AN INDEPENDENT STUDENT PROJECT INSPIRED BY L’ORÉAL PARIS.</span></div><p>Not affiliated with or endorsed by L'Oréal. Product suggestions are AI-generated and may be inaccurate; check official product listings before buying.</p><div class="footer-actions"><button id="motionToggle" type="button" class="motion-toggle"><span class="motion-toggle__icon" aria-hidden="true">Ⅱ</span><span class="motion-toggle__label">PAUSE MOTION</span></button><a href="#top">BACK TO TOP ↑</a></div></footer>
   <script src="script.js"></script>
+  <script src="product-catalog.js"></script>
+  <script src="routine-builder.js"></script>
 </body>
 </html>
