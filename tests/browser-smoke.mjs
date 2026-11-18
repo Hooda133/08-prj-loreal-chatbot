@@ -84,11 +84,12 @@ try {
   assert.ok(state.horizontalOverflow <= 2, "Desktop should not scroll horizontally: " + state.horizontalOverflow);
 
   // Bonus: explicit web search sends a bounded opt-in flag and shows
+  const lookup = await setupPage(1440, 900);
   // real-clickable source links alongside the in-answer citation.
-  await desktop.click("#webSearchToggle");
-  assert.equal(await desktop.$eval("#webSearchToggle", el => el.checked), true);
-  await sendQuestion(desktop, "What is the latest L'Oréal Paris serum information?");
-  const searched = await desktop.evaluate(() => {
+  await lookup.click("#webSearchToggle");
+  assert.equal(await lookup.$eval("#webSearchToggle", el => el.checked), true);
+  await sendQuestion(lookup, "What is the latest L'Oréal Paris serum information?");
+  const searched = await lookup.evaluate(() => {
     const bubble = document.querySelector(".chat-window .message.ai:last-child");
     const inline = bubble.querySelector(".chat-inline-citation");
     const source = bubble.querySelector(".chat-source-link");
@@ -111,8 +112,10 @@ try {
   assert.equal(searched.rel, "noopener noreferrer");
   assert.equal(searched.present, true);
   assert.ok(searched.horizontalOverflow <= 2, "Search citation links must not cause horizontal overflow");
-  await desktop.click("#webSearchToggle");
-  assert.equal(await desktop.$eval("#webSearchToggle", el => el.checked), false);
+  await lookup.click("#webSearchToggle");
+  assert.equal(await lookup.$eval("#webSearchToggle", el => el.checked), false);
+
+  await lookup.close();
 
   await sendQuestion(desktop, "My name is Emma. Can you suggest a L’Oréal routine?");
   state = await desktop.evaluate(() => ({
