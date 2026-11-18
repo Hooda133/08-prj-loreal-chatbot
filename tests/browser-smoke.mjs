@@ -359,6 +359,19 @@ try {
     inList:true, highlighted:true
   }, "Clicking product artwork must select the product and update visuals + selected list");
 
+  // Filtering out a selected card does not remove its saved selection.
+  await desktop.focus("#productSearch");
+  await desktop.type("#productSearch", "mascara");
+  const temporarilyHidden = await desktop.evaluate(() => ({
+    hasLumi:!!document.querySelector('[data-product-id="lumi-glotion"]'),
+    saved:document.querySelector("#pickedCount").textContent,
+    chip:document.querySelector("#chosenProducts").textContent.includes("Lumi Glotion")
+  }));
+  assert.deepEqual(temporarilyHidden, {hasLumi:false,saved:"1 saved",chip:true});
+  await desktop.click("#clearProductSearch");
+  assert.equal(await desktop.$eval(lumiCard, card => card.classList.contains("catalog-card--selected")), true,
+    "Selected product returns highlighted after search is cleared");
+
   await desktop.click(lumiCard + " .catalog-card__title");
   productState = await desktop.evaluate(() => {
     const card = document.querySelector('[data-product-id="lumi-glotion"]');
