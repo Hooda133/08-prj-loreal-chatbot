@@ -86,7 +86,7 @@ function safeSourceUrl(value) {
   try {
     const url = new URL(value);
     if (url.protocol !== "https:" || url.username || url.password) return "";
-    if (!url.hostname || /^(localhost|127\\.|10\\.|192\\.168\\.|0\\.0\\.0\\.0)/i.test(url.hostname)) return "";
+    if (!url.hostname || /^(localhost|127\.|10\.|192\.168\.|0\.0\.0\.0)/i.test(url.hostname)) return "";
     return url.href;
   } catch {
     return "";
@@ -132,7 +132,7 @@ function citedSearchAnswer(data) {
       for (const cite of inserts.sort((a, b) => b.start - a.start)) {
         const span = text.slice(cite.start, cite.end);
         // Replace only inline citation tokens; never remove answer prose.
-        const isMarker = /^(?:【|\\[|cite)/u.test(span) && span.length < 250;
+        const isMarker = /^(?:【|\[|cite)/u.test(span) && span.length < 250;
         text = text.slice(0, cite.start) +
           (isMarker ? " [" + cite.number + "]" : span + " [" + cite.number + "]") +
           text.slice(cite.end);
@@ -141,7 +141,7 @@ function citedSearchAnswer(data) {
     }
   }
   if (!parts.length || !sources.length) return null;
-  return { text: parts.join("\\n\\n").trim(), sources };
+  return { text: parts.join("\n\n").trim(), sources };
 }
 
 export default {
