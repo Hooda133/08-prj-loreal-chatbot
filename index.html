@@ -319,6 +319,13 @@
             </span>
           </label>
           <div id="status" class="status" role="status" aria-live="polite"></div>
+          <details id="requestDiagnostic" class="request-diagnostic" hidden>
+            <summary>View safe technical details</summary>
+            <p>No questions, chat history, or API keys are included.</p>
+            <pre id="requestDiagnosticText"></pre>
+            <button type="button" id="copyRequestDiagnostic" class="request-diagnostic__copy">Copy details</button>
+            <span id="requestDiagnosticCopyStatus" role="status" aria-live="polite"></span>
+          </details>
           <form class="chat-form" id="chatForm">
             <label for="userInput" class="sr-only">Ask about L’Oréal products or beauty routines</label>
             <input id="userInput" type="text" autocomplete="off" maxlength="1000" aria-describedby="chatHelp" placeholder="Ask about L’Oréal beauty products or routines…" required />
