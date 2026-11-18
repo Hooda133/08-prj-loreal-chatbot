@@ -2,6 +2,59 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## Bonus: live web search with visible citations
+
+**Opt-in feature:** In Beauty Concierge, enable **SEARCH THE LIVE WEB**
+before sending a current L'Oréal question. The chatbot searches recent online
+information and shows **clickable numbered citations in the answer** and
+a **WEB SOURCES** list with source titles and links.
+
+### How it works
+
+1. The browser adds `searchWeb: true` to its normal chat JSON request **only
+   when the visitor enables the checkbox**. All requests still go to the same
+   HTTPS Cloudflare Worker. The browser never calls OpenAI directly.
+2. The Worker first validates the request and classifies whether the
+   latest question is within L'Oréal beauty scope using the existing
+   `gpt-4.1` Chat Completions system-prompt route. Out-of-scope questions
+   receive the existing friendly refusal **without a search call**.
+3. For an in-scope search, the Worker sends a second server-side request to
+   OpenAI's **Responses API** with `gpt-4.1`,
+   `tools: [{ type: "web_search", search_context_size: "low" }]` and
+   `tool_choice: "required"`. The Worker uses the same
+   `env.OPENAI_API_KEY` secret; no additional browser credential is needed.
+4. The Worker extracts real `url_citation` annotations from the
+   `web_search_call` result and returns bounded HTTPS source links and
+   numbered citation markers. The frontend builds source links with safe DOM
+   APIs (`textContent` / anchors, never untrusted HTML).
+5. If the search fails or returns no verified citations, the chatbot shows
+   a helpful retry message rather than inventing a current source.
+
+**Costs:** Live search makes an additional model request and uses a billable
+web-search tool. The switch is **off by default** to avoid unexpected calls.
+Use Cloudflare rate limiting and OpenAI spending limits before public use.
+
+**Deployment requirement:** Merging the GitHub PR updates the website but
+**does not automatically deploy the Worker**. After merging, replace the
+running Worker script in Cloudflare with the updated
+`RESOURCE_cloudflare-worker.js` and **Save and Deploy**. Preserve
+`OPENAI_API_KEY` as a Cloudflare **Secret** and keep `ALLOWED_ORIGIN` set
+to `https://hooda133.github.io`. Until the new Worker is deployed, turning
+on the search checkbox will not produce real search citations, because the
+old Worker does not recognize `searchWeb`.
+
+**Manual acceptance test:** Open the live website, enable SEARCH THE LIVE WEB,
+ask "What are the latest L'Oréal Paris skincare launches?", and confirm the
+reply has one or more clickable numbered sources. Click a citation to open
+the sourced page. Check browser DevTools Network: browser requests go only
+to the Cloudflare Worker, never directly to OpenAI. Then turn the switch
+off and verify standard chat and follow-ups still work.
+
+Automated tests mock both upstream API calls and browser replies. They
+validate scope limits, the required Responses `web_search` call, safe
+citations, the non-search route, and desktop/mobile links. They do **not**
+verify live search results without deploying the Worker.
+
 ## Assignment: Reveal Product Description
 
 Every L'Oréal catalog card displays a short summary and has a **VIEW DETAILS +**
