@@ -2,6 +2,47 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## Assignment: Language support — right-to-left (RTL) layout
+
+Use the **LAYOUT / الاتجاه** selector in the site header to switch between
+**English · LTR** and **العربية · RTL**. The choice is saved only in this
+browser's localStorage, and a full page reload restores it. Browsers where
+localStorage is disabled can still switch directions for the current page.
+
+- The page sets semantic `<html dir="rtl" lang="ar">` in Arabic layout
+  mode, then restores `dir="ltr" lang="en"` for English.
+- The product grid starts on the **right**, and the catalog and routine
+  builder columns mirror their order. Product descriptions, search/category
+  controls, the selection indicator, saved-product chips, **Clear All**
+  control, and routine-step lists align to the right.
+- The chat window swaps the AI and visitor message sides. The composer,
+  prompt buttons, lists, source links, and toolbar also respect direction.
+- Each individual message uses `dir="auto"` and a matching `lang`
+  attribute: Arabic messages read right-to-left, while English product
+  names and chat content remain readable and screen-reader friendly.
+- Direction can be switched without deleting the conversation, selected
+  products, active search terms or generated routine. The saved layout
+  preference is separate from saved products.
+- The selector has an accessible label and announces a direction change
+  to assistive technology. Layout and controls are keyboard/touch usable.
+
+**Scope note:** This implements RTL-capable **layout support**, not a
+complete Arabic translation of the English catalog, marketing copy, or
+AI interface. Product names remain their original published English names.
+Users may type Arabic questions in the chat.
+
+**Acceptance test:** Switch to العربية · RTL, verify the catalog and
+selected chips begin at the right, send an Arabic question and confirm
+the assistant/user bubbles use opposite sides. Select two products,
+reload, and confirm the RTL layout and saved choices return. Switch to
+English and verify the existing chat and selections are unchanged.
+
+GitHub Actions' Chrome test covers 1440px desktop and 375px touch mobile,
+actual RTL positions, user/assistant alignment, Arabic message direction,
+saved products, switch/reload persistence, and no sideways scrolling.
+Screenshots are uploaded as `beauty-rtl-desktop.png` and
+`beauty-rtl-mobile.png`.
+
 ## Assignment: Add Product Search
 
 The collection includes an instant **SEARCH PRODUCTS** field beside the
