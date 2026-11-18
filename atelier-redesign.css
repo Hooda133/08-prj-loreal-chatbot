@@ -75,8 +75,6 @@ html[dir="rtl"] .reading-progress span{transform-origin:right center}
   transition:background .25s,transform .25s,box-shadow .25s;
 }
 .header-nav__cta:hover{color:#fff;background:#763a4b;transform:translateY(-2px);box-shadow:0 10px 22px #2d1c2830}
-.language-switch select{background:#faf5ee;border-color:#c8b4a5;border-radius:4px}
-.language-switch label{color:#7c5861}
 
 /* THE COVER: an immersive midnight-plum editorial stage. */
 .hero-grid{
@@ -558,8 +556,6 @@ html[dir="rtl"] .site-header .brand{direction:ltr}
   .site-header .brand__logo{max-width:155px;max-height:30px}
   .brand__sub{font-size:8px;letter-spacing:.05em;line-height:1.35}
   .header-nav__cta{font-size:9px!important;min-height:38px;padding:8px 10px;gap:7px}
-  .language-switch{justify-content:flex-end}
-  .language-switch select{min-height:36px;font-size:11px}
   .hero-grid{width:calc(100% - 20px);margin-top:11px;padding:25px 17px 28px;gap:24px;border-radius:8px}
   .hero-grid::after{inset:8px}
   .hero-engraving{font-size:310px;top:0;left:-10px}
