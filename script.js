@@ -157,7 +157,7 @@ function verifiedSources(raw) {
     try {
       const url = new URL(item.url);
       return url.protocol === "https:" && !url.username && !url.password &&
-        !/^(localhost|127\\.|10\\.|192\\.168\\.)/i.test(url.hostname);
+        !/^(localhost|127\.|10\.|192\.168\.)/i.test(url.hostname);
     } catch {
       return false;
     }
@@ -177,7 +177,7 @@ function sourceAnchor(source, index, inline = false) {
 }
 
 function addInlineText(parent, value, sources = []) {
-  const formatPattern = /\\*\\*([^*]+)\\*\\*|\\[(\\d+)\\]/g;
+  const formatPattern = /\*\*([^*]+)\*\*|\[(\d+)\]/g;
   let last = 0;
   let match;
   while ((match = formatPattern.exec(value)) !== null) {
