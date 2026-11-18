@@ -110,7 +110,7 @@ try {
   assert.equal(editorial.cssLoaded, true, "Premium design stylesheet should load");
   assert.equal(editorial.darkCover, true, "Cover must use editorial gradients");
   assert.equal(editorial.headingColor, "rgb(255, 250, 242)");
-  assert.equal(editorial.stickyHeader, "sticky");
+  assert.equal(editorial.stickyHeader, "relative", "Masthead must not cover scrolled-to controls");
   assert.deepEqual(editorial.journeyLinks, ["#concierge", "#routine-builder", "#discover"]);
   assert.match(editorial.issue, /ATELIER/);
   assert.equal(editorial.progress, true);
