@@ -1041,6 +1041,44 @@ try {
 
 
 
+
+  // Reproduce a blocked Worker request on the phone and ensure that its
+  // diagnostic can be expanded without exposing the visitor's message.
+  const diagnosticsPhone = await setupPage(375, 812, true, true);
+  await diagnosticsPhone.evaluate(() => {
+    const original = window.fetch.bind(window);
+    window.fetch = (url, options) => {
+      if (String(url).includes("loreal-beauty-advisor.elshamandy133.workers.dev")) {
+        return Promise.reject(new TypeError("Failed to fetch"));
+      }
+      return original(url, options);
+    };
+  });
+  await diagnosticsPhone.click("#webSearchToggle");
+  await diagnosticsPhone.focus("#userInput");
+  await diagnosticsPhone.type("#userInput", "private question that must never be in diagnostics");
+  await diagnosticsPhone.click("#sendBtn");
+  await diagnosticsPhone.waitForFunction(() =>
+    !document.querySelector("#requestDiagnostic").hidden);
+  const diagnosticState = await diagnosticsPhone.evaluate(() => ({
+    error:document.querySelector("#status").textContent,
+    diagnostic:document.querySelector("#requestDiagnosticText").textContent,
+    title:document.querySelector("#requestDiagnostic summary").textContent,
+    overflow:document.documentElement.scrollWidth - innerWidth
+  }));
+  assert.match(diagnosticState.error, /Could not reach the Cloudflare Worker/);
+  assert.match(diagnosticState.diagnostic, /Error code: NETWORK_OR_CORS/);
+  assert.match(diagnosticState.diagnostic, /HTTP status: no response/);
+  assert.doesNotMatch(diagnosticState.diagnostic, /private question/);
+  assert.match(diagnosticState.title, /technical details/i);
+  assert.ok(diagnosticState.overflow <= 2, "Mobile diagnostic must not cause overflow");
+  await diagnosticsPhone.click("#requestDiagnostic summary");
+  assert.equal(await diagnosticsPhone.$eval("#requestDiagnostic", el => el.open), true);
+  await diagnosticsPhone.click("#resetBtn");
+  assert.equal(await diagnosticsPhone.$eval("#requestDiagnostic", el => el.hidden), true,
+    "New Chat removes stale error details");
+  await diagnosticsPhone.close();
+
   assert.deepEqual(failures, [], "There must be no uncaught browser JavaScript errors");
   console.log("PASS: Real Chrome desktop + mobile smoke test");
   console.log("PASS: Prompt buttons, distinct chat bubbles, preview, context, New Chat, motion and accessible input");
