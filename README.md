@@ -2,6 +2,38 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## Assignment: Generate Routine with selected products and OpenAI
+
+The **Generate Routine** button is the AI workflow, separate from **Preview
+Routine Without AI** (which remains an immediate browser-only example).
+
+1. Select one or more real L'Oréal Paris products in the catalog. They appear
+   above the Generate Routine button; selection is never sent automatically.
+2. Choose the skincare/haircare/makeup focus and relevant preferences.
+3. Click **Generate Routine**. The browser packages the **selected catalog
+   product names, groups, descriptions and official links**, plus the selected
+   skin/hair/style preferences, in bounded user-role messages. The existing
+   `sendMessage()` function posts those messages to the **existing Cloudflare
+   Worker**, which handles the OpenAI API call and safely holds the secret key.
+4. Beauty Concierge shows its loading bubble and then the model's **personalized
+   routine inside the chat**, with the normal error/timeout/cancel handling.
+
+The request stays within the Worker's **12 messages total, 1,000 characters
+per message** limits; extra product notes displace older conversational history
+when needed, and no selected product is silently discarded. The regular
+chatbox draft is preserved when generating via the product button. A missing
+selection shows a prompt to select at least one item and does **not** call AI.
+
+**Important:** The frontend must **never** call the OpenAI API directly or
+contain an API key. Official product listings come from the curated snapshot,
+not a live brand product API. The chatbot may not perfectly follow product
+guidance; users should consult product instructions. This new feature needs
+**no change or redeployment of the Cloudflare Worker**.
+
+**Test:** `node --test tests/chatbot-flow.test.mjs tests/routine-builder.test.mjs`.
+The Chrome smoke test now verifies the button submits selected product details
+and the resulting mocked AI reply appears as a chat bubble on desktop and phone.
+
 ## New: real-product routine builder
 
 The **Find your ritual** studio features a searchable catalog of real L'Oréal Paris
