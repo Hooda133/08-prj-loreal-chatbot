@@ -280,6 +280,39 @@ try {
   assert.equal(generated.busy, false, "Generate button is reenabled after a response");
   assert.equal(generated.count, "2 saved", "Selected products remain saved after generation");
 
+  // Follow-Up Chat: the NEXT request must remember the previous routine,
+  // its original selected products, and the earlier model response.
+  assert.equal(await desktop.$eval("#followUpSuggestions", node => node.hidden), false);
+  const beforeFollowUp = await desktop.evaluate(() => window.__mockRequests.length);
+  await desktop.click("#followUpSuggestions button[data-followup]");
+  await desktop.waitForFunction(n => window.__mockRequests.length === n + 1, {}, beforeFollowUp);
+  await desktop.waitForFunction(() => document.querySelector("#sendBtn").disabled === false);
+  const followUpRequest = await desktop.evaluate(() => ({
+    messages: window.__mockRequests.at(-1).messages,
+    draft: document.querySelector("#userInput").value,
+    suggestionsVisible: !document.querySelector("#followUpSuggestions").hidden
+  }));
+  assert.match(followUpRequest.messages.at(-1).content, /Which of the products or steps we just discussed/);
+  assert.ok(followUpRequest.messages.some(m => m.content.includes("Lumi Glotion Glow Enhancer")));
+  assert.ok(followUpRequest.messages.some(m => m.content.includes("Lash Paradise Washable Mascara")));
+  assert.ok(followUpRequest.messages.some(m => m.role === "assistant" &&
+    m.content.includes("Your L’Oréal routine")), "Include the prior AI response");
+  assert.ok(followUpRequest.messages.length <= 12);
+  assert.ok(followUpRequest.messages.every(m => m.content.length <= 1000 && m.role !== "system"));
+  assert.equal(followUpRequest.suggestionsVisible, true);
+  assert.equal(followUpRequest.draft, "Draft a separate question",
+    "Clicking a suggested follow-up preserves a separate typed draft");
+
+  // New chat must forget the previous generated routine entirely.
+  await desktop.click("#resetBtn");
+  assert.equal(await desktop.$eval("#followUpSuggestions", node => node.hidden), true);
+  const beforeFreshChat = await desktop.evaluate(() => window.__mockRequests.length);
+  await sendQuestion(desktop, "What L’Oréal products suit dry hair?");
+  const newChatRequest = await desktop.evaluate(() => window.__mockRequests.at(-1).messages);
+  assert.equal(newChatRequest.length, 1);
+  assert.doesNotMatch(JSON.stringify(newChatRequest), /Lumi Glotion|Lash Paradise/);
+  assert.equal(await desktop.$eval("#followUpSuggestions", node => node.hidden), false);
+
   await desktop.screenshot({ path: "/tmp/final-beauty-desktop.png", fullPage: true });
   await desktop.close();
 
