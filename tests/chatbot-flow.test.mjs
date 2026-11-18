@@ -918,12 +918,15 @@ test("Opt-in web search is routed through Worker and returns real citation links
     assert.equal(calls[1].payload.model, "gpt-4.1");
     assert.equal(calls[1].payload.tools[0].type, "web_search");
     assert.equal(calls[1].payload.tool_choice, "required");
+    assert.deepEqual(calls[1].payload.include, ["web_search_call.action.sources"]);
     assert.equal(calls[1].payload.store, false);
     assert.equal(calls[1].payload.input.at(-1).role, "user");
     assert.equal(calls[1].auth, "Bearer unit-test-only");
     assert.equal(result.sources.length, 1);
     assert.equal(result.sources[0].url, url);
     assert.equal(result.sources[0].title, title);
+    assert.equal(result.searchStatus, "complete");
+    assert.equal(result.sourceType, "cited");
     assert.match(result.choices[0].message.content, /\[1\]/);
     assert.doesNotMatch(result.choices[0].message.content, /【1†source】/);
     assert.doesNotMatch(JSON.stringify(result), /unit-test-only/);
@@ -947,7 +950,10 @@ test("Off-topic web search is blocked before searching, and malformed flags are 
       body:JSON.stringify({messages:[{role:"user",content:"What are the football scores?"}],searchWeb:true})
     }),env);
     assert.equal(offTopic.status, 200);
-    assert.match((await offTopic.json()).choices[0].message.content,/outside my specialty/);
+    const outOfScopeResult = await offTopic.json();
+    assert.match(outOfScopeResult.choices[0].message.content, /outside my specialty/);
+    assert.equal(outOfScopeResult.searchStatus, "out_of_scope");
+    assert.equal(outOfScopeResult.sources, undefined);
     assert.equal(calls.length, 1, "No paid web search for an out-of-scope question");
     const malformed = await worker.fetch(new Request("https://example.workers.dev/", {
       method:"POST",headers:{Origin:trustedOrigin,"Content-Type":"application/json"},
@@ -1027,6 +1033,118 @@ test("Invalid citation links cannot become clickable through the browser", async
   app.elements.userInput.value = "Latest L'Oréal products?";
   app.elements.chatForm.listeners.submit({preventDefault(){}});
   await new Promise(resolve => setTimeout(resolve,12));
-  assert.match(app.elements.status.textContent,/No verifiable sources/);
+  assert.match(app.elements.status.textContent,/Live search is not active on the Cloudflare Worker/);
   assert.equal(app.elements.chatWindow.nodes.length,1,"Failed search is not saved in chat");
+});
+
+
+test("Live web-search returns consulted URLs when annotations are missing", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const sourceUrl = "https://www.lorealparisusa.com/hair-care";
+  globalThis.fetch = async (endpoint, options) => {
+    calls.push({endpoint,body:JSON.parse(options.body)});
+    if (String(endpoint).includes("/chat/completions")) {
+      return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify({
+        scope:"in_scope",answer:"L'Oréal haircare options are relevant."
+      })}}]}),{status:200});
+    }
+    return new Response(JSON.stringify({status:"completed",output:[
+      {type:"web_search_call",status:"completed",action:{
+        type:"search",sources:[
+          {type:"url",url:sourceUrl},
+          {type:"url",url:"http://insecure.example.com"},
+          {type:"url",url:"https://127.0.0.1/private"},
+          {type:"url",url:sourceUrl}
+        ]
+      }},
+      {type:"message",role:"assistant",content:[{type:"output_text",
+        text:"The latest L'Oréal product details are available on their website.",
+        annotations:[]
+      }]}
+    ]}),{status:200});
+  };
+  try {
+    const result = await worker.fetch(new Request("https://example.workers.dev/",{
+      method:"POST",headers:{Origin:trustedOrigin,"Content-Type":"application/json"},
+      body:JSON.stringify({messages:[{role:"user",content:"Any L'Oréal haircare recommendations?"}],searchWeb:true})
+    }),{ALLOWED_ORIGIN:trustedOrigin,OPENAI_API_KEY:"unit-test-only"});
+    assert.equal(result.status,200);
+    const data = await result.json();
+    assert.equal(data.searchStatus,"complete");
+    assert.equal(data.sourceType,"consulted");
+    assert.deepEqual(data.sources,[{url:sourceUrl,title:"www.lorealparisusa.com"}]);
+    assert.match(data.choices[0].message.content,/website/);
+    assert.doesNotMatch(data.choices[0].message.content,/\[1\]/,
+      "Consulted sources must not be disguised as inline claim citations");
+    assert.deepEqual(calls[1].body.include, ["web_search_call.action.sources"]);
+    assert.doesNotMatch(JSON.stringify(data),/unit-test-only|127\.0\.0\.1/);
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test("No web search performed never fabricates sources and an incomplete search is not trusted", async () => {
+  const originalFetch = globalThis.fetch;
+  let completion = "completed";
+  globalThis.fetch = async endpoint => {
+    if (String(endpoint).includes("/chat/completions")) {
+      return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify({
+        scope:"in_scope",answer:"A beauty recommendation."
+      })}}]}),{status:200});
+    }
+    return new Response(JSON.stringify({status:completion,output:[
+      {type:"message",role:"assistant",content:[{
+        type:"output_text",text:"A beauty recommendation.",
+        annotations:[{type:"url_citation",url:"https://www.lorealparisusa.com",title:"L'Oréal",start_index:0,end_index:2}]
+      }]}
+    ]}),{status:200});
+  };
+  try {
+    const env = {ALLOWED_ORIGIN:trustedOrigin,OPENAI_API_KEY:"unit-test-only"};
+    const req = () => new Request("https://example.workers.dev/",{
+      method:"POST",headers:{Origin:trustedOrigin,"Content-Type":"application/json"},
+      body:JSON.stringify({messages:[{role:"user",content:"New L'Oréal products?"}],searchWeb:true})
+    });
+    const noSearch = await worker.fetch(req(),env);
+    assert.equal(noSearch.status,502,"No real web_search_call means no source attribution");
+    assert.ok(!(await noSearch.json()).sources);
+    completion = "incomplete";
+    const incomplete = await worker.fetch(req(),env);
+    assert.equal(incomplete.status,502);
+    assert.match((await incomplete.json()).error,/interrupted/);
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test("Search UI renders consulted sources with accurate wording, not fake inline citations", async () => {
+  const url = "https://www.lorealparisusa.com/skin-care";
+  const app = createFrontend(async () => ({ok:true,async json(){return {
+    searchStatus:"complete",sourceType:"consulted",
+    choices:[{message:{content:"Explore L'Oréal Paris products and check the official listing."}}],
+    sources:[{url,title:"www.lorealparisusa.com"}]
+  };}}));
+  app.elements.webSearchToggle.checked = true;
+  app.elements.userInput.value = "What are the latest L'Oréal skincare products?";
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  await new Promise(resolve => setTimeout(resolve,12));
+  const response = app.elements.chatWindow.nodes.at(-1);
+  const consulted = response.nodes.find(node => node.className === "chat-sources");
+  assert.ok(consulted);
+  assert.match(consulted.textContent,/PAGES CONSULTED/);
+  const links = consulted.nodes.find(node => node.tagName === "OL");
+  assert.equal(links.nodes[0].nodes[0].href,url);
+  const paragraphs = response.nodes.filter(node => node.tagName === "P");
+  assert.ok(paragraphs.every(node => !node.textContent.includes("[1]")),
+    "Only the consulted-sources list is numbered, not inline claims");
+});
+
+test("Out-of-scope search shows the beauty-only reply, not a source error", async () => {
+  const app = createFrontend(async () => ({ok:true,async json(){return {
+    searchStatus:"out_of_scope",
+    choices:[{message:{content:"Sorry, that's outside my specialty, but I can help with L'Oréal beauty."}}]
+  };}}));
+  app.elements.webSearchToggle.checked = true;
+  app.elements.userInput.value = "What are the football scores?";
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  await new Promise(resolve => setTimeout(resolve,12));
+  assert.equal(app.elements.status.textContent,"");
+  assert.match(app.elements.chatWindow.textContent,/outside my specialty/);
 });

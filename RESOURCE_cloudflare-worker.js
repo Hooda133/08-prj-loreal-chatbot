@@ -61,10 +61,11 @@ function json(body, status, headers) {
 
 // Keep the website's existing response shape unchanged; add verified citation
 // metadata only when a visitor explicitly requests a live web search.
-function reply(content, headers, sources = []) {
+function reply(content, headers, sources = [], search = null) {
   return json({
     choices: [{ message: { content } }],
-    ...(sources.length ? { sources } : {})
+    ...(sources.length ? { sources } : {}),
+    ...(search ? { searchStatus: search.status, sourceType: search.sourceType || null } : {})
   }, 200, headers);
 }
 
@@ -140,8 +141,26 @@ function citedSearchAnswer(data) {
       parts.push(text);
     }
   }
-  if (!parts.length || !sources.length) return null;
-  return { text: parts.join("\n\n").trim(), sources };
+  // Some legitimate Responses API searches return consulted URLs on the
+  // web_search_call action but omit url_citation annotations in output_text.
+  // Request action.sources explicitly and show those *actual retrieved URLs*
+  // as "pages consulted" instead of inventing inline claim citations.
+  const hasCitations = sources.length > 0;
+  if (!hasCitations) {
+    for (const item of output) {
+      if (item.type !== "web_search_call" || !Array.isArray(item.action?.sources)) continue;
+      for (const source of item.action.sources) {
+        if (source?.type !== "url") continue;
+        const url = safeSourceUrl(source.url);
+        if (!url || sourceNumbers.has(url) || sources.length >= 8) continue;
+        sourceNumbers.set(url, sources.length + 1);
+        sources.push({ url, title: new URL(url).hostname });
+      }
+    }
+  }
+  const answer = parts.join("\n\n").trim();
+  if (!answer || !sources.length) return null;
+  return { text: answer, sources, sourceType: hasCitations ? "cited" : "consulted" };
 }
 
 export default {
@@ -228,7 +247,8 @@ export default {
 
     const assistant = data?.choices?.[0]?.message;
     if (assistant?.refusal) {
-      return reply(OUT_OF_SCOPE_REPLY, cors);
+      return reply(OUT_OF_SCOPE_REPLY, cors, [],
+        body.searchWeb === true ? { status: "out_of_scope" } : null);
     }
     let decision;
     try {
@@ -239,7 +259,8 @@ export default {
 
     // Server-side enforcement: unrelated generated text is never passed
     // to the visitor when the model marks the request out of scope.
-    if (decision?.scope === "out_of_scope") return reply(OUT_OF_SCOPE_REPLY, cors);
+    if (decision?.scope === "out_of_scope") return reply(OUT_OF_SCOPE_REPLY, cors, [],
+      body.searchWeb === true ? { status: "out_of_scope" } : null);
     if (decision?.scope !== "in_scope" ||
         typeof decision.answer !== "string" ||
         !decision.answer.trim()) {
@@ -263,8 +284,9 @@ export default {
             input: safeMessages,
             tools: [{ type: "web_search", search_context_size: "low" }],
             tool_choice: "required",
+            include: ["web_search_call.action.sources"],
             store: false,
-            max_output_tokens: 900
+            max_output_tokens: 1600
           })
         });
       } catch {
@@ -279,11 +301,17 @@ export default {
       } catch {
         return json({ error: "Could not read live search results. Please try again." }, 502, cors);
       }
+      if (searchedData?.status === "incomplete" || searchedData?.status === "failed") {
+        return json({ error: "Live search was interrupted before it finished. Please retry." }, 502, cors);
+      }
       const found = citedSearchAnswer(searchedData);
       if (!found) {
-        return json({ error: "No verified web citations were returned. Try a more specific L'Oréal product question." }, 502, cors);
+        return json({
+          error: "Search ran but returned no verifiable source links. Try a more specific L'Oréal product question."
+        }, 502, cors);
       }
-      return reply(found.text, cors, found.sources);
+      return reply(found.text, cors, found.sources,
+        { status: "complete", sourceType: found.sourceType });
     }
 
     return reply(decision.answer.trim(), cors);

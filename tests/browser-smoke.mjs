@@ -37,14 +37,20 @@ async function setupPage(width, height, reducedMotion = false, touch = false) {
             choices: [{
               message: {
                 content: request.searchWeb
-                  ? "Current L’Oréal serum information is available [1]."
+                  ? /cologne/i.test(request.messages.at(-1).content)
+                    ? "Check the latest fragrance collections for L'Oréal-related brands."
+                    : "Current L’Oréal serum information is available [1]."
                   : "## Your L’Oréal routine\n- Start by considering your skin type.\n- Choose products that fit your preferences."
               }
             }],
-            ...(request.searchWeb ? { sources: [{
-              title: "L’Oréal Paris official serum catalog",
-              url: "https://www.lorealparisusa.com/skin-care/face-serums"
-            }] } : {})
+            ...(request.searchWeb ? {
+              searchStatus: "complete",
+              sourceType: /cologne/i.test(request.messages.at(-1).content) ? "consulted" : "cited",
+              sources: [{
+                title: "L’Oréal Paris official serum catalog",
+                url: "https://www.lorealparisusa.com/skin-care/face-serums"
+              }]
+            } : {})
           })
         });
       }
@@ -175,6 +181,24 @@ try {
   assert.equal(searched.rel, "noopener noreferrer");
   assert.equal(searched.present, true);
   assert.ok(searched.horizontalOverflow <= 2, "Search citation links must not cause horizontal overflow");
+  // The reported failure involved a fragrance query without inline
+  // annotations. Real consulted URLs should display even with no [1] token.
+  await sendQuestion(lookup, "any cologne recommendation from L'Oréal-related brands?");
+  const consulted = await lookup.evaluate(() => {
+    const bubble = document.querySelector(".chat-window .message.ai:last-child");
+    return {
+      sourceHeading:bubble.querySelector(".chat-sources strong")?.textContent,
+      sourceLink:bubble.querySelector(".chat-source-link")?.href,
+      inlineCitation:!!bubble.querySelector(".chat-inline-citation"),
+      status:document.querySelector("#status").textContent
+    };
+  });
+  assert.match(consulted.sourceHeading, /PAGES CONSULTED/);
+  assert.match(consulted.sourceLink, /^https:\/\/www\.lorealparisusa\.com\//);
+  assert.equal(consulted.inlineCitation, false,
+    "Source list is available without inventing inline citations");
+  assert.equal(consulted.status, "");
+
   await lookup.click("#webSearchToggle");
   assert.equal(await lookup.$eval("#webSearchToggle", el => el.checked), false);
 
