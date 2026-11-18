@@ -211,9 +211,11 @@ html[dir="rtl"] .catalog-filters,
 html[dir="rtl"] .builder-selections__heading,
 html[dir="rtl"] .selected-products{direction:rtl}
 html[dir="rtl"] .catalog-card{text-align:right}
+/* Product titles may be translated to Arabic, or remain in Latin letters.
+   Preserve correct bidirectional text instead of forcing all copy LTR. */
 html[dir="rtl"] .catalog-card__title,
 html[dir="rtl"] .catalog-card__description,
-html[dir="rtl"] .saved-chip{direction:ltr;text-align:right;unicode-bidi:isolate}
+html[dir="rtl"] .saved-chip{direction:rtl;text-align:start;unicode-bidi:plaintext}
 html[dir="rtl"] .catalog-card__selection-label{right:auto;left:22px}
 html[dir="rtl"] .catalog-card__details{border-left:1px solid #d3bca8;border-right:3px solid #9d735b}
 html[dir="rtl"] .catalog-card__details-caution{border-left:0;border-right:3px solid #b57e49}
