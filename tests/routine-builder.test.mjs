@@ -12,7 +12,7 @@ for (const file of ["product-catalog.js", "routine-builder.js"]) {
   runInNewContext(source, { window, document });
 }
 const catalog = window.BeautyCatalog;
-const { buildRoutine, questionForRoutine, buildSelectedProductNotes, buildFollowUpProductNotes, questionForSelectedProducts, parseSavedProductIds } = window.BeautyRoutineLogic;
+const { buildRoutine, questionForRoutine, buildSelectedProductNotes, buildFollowUpProductNotes, questionForSelectedProducts, parseSavedProductIds, normalizeSearch, filterCatalogProducts } = window.BeautyRoutineLogic;
 
 test("catalog uses genuine named products with HTTPS official listing links", () => {
   assert.ok(catalog.length >= 23);
@@ -183,4 +183,46 @@ test("restored selected products still influence personalized routine recommenda
   const saved = parseSavedProductIds(JSON.stringify(["peptide-serum"]));
   const plan = buildRoutine({ skin:"normal", concern:"hydration", time:"am" }, saved);
   assert.equal(plan.am[1].product.id, "peptide-serum");
+});
+
+
+test("Product search matches any-order keywords across name, group and description", () => {
+  const sorted = filterCatalogProducts(catalog, "serum hyaluronic", "all");
+  assert.ok(sorted.some(p => p.id === "ha-serum"), "Hyaluronic serum is discoverable");
+  assert.ok(sorted.every(p => p.name.toLowerCase().includes("hyaluronic") && p.group === "serum"));
+  const reversed = filterCatalogProducts(catalog, "HYALURONIC    SERUM", "all");
+  assert.deepEqual(Array.from(reversed, p => p.id), Array.from(sorted, p => p.id));
+  const hair = filterCatalogProducts(catalog, "oily shampoo", "haircare");
+  assert.ok(hair.some(p => p.id === "pure-shampoo"));
+  assert.ok(hair.every(p => p.type === "haircare" && p.group === "shampoo"));
+});
+
+test("Product search intersects keyword matches with the selected category", () => {
+  const all = filterCatalogProducts(catalog, "hyaluron", "all");
+  const serum = filterCatalogProducts(catalog, "hyaluron", "serum");
+  const hair = filterCatalogProducts(catalog, "hyaluron", "haircare");
+  assert.ok(all.length > serum.length);
+  assert.ok(serum.some(p => p.id === "ha-serum"));
+  assert.ok(hair.some(p => p.id === "plump-shampoo"));
+  assert.ok(serum.every(p => p.group === "serum"));
+  assert.ok(hair.every(p => p.type === "haircare"));
+  assert.equal(filterCatalogProducts(catalog, "hyaluronic", "makeup").length, 0);
+});
+
+test("Product keyword matching is case, punctuation and accent insensitive", () => {
+  assert.equal(normalizeSearch("  L’Oréal  SPF-50!  "), "l oreal spf 50");
+  assert.equal(normalizeSearch("Hyalurónic acid"), "hyaluronic acid");
+  const one = filterCatalogProducts(catalog, "SPF-50", "all");
+  const two = filterCatalogProducts(catalog, "spf 50", "all");
+  assert.deepEqual(Array.from(one, p => p.id), Array.from(two, p => p.id));
+  assert.ok(one.some(p => p.id === "bright-spf"));
+  assert.ok(filterCatalogProducts(catalog, "face wash", "all").some(p => p.id === "radiant-cleanser"));
+});
+
+test("Product keyword search preserves catalog order, returns all on empty query and no false matches", () => {
+  const all = filterCatalogProducts(catalog, "", "all");
+  assert.deepEqual(Array.from(all, p => p.id), Array.from(catalog, p => p.id));
+  assert.deepEqual(Array.from(filterCatalogProducts(catalog, "not-real-product-name-zzz", "all")), []);
+  assert.ok(filterCatalogProducts(catalog, "dry hair", "haircare").length > 0);
+  assert.ok(filterCatalogProducts(catalog, "mascara", "makeup").some(p => p.id === "lash-paradise"));
 });
