@@ -140,6 +140,11 @@ function addMessage(text, role, pending = false, forceScroll = false) {
   bubble.className = "message " + role + (pending ? " pending" : "");
   bubble.setAttribute("role", "group");
   bubble.setAttribute("aria-label", role === "user" ? "Your message" : "Beauty Concierge message");
+  // The outer chat panel mirrors in RTL; each message keeps the natural
+  // direction and language of its own content, so English product names
+  // and Arabic conversations remain readable side by side.
+  bubble.setAttribute("dir", "auto");
+  bubble.setAttribute("lang", /[\u0600-\u06FF]/.test(text) ? "ar" : "en");
   bubble.textContent = text;
   windowEl.appendChild(bubble);
   scrollChatIfNeeded(shouldScroll);
@@ -198,6 +203,8 @@ function addInlineText(parent, value, sources = []) {
 }
 function renderAssistantReply(bubble, responseText, sources = []) {
   const shouldScroll = isNearChatBottom();
+  bubble.setAttribute("dir", "auto");
+  bubble.setAttribute("lang", /[\u0600-\u06FF]/.test(responseText) ? "ar" : "en");
   bubble.replaceChildren();
   const lines = responseText.split(/\r?\n/);
   let list = null;
