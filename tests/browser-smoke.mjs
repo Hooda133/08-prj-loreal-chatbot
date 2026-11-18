@@ -307,7 +307,11 @@ try {
   await desktop.click("#resetBtn");
   assert.equal(await desktop.$eval("#followUpSuggestions", node => node.hidden), true);
   const beforeFreshChat = await desktop.evaluate(() => window.__mockRequests.length);
-  await sendQuestion(desktop, "What L’Oréal products suit dry hair?");
+  await desktop.focus("#userInput");
+  await desktop.type("#userInput", "What L’Oréal products suit dry hair?");
+  await desktop.click("#sendBtn");
+  await desktop.waitForFunction(n => window.__mockRequests.length === n + 1, {}, beforeFreshChat);
+  await desktop.waitForFunction(() => document.querySelector("#sendBtn").disabled === false);
   const newChatRequest = await desktop.evaluate(() => window.__mockRequests.at(-1).messages);
   assert.equal(newChatRequest.length, 1);
   assert.doesNotMatch(JSON.stringify(newChatRequest), /Lumi Glotion|Lash Paradise/);
