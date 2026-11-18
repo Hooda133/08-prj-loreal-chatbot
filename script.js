@@ -356,15 +356,18 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
     if (!WORKER_URL.startsWith("https://")) {
       throw new Error("Cloudflare Worker URL is not configured.");
     }
-    const response = await fetch(WORKER_URL, {
+    // Normal conversations keep the existing Worker message shape.
+    // Search adds only a boolean flag; never put credentials in this payload.
+    const options = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: nextMessages,
-        ...(isWebSearch ? { searchWeb: true } : {})
-      }),
+      body: JSON.stringify({ messages: nextMessages }),
       signal: controller.signal
-    });
+    };
+    if (isWebSearch) {
+      options.body = JSON.stringify({ messages: nextMessages, searchWeb: true });
+    }
+    const response = await fetch(WORKER_URL, options);
     if (thisRequest !== requestGeneration) return;
     let data;
     try {
