@@ -190,6 +190,36 @@
     announceText("Sent your product question to the Beauty Concierge.");
   }
 
+  // Keep the card's selection state in sync without rebuilding the grid.
+  // This preserves keyboard focus when a visitor toggles a product.
+  function syncCardSelection(card, product) {
+    const active = selected.has(product.id);
+    card.classList.toggle("catalog-card--selected", active);
+    const pick = card.querySelector(".catalog-card__pick");
+    pick.setAttribute("aria-pressed", String(active));
+    pick.setAttribute("aria-label", (active ? "Unselect " : "Select ") + product.name);
+    card.querySelector(".catalog-card__selection-label").textContent = active ? "✓ SELECTED" : "+ SELECT";
+    const save = card.querySelector(".catalog-button--save");
+    save.textContent = active ? "✓ Saved" : "+ Save product";
+    save.setAttribute("aria-pressed", String(active));
+    save.setAttribute("aria-label", (active ? "Remove " : "Save ") + product.name);
+  }
+
+  function syncVisibleCard(product) {
+    for (const card of grid.querySelectorAll(".catalog-card")) {
+      if (card.dataset.productId === product.id) syncCardSelection(card, product);
+    }
+  }
+
+  function toggleSelectedProduct(product, card) {
+    if (selected.has(product.id)) selected.delete(product.id);
+    else selected.add(product.id);
+    syncCardSelection(card, product);
+    renderSelection();
+    if (lastRoutine) renderRoutine(buildRoutine(currentProfile(), [...selected]));
+    announceText(product.name + (selected.has(product.id) ? " added to selected products." : " removed from selected products."));
+  }
+
   function renderSelection() {
     chosen.replaceChildren();
     pickedCount.textContent = selected.size + " saved";
@@ -206,7 +236,7 @@
       chip.addEventListener("click", () => {
         selected.delete(id);
         renderSelection();
-        renderCatalog();
+        syncVisibleCard(product);
         if (lastRoutine) renderRoutine(buildRoutine(currentProfile(), [...selected]));
         announceText(product.name + " removed from saved products.");
       });
@@ -229,9 +259,21 @@
     }
     for (const product of filtered) {
       const card = make("article", "catalog-card");
+      card.dataset.productId = product.id;
+      // A full-card button sits underneath the regular product links/actions.
+      // Selecting the image, title, or empty space toggles the product;
+      // official links and Ask AI keep their independent behavior.
+      const pick = make("button", "catalog-card__pick");
+      pick.type = "button";
+      pick.setAttribute("aria-describedby", "productSelectionHint");
+      pick.addEventListener("click", () => toggleSelectedProduct(product, card));
+      card.appendChild(pick);
       const image = make("div", "catalog-card__art catalog-card__art--" + product.group);
       image.appendChild(productIcon(product));
       card.appendChild(image);
+      const selectionLabel = make("span", "catalog-card__selection-label");
+      selectionLabel.setAttribute("aria-hidden", "true");
+      card.appendChild(selectionLabel);
       card.appendChild(make("span", "catalog-card__eyebrow", product.family + "  /  " + productType(product).toUpperCase()));
       card.appendChild(make("h3", "catalog-card__title", product.name));
       card.appendChild(make("p", "catalog-card__description", product.description));
@@ -241,20 +283,14 @@
       save.type = "button";
       save.setAttribute("aria-pressed", String(selected.has(product.id)));
       save.setAttribute("aria-label", (selected.has(product.id) ? "Remove " : "Save ") + product.name);
-      save.addEventListener("click", () => {
-        if (selected.has(product.id)) selected.delete(product.id);
-        else selected.add(product.id);
-        renderCatalog();
-        renderSelection();
-        if (lastRoutine) renderRoutine(buildRoutine(currentProfile(), [...selected]));
-        announceText(product.name + (selected.has(product.id) ? " saved." : " removed."));
-      });
+      save.addEventListener("click", () => toggleSelectedProduct(product, card));
       const ask = make("button", "catalog-button catalog-button--ask", "Ask AI ↗");
       ask.type = "button";
       ask.setAttribute("aria-label", "Ask the beauty assistant about " + product.name);
       ask.addEventListener("click", () => askAbout(product));
       actions.append(save, ask);
       card.appendChild(actions);
+      syncCardSelection(card, product);
       grid.appendChild(card);
     }
   }

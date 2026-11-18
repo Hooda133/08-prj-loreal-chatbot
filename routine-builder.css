@@ -123,3 +123,18 @@
 @media(prefers-reduced-motion:reduce){
   .catalog-card,.routine-primary{transition:none;transform:none!important}
 }
+
+
+/* Product selection: one large pointer/keyboard target on every card. */
+.catalog-card{position:relative;isolation:isolate}
+.catalog-card__pick{position:absolute;inset:0;display:block;width:100%;height:100%;padding:0;border:0;background:transparent;z-index:2;cursor:pointer;border-radius:0}
+.catalog-card__art,.catalog-card__eyebrow,.catalog-card__title,.catalog-card__description{pointer-events:none}
+.catalog-card > .catalog-link,.catalog-card__actions{position:relative;z-index:4}
+.catalog-card__selection-label{position:absolute;z-index:3;top:21px;right:22px;padding:7px 9px;border:1px solid #d2bda9;background:#fffaf3e8;color:#5e4a3d;font:800 10px/1.2 "DM Sans",sans-serif;letter-spacing:.06em;pointer-events:none;box-shadow:0 3px 10px #51351c12}
+.catalog-card--selected{background:#f6efe5;border-color:#745036;box-shadow:0 0 0 2px #745036 inset,0 10px 26px #37291b1e}
+.catalog-card--selected:hover{border-color:#745036;box-shadow:0 0 0 2px #745036 inset,0 14px 28px #37291b24}
+.catalog-card--selected .catalog-card__selection-label{color:#fff;background:#5d4434;border-color:#5d4434}
+.catalog-card__pick:focus-visible{outline:3px solid #6e462d;outline-offset:-5px;z-index:3}
+.catalog-selection-help{font:500 12px/1.5 "DM Sans",sans-serif;color:#6f5d4d;margin:-7px 0 20px}
+@media(hover:hover){.catalog-card__pick:hover:not(:focus-visible){background:#a1784d08}}
+@media(max-width:570px){.catalog-card__selection-label{top:19px;right:20px}.catalog-selection-help{margin:0 0 17px}}
