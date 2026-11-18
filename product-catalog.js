@@ -6,7 +6,7 @@ window.BeautyCatalog = Object.freeze([
     id: "radiant-cleanser",
     name: "RevitaLift Radiant Smoothing Cream Cleanser",
     family: "REVITALIFT", group: "cleanser", time: "both",
-    description: "Cream cleanser with a gentle smoothing/exfoliating effect.";
+    description: "Cream cleanser with a gentle smoothing/exfoliating effect.",
     concerns: ["hydration", "firmness"], skins: ["dry", "normal", "combination", "sensitive"],
     url: "https://www.lorealparisusa.com/skin-care/facial-cleansers/revitalift-radiant-smoothing-cream-cleanser"
   },
