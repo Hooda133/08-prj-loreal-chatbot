@@ -2,6 +2,51 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## Assignment: Secure Cloudflare Worker integration
+
+**Verified source-code request flow:**
+
+`index.html` loads `script.js`, `product-catalog.js` and
+`routine-builder.js`. Typed questions, product advice, generated routines,
+and follow-up messages all use `sendMessage()` in `script.js`. That function
+sends a `POST` with a JSON `messages` array to the HTTPS
+`WORKER_URL` (`loreal-beauty-advisor.elshamandy133.workers.dev`).
+
+The Worker source (`RESOURCE_cloudflare-worker.js`) validates the
+origin and request shape, adds its L'Oréal-specific system prompt, then calls
+OpenAI's Chat Completions endpoint **server-side** using
+`env.OPENAI_API_KEY`. The Worker returns only the AI reply or a generic
+error to the browser. **Never place or print an actual API key in HTML, JS,
+GitHub, browser storage, or README examples.**
+
+**Defense in depth and future checks:**
+
+- The frontend now includes a `Content-Security-Policy` `connect-src`
+  restriction allowing the website itself and only the approved Cloudflare
+  Worker. Direct browser `fetch()` requests to `api.openai.com` are blocked.
+- `tests/security-boundary.test.mjs` checks Worker routing, credential
+  isolation, allowed origins, input length limits, the page's CSP,
+  commonly leaked key formats in tracked text files, and the ignore list.
+- GitHub Actions runs that audit with the existing frontend + Worker tests
+  for changes to application/Worker files and the security checks.
+- `.gitignore` excludes common environment files, Cloudflare development
+  variables and private keys. It does **not** make a previously committed
+  key safe; if one was ever committed or exposed, revoke/rotate it immediately.
+- The Worker source is **not auto-deployed by GitHub Pages**. Check the current
+  deployed Cloudflare script and set `OPENAI_API_KEY` as a **secret**, not a
+  public variable. `ALLOWED_ORIGIN` should include the exact hosted origin
+  `https://hooda133.github.io`.
+- **CORS is not authentication:** configure Cloudflare rate limiting /
+  abuse controls and OpenAI spending limits before public traffic.
+
+**Manual network verification:** On the live site open browser DevTools →
+Network, enter an ordinary L'Oréal question, and confirm the request is
+`POST https://loreal-beauty-advisor.elshamandy133.workers.dev`.
+Inspect the request headers; there must be **no Authorization header or API
+key sent from the browser**. The Cloudflare Worker should respond with the
+chat reply. Live deployment and Cloudflare secret settings cannot be proven
+by a repository test alone.
+
 ## Assignment: Reveal Product Description
 
 Every L'Oréal catalog card displays a short summary and has a **VIEW DETAILS +**
