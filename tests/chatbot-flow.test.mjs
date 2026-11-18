@@ -1131,7 +1131,9 @@ test("Search UI renders consulted sources with accurate wording, not fake inline
   assert.match(consulted.textContent,/PAGES CONSULTED/);
   const links = consulted.nodes.find(node => node.tagName === "OL");
   assert.equal(links.nodes[0].nodes[0].href,url);
-  assert.ok(!response.textContent.includes("[1]"),"No invented inline citation appears");
+  const paragraphs = response.nodes.filter(node => node.tagName === "P");
+  assert.ok(paragraphs.every(node => !node.textContent.includes("[1]")),
+    "Only the consulted-sources list is numbered, not inline claims");
 });
 
 test("Out-of-scope search shows the beauty-only reply, not a source error", async () => {
