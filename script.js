@@ -201,7 +201,7 @@ function addInlineText(parent, value, sources = []) {
   }
   parent.appendChild(document.createTextNode(value.slice(last)));
 }
-function renderAssistantReply(bubble, responseText, sources = []) {
+function renderAssistantReply(bubble, responseText, sources = [], sourceType = "cited") {
   const shouldScroll = isNearChatBottom();
   bubble.setAttribute("dir", "auto");
   bubble.setAttribute("lang", /[\u0600-\u06FF]/.test(responseText) ? "ar" : "en");
@@ -241,9 +241,12 @@ function renderAssistantReply(bubble, responseText, sources = []) {
   if (sources.length) {
     const section = document.createElement("section");
     section.className = "chat-sources";
-    section.setAttribute("aria-label", "Web sources for this answer");
+    section.setAttribute("aria-label", sourceType === "consulted"
+      ? "Pages consulted during live web search" : "Web citations for this answer");
     const heading = document.createElement("strong");
-    heading.textContent = "WEB SOURCES · OPEN TO VERIFY";
+    heading.textContent = sourceType === "consulted"
+      ? "PAGES CONSULTED · CHECK THE DETAILS"
+      : "WEB SOURCES · OPEN TO VERIFY";
     section.appendChild(heading);
     const list = document.createElement("ol");
     for (const [index, source] of sources.entries()) {
@@ -391,11 +394,18 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
       throw new Error("The beauty advisor returned an empty response.");
     }
     const sources = verifiedSources(data?.sources);
-    if (isWebSearch && sources.length === 0) {
-      throw new Error("No verifiable sources were returned. Try another product question or turn off live search.");
+    const isOutOfScopeSearch = isWebSearch && data?.searchStatus === "out_of_scope";
+    if (isWebSearch && !isOutOfScopeSearch && sources.length === 0) {
+      // The former Worker silently ignored searchWeb and returned its
+      // usual chat answer. Never present that as current web research.
+      if (!data?.searchStatus) {
+        throw new Error("Live search is not active on the Cloudflare Worker yet. Turn off Search the Live Web, or ask the site owner to deploy the updated Worker.");
+      }
+      throw new Error("Live search did not return source links. Try a more specific L'Oréal product question.");
     }
     pending.classList.remove("pending");
-    renderAssistantReply(pending, reply, sources);
+    renderAssistantReply(pending, reply, sources,
+      data?.sourceType === "consulted" ? "consulted" : "cited");
     chatAnnouncement.textContent =
       "Beauty Concierge replied. " + reply.slice(0, 320) +
       (reply.length > 320 ? " The full response is in the conversation." : "");
