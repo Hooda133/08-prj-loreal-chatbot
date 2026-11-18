@@ -1372,7 +1372,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-vi
 .language-switch select{max-width:158px;min-height:42px;border:1px solid #bda89a;border-radius:3px;background:#fffaf4;color:#403129;padding:8px 9px;font:700 12px/1.35 var(--sans);cursor:pointer}
 .language-switch select:focus-visible{outline:3px solid #a47162;outline-offset:3px}
 @media(max-width:1120px){.site-header{gap:12px}.header-nav{gap:13px}.language-switch select{max-width:148px}}
-@media(max-width:940px){.header-nav__ritual{display:none!important}}
+@media(max-width:940px){
+  .header-nav__ritual{display:none!important}
+  /* Put the optional language selector on a second header row so it
+     cannot squeeze the brand/navigation into horizontal overflow. */
+  .site-header{flex-wrap:wrap;gap:8px 12px;padding-block:9px}
+  .language-switch{order:3;flex:1 0 100%;flex-direction:row;justify-content:flex-end;align-items:center;gap:8px}
+}
 @media(max-width:620px){
   .site-header{flex-wrap:wrap;gap:6px 10px;padding-block:10px;align-content:center}
   .language-switch{order:3;flex:1 0 100%;flex-direction:row;justify-content:flex-end;align-items:center;gap:8px}
