@@ -27,6 +27,9 @@
     function choices(group, period, avoidExfoliating = false) {
       return catalog
         .filter(product => productType(product) === type && product.group === group)
+        // Don't recommend a dry-hair leave-in for oily roots (or a shade/style
+        // intended for a different makeup look) merely to fill every step.
+        .filter(product => !["haircare", "makeup"].includes(type) || product.skins.includes(skin))
         .filter(product => type !== "skincare" || product.time === "both" || product.time === period)
         .filter(product => !isSensitive || (!product.exfoliating && !product.strongActive))
         .filter(product => !avoidExfoliating || !product.exfoliating)
@@ -87,7 +90,7 @@
     if (selected.size) {
       const included = new Set([...am, ...pm].map(item => item.product.id));
       if ([...selected].some(id => !included.has(id))) {
-        notes.push("Some saved products were left out because they belong to another category, conflict with your selections, or don't fit this plan.");
+        notes.push("Some saved products were left out because they belong to another focus, are not matched to your stated preferences, or conflict with the plan.");
       }
     }
     return { type, am, pm, notes, skin, concern, time };
