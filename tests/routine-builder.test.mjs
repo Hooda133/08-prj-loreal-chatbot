@@ -15,10 +15,10 @@ const catalog = window.BeautyCatalog;
 const { buildRoutine, questionForRoutine } = window.BeautyRoutineLogic;
 
 test("catalog uses genuine named products with HTTPS official listing links", () => {
-  assert.ok(catalog.length >= 10);
+  assert.ok(catalog.length >= 23);
   assert.equal(new Set(catalog.map(item => item.id)).size, catalog.length);
   for (const item of catalog) {
-    assert.match(item.url, /^https:\/\/www\.lorealparisusa\.com\/skin-care\//);
+    assert.match(item.url, /^https:\/\/www\.lorealparisusa\.com\/(skin-care|hair-care-hair-style|makeup)\//);
     assert.ok(item.name && item.description);
   }
 });
@@ -62,4 +62,51 @@ test("AI refinement prompt carries selected routine without exceeding Worker lim
   assert.match(prompt, /RevitaLift/);
   assert.match(prompt, /Morning:/);
   assert.match(prompt, /Evening:/);
+});
+
+test("haircare wash-day plans follow real matching hair products", () => {
+  const plan = buildRoutine({ type:"haircare", skin:"dry", concern:"hydration" });
+  assert.equal(plan.type, "haircare");
+  assert.deepEqual(Array.from(plan.am, s => s.group), ["shampoo", "conditioner", "leave-in"]);
+  assert.ok(plan.am.every(s => s.product.name.includes("Elvive")));
+  assert.equal(plan.pm.length, 0);
+  assert.match(questionForRoutine(plan), /Wash day:/);
+});
+
+test("oily hair avoids dry-hair leave-in and matches Hyaluron Pure", () => {
+  const plan = buildRoutine({ type:"haircare", skin:"oily", concern:"oil" }, ["plump-leave-in"]);
+  assert.deepEqual(Array.from(plan.am, s => s.group), ["shampoo", "conditioner"]);
+  assert.equal(plan.am[0].product.id, "pure-shampoo");
+  assert.equal(plan.am[1].product.id, "pure-conditioner");
+  assert.ok(plan.notes.some(s => s.includes("left out")));
+});
+
+test("damaged-hair routine prefers coordinated Dream Lengths line", () => {
+  const plan = buildRoutine({ type:"haircare", skin:"damaged", concern:"repair" });
+  assert.deepEqual(Array.from(plan.am, s => s.product.id), ["dream-shampoo", "dream-conditioner", "dream-leave-in"]);
+});
+
+test("makeup routines use product-backed steps with no automatic shade matching", () => {
+  const natural = buildRoutine({ type:"makeup", skin:"natural", concern:"radiance" });
+  const polished = buildRoutine({ type:"makeup", skin:"polished", concern:"definition" });
+  assert.deepEqual(Array.from(natural.am, s => s.group), ["base", "eyes", "lips"]);
+  assert.equal(natural.am[0].product.id, "lumi-glotion");
+  assert.equal(polished.am[0].product.id, "true-match");
+  assert.equal(natural.pm.length, 0);
+  assert.ok(polished.notes.some(s => s.includes("shades")));
+  assert.match(questionForRoutine(polished), /Makeup look:/);
+});
+
+test("exfoliating night cream is not paired with exfoliating glycolic serum", () => {
+  const plan = buildRoutine({ type:"skincare", skin:"dry", concern:"texture", time:"pm" },
+    ["glycolic-serum", "night-moisturizer"]);
+  assert.equal(catalog.find(p => p.id === "night-moisturizer").exfoliating, true);
+  assert.ok(plan.pm.filter(step => step.product.exfoliating).length <= 1);
+  assert.ok(plan.notes.some(s => s.includes("left out")));
+});
+
+test("sensitive skin never receives an exfoliating night cream even when saved", () => {
+  const plan = buildRoutine({ type:"skincare", skin:"sensitive", concern:"firmness", time:"pm" }, ["night-moisturizer"]);
+  assert.ok(plan.pm.every(s => !s.product.exfoliating));
+  assert.ok(plan.notes.some(s => s.includes("Sensitive-skin")));
 });
