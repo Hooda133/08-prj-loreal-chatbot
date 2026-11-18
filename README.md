@@ -2,6 +2,32 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## Assignment: Save Selected Products after reload
+
+The Beauty Atelier **YOUR SAVED EDIT** list now uses browser **localStorage** to
+remember selected catalog product IDs after the page is reloaded. Saved items
+automatically restore their selection chips, count, highlighted product cards,
+and availability for **Generate Routine** (including when viewing a different
+product category).
+
+- Select or unselect a product card or its **Save product** button: the browser
+  writes the updated list of product IDs to `beauty-atelier:selected-products:v1`.
+- Remove a single item by clicking its **× chip** in YOUR SAVED EDIT.
+- Use **CLEAR ALL** to remove all saved products and delete the storage entry.
+  The button is disabled when no products are saved.
+- Old, unknown, duplicate, malformed, or stale IDs are discarded during load.
+- If browser storage is disabled or unavailable, selecting still works for the
+  current page and a visible note explains that reload persistence may fail.
+- Saved product choices remain **on the current browser/device only**. They are
+  never sent to the AI unless the user explicitly clicks **Generate Routine**.
+  New Chat clears chat history, but does **not** erase separately saved
+  products. Browser storage can be cleared by the visitor at any time.
+
+Automated Chrome tests cover saving, a full reload, restoring highlights,
+routine generation from restored choices, individual removal, another reload,
+Clear All, and a final reload. Run `node --test tests/chatbot-flow.test.mjs
+tests/routine-builder.test.mjs` for logic tests.
+
 ## Assignment: Follow-Up Chat with conversation context
 
 The chatbot keeps the latest user and AI replies in memory for the duration of
@@ -104,8 +130,7 @@ plans and never paired with an exfoliating serum in the same night routine.
 Haircare routines do not imply daily washing, and makeup routines do not claim
 skin-tone or shade matching.
 
-**Privacy and caution:** saved selections and preferences are only kept in
-the current webpage session. Asking the AI sends the routine/profile in the
+**Privacy and caution:** selected product IDs are saved locally on the browser/device until removed or cleared; beauty preferences remain in the current page session. Asking the AI sends the routine/profile in the
 existing Cloudflare request; no product question is sent directly to OpenAI
 from the browser. Patch testing, conservative exfoliation, and official
 directions are recommended. Medical diagnosis is out of scope.

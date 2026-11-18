@@ -12,7 +12,7 @@ for (const file of ["product-catalog.js", "routine-builder.js"]) {
   runInNewContext(source, { window, document });
 }
 const catalog = window.BeautyCatalog;
-const { buildRoutine, questionForRoutine, buildSelectedProductNotes, buildFollowUpProductNotes, questionForSelectedProducts } = window.BeautyRoutineLogic;
+const { buildRoutine, questionForRoutine, buildSelectedProductNotes, buildFollowUpProductNotes, questionForSelectedProducts, parseSavedProductIds } = window.BeautyRoutineLogic;
 
 test("catalog uses genuine named products with HTTPS official listing links", () => {
   assert.ok(catalog.length >= 23);
@@ -164,4 +164,23 @@ test("Generated routine keeps all exact product names for follow-up turns", () =
   assert.match(text, /sensitive/);
   assert.match(text, /hydration/);
   assert.match(text, /historical context only/);
+});
+
+
+test("saved product IDs restore safely, discard removed catalog items and duplicates", () => {
+  const ids = parseSavedProductIds(JSON.stringify([
+    "lumi-glotion", "lumi-glotion", "removed-product-id", "lash-paradise", 1, null
+  ]));
+  assert.deepEqual(Array.from(ids), ["lumi-glotion", "lash-paradise"]);
+  assert.deepEqual(Array.from(parseSavedProductIds("not JSON")), []);
+  assert.deepEqual(Array.from(parseSavedProductIds('{"injected":true}')), []);
+  assert.deepEqual(Array.from(parseSavedProductIds(JSON.stringify(["unknown"]))), []);
+  assert.deepEqual(Array.from(parseSavedProductIds("x".repeat(10001))), []);
+  assert.deepEqual(Array.from(parseSavedProductIds(null)), []);
+});
+
+test("restored selected products still influence personalized routine recommendations", () => {
+  const saved = parseSavedProductIds(JSON.stringify(["peptide-serum"]));
+  const plan = buildRoutine({ skin:"normal", concern:"hydration", time:"am" }, saved);
+  assert.equal(plan.am[1].product.id, "peptide-serum");
 });

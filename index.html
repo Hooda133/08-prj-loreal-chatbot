@@ -407,8 +407,13 @@
               </select>
             </div>
             <div class="builder-selections">
-              <div class="builder-selections__heading"><strong>YOUR SAVED EDIT</strong><span id="pickedCount">0 saved</span></div>
+              <div class="builder-selections__heading">
+                <strong>YOUR SAVED EDIT</strong>
+                <span id="pickedCount">0 saved</span>
+                <button type="button" class="clear-saved" id="clearSelectedProducts" aria-label="Clear all saved products" disabled>CLEAR ALL</button>
+              </div>
               <div id="chosenProducts" class="selected-products" aria-label="Selected products"></div>
+              <p id="savedProductsPrivacy" class="saved-products-privacy">Your saved products stay on this device after a reload until you remove or clear them.</p>
             </div>
             <button type="button" class="routine-primary builder-generate" id="generateRoutineAI">GENERATE ROUTINE <span aria-hidden="true">✦</span></button>
             <button type="button" class="routine-secondary builder-preview" id="buildRoutine">PREVIEW ROUTINE WITHOUT AI</button>

@@ -171,9 +171,23 @@
       "If products for a step are missing, clearly identify the missing step without fabricating an item.";
   }
 
+  // Only save catalog IDs, never product details or chat messages.
+  // Discard invalid, removed or repeated IDs when loading older browser data.
+  function parseSavedProductIds(json) {
+    if (typeof json !== "string" || json.length > 10000) return [];
+    try {
+      const ids = JSON.parse(json);
+      if (!Array.isArray(ids)) return [];
+      const knownIds = new Set(catalog.map(product => product.id));
+      return [...new Set(ids.filter(id => typeof id === "string" && knownIds.has(id)))];
+    } catch {
+      return [];
+    }
+  }
+
   window.BeautyRoutineLogic = Object.freeze({
     buildRoutine, questionForRoutine, buildSelectedProductNotes,
-    buildFollowUpProductNotes, questionForSelectedProducts
+    buildFollowUpProductNotes, questionForSelectedProducts, parseSavedProductIds
   });
 
   // Avoid running page UI setup in the pure-logic regression tests.
@@ -185,6 +199,8 @@
   const count = document.getElementById("productCount");
   const chosen = document.getElementById("chosenProducts");
   const pickedCount = document.getElementById("pickedCount");
+  const clearSelectedButton = document.getElementById("clearSelectedProducts");
+  const savedProductsPrivacy = document.getElementById("savedProductsPrivacy");
   const focusSelect = document.getElementById("routineFocus");
   const skinSelect = document.getElementById("routineSkin");
   const skinLabel = document.getElementById("routineSkinLabel");
@@ -197,8 +213,31 @@
   const feedback = document.getElementById("routineFeedback");
   const output = document.getElementById("routineResult");
   const announce = document.getElementById("routineStatus");
-  const selected = new Set();
+  // localStorage stays on this device and origin; it is never sent to the
+  // server. Storage may be blocked in private modes, so fail gracefully.
+  const SAVED_PRODUCTS_KEY = "beauty-atelier:selected-products:v1";
+  function loadSavedProducts() {
+    try {
+      return parseSavedProductIds(window.localStorage.getItem(SAVED_PRODUCTS_KEY));
+    } catch {
+      savedProductsPrivacy.textContent = "Browser storage is unavailable. Selections will last only until this page closes.";
+      return [];
+    }
+  }
+  const selected = new Set(loadSavedProducts());
   let lastRoutine = null;
+
+  function persistSavedProducts() {
+    try {
+      if (selected.size) {
+        window.localStorage.setItem(SAVED_PRODUCTS_KEY, JSON.stringify([...selected]));
+      } else {
+        window.localStorage.removeItem(SAVED_PRODUCTS_KEY);
+      }
+    } catch {
+      savedProductsPrivacy.textContent = "Browser storage is unavailable. Changes may not survive a page reload.";
+    }
+  }
 
   function make(tag, cls, text) {
     const node = document.createElement(tag);
@@ -278,6 +317,7 @@
   function toggleSelectedProduct(product, card) {
     if (selected.has(product.id)) selected.delete(product.id);
     else selected.add(product.id);
+    persistSavedProducts();
     syncCardSelection(card, product);
     renderSelection();
     if (lastRoutine) renderRoutine(buildRoutine(currentProfile(), [...selected]));
@@ -287,6 +327,7 @@
   function renderSelection() {
     chosen.replaceChildren();
     pickedCount.textContent = selected.size + " saved";
+    clearSelectedButton.disabled = selected.size === 0;
     if (!generateButton.disabled) {
       feedback.textContent = selected.size
         ? selected.size + " product" + (selected.size === 1 ? "" : "s") +
@@ -305,6 +346,7 @@
       chip.setAttribute("aria-label", "Remove " + product.name + " from saved products");
       chip.addEventListener("click", () => {
         selected.delete(id);
+        persistSavedProducts();
         renderSelection();
         syncVisibleCard(product);
         if (lastRoutine) renderRoutine(buildRoutine(currentProfile(), [...selected]));
@@ -518,6 +560,20 @@
       generateButton.disabled = false;
       generateButton.removeAttribute("aria-busy");
     }
+  });
+
+  // Clearing is intentional and removes both the chips and saved browser
+  // data. Product cards remain in sync across the whole catalog.
+  clearSelectedButton.addEventListener("click", () => {
+    if (!selected.size) return;
+    selected.clear();
+    persistSavedProducts();
+    renderSelection();
+    renderCatalog();
+    if (lastRoutine) renderRoutine(buildRoutine(currentProfile(), []));
+    const message = "All saved products cleared from this device.";
+    feedback.textContent = message;
+    announceText(message);
   });
 
   search.addEventListener("input", renderCatalog);
