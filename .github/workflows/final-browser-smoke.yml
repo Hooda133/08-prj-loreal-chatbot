@@ -9,6 +9,8 @@ on:
       - "routine-builder.js"
       - "routine-builder.css"
       - "style.css"
+      - "atelier-redesign.css"
+      - "atelier-experience.js"
       - "tests/browser-smoke.mjs"
       - ".github/workflows/final-browser-smoke.yml"
   workflow_dispatch:
