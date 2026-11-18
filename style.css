@@ -1362,3 +1362,53 @@ a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-vi
 .chat-source-link{text-decoration:underline;text-underline-offset:3px;color:#593c2e}
 .chat-source-link:hover,.chat-source-link:focus-visible{color:#301c13;background:#e8d7c6}
 @media(max-width:570px){.web-search-choice{padding:11px}.chat-sources{padding:11px}}
+
+
+/* Language / reading direction control. Arabic mode mirrors the visual UI,
+   while untranslated English product copy remains readable as LTR text. */
+.language-switch{display:flex;flex-direction:column;gap:5px;align-items:flex-start;flex:0 0 auto}
+.language-switch label{font:800 9px/1.25 var(--sans);letter-spacing:.08em;color:#7b6255}
+.language-switch label span{letter-spacing:normal;font-size:11px}
+.language-switch select{max-width:158px;min-height:42px;border:1px solid #bda89a;border-radius:3px;background:#fffaf4;color:#403129;padding:8px 9px;font:700 12px/1.35 var(--sans);cursor:pointer}
+.language-switch select:focus-visible{outline:3px solid #a47162;outline-offset:3px}
+@media(max-width:1120px){.site-header{gap:12px}.header-nav{gap:13px}.language-switch select{max-width:148px}}
+@media(max-width:940px){.header-nav__ritual{display:none!important}}
+@media(max-width:620px){
+  .site-header{flex-wrap:wrap;gap:6px 10px;padding-block:10px;align-content:center}
+  .language-switch{order:3;flex:1 0 100%;flex-direction:row;justify-content:flex-end;align-items:center;gap:8px}
+  .language-switch label{font-size:10px}
+  .language-switch select{min-height:37px;max-width:160px;font-size:12px}
+}
+
+/* RTL: use the document direction to reverse columns, selected chip flow,
+   toolbar ordering and message alignment — no duplicated product markup. */
+html[dir="rtl"] .site-header,
+html[dir="rtl"] .header-nav,
+html[dir="rtl"] .builder-layout,
+html[dir="rtl"] .catalog-grid,
+html[dir="rtl"] .selected-products,
+html[dir="rtl"] .chat-window,
+html[dir="rtl"] .chat-form{direction:rtl}
+html[dir="rtl"] .brand{direction:ltr}
+html[dir="rtl"] .brand__sub{text-align:start}
+html[dir="rtl"] .language-switch{align-items:flex-end}
+html[dir="rtl"] .message.ai{border-radius:17px 4px 17px 17px}
+html[dir="rtl"] .message.user{border-radius:17px 17px 17px 4px}
+html[dir="rtl"] .reset-btn{margin-left:0;margin-right:auto}
+html[dir="rtl"] .edition-num{margin-left:0;margin-right:auto}
+html[dir="rtl"] .site-footer>a{margin-left:0;margin-right:auto}
+html[dir="rtl"] .status:not(:empty){border-left:0;border-right:3px solid #aa655c}
+html[dir="rtl"] .chat-form{padding:5px 15px 5px 5px}
+html[dir="rtl"] .chat-form input{text-align:right}
+html[dir="rtl"] .message ul,
+html[dir="rtl"] .message ol,
+html[dir="rtl"] .chat-sources ol{padding-left:0;padding-right:19px}
+html[dir="rtl"] .message{overflow-wrap:anywhere}
+html[dir="rtl"] .category-card{text-align:right}
+html[dir="rtl"] .site-footer p{text-align:start}
+html[dir="rtl"] .quick-prompts,
+html[dir="rtl"] .followup-ideas__choices{direction:rtl}
+@media(max-width:620px){
+  html[dir="rtl"] .language-switch{align-items:center}
+  html[dir="rtl"] .manifesto__inner p{text-align:right}
+}
