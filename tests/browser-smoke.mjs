@@ -317,6 +317,78 @@ try {
   assert.doesNotMatch(JSON.stringify(newChatRequest), /Lumi Glotion|Lash Paradise/);
   assert.equal(await desktop.$eval("#followUpSuggestions", node => node.hidden), false);
 
+  // Save Selected Products: persist across reload, remove one, or clear all.
+  const storageKey = "beauty-atelier:selected-products:v1";
+  const priorSaved = await desktop.evaluate(key => ({
+    saved: JSON.parse(localStorage.getItem(key)),
+    count: document.querySelector("#pickedCount").textContent,
+    clearDisabled: document.querySelector("#clearSelectedProducts").disabled
+  }), storageKey);
+  assert.deepEqual(priorSaved, {
+    saved: ["lumi-glotion", "lash-paradise"],
+    count: "2 saved",
+    clearDisabled: false
+  });
+  await desktop.reload({ waitUntil: "domcontentloaded" });
+  const restored = await desktop.evaluate(() => ({
+    count: document.querySelector("#pickedCount").textContent,
+    chips: [...document.querySelectorAll("#chosenProducts .saved-chip")].map(button => button.textContent),
+    clearDisabled: document.querySelector("#clearSelectedProducts").disabled
+  }));
+  assert.equal(restored.count, "2 saved", "Selections survive a full page reload");
+  assert.equal(restored.chips.length, 2);
+  assert.ok(restored.chips.some(name => name.includes("Lumi Glotion")));
+  assert.ok(restored.chips.some(name => name.includes("Lash Paradise")));
+  assert.equal(restored.clearDisabled, false);
+
+  await desktop.select("#routineFocus", "makeup");
+  const selectedAfterReload = await desktop.evaluate(() => ({
+    lumi: document.querySelector('[data-product-id="lumi-glotion"]').classList.contains("catalog-card--selected"),
+    mascara: document.querySelector('[data-product-id="lash-paradise"]').querySelector(".catalog-card__pick").getAttribute("aria-pressed")
+  }));
+  assert.deepEqual(selectedAfterReload, {lumi:true, mascara:"true"}, "Card highlights restore with saved selection");
+
+  // Restored products are not just decorative: AI generation includes them.
+  const requestCountAfterReload = await desktop.evaluate(() => window.__mockRequests.length);
+  await desktop.click("#generateRoutineAI");
+  await desktop.waitForFunction(n => window.__mockRequests.length === n + 1, {}, requestCountAfterReload);
+  await desktop.waitForFunction(() => document.querySelector("#generateRoutineAI").disabled === false);
+  const restoredGenerationPayload = await desktop.evaluate(() =>
+    window.__mockRequests.at(-1).messages.map(message => message.content).join("\n"));
+  assert.match(restoredGenerationPayload, /Lumi Glotion Glow Enhancer/);
+  assert.match(restoredGenerationPayload, /Lash Paradise Washable Mascara/);
+
+  await desktop.click("#chosenProducts .saved-chip");
+  const afterSingleRemove = await desktop.evaluate(key => ({
+    saved:JSON.parse(localStorage.getItem(key)),
+    count:document.querySelector("#pickedCount").textContent,
+    remaining:document.querySelector("#chosenProducts").textContent
+  }), storageKey);
+  assert.deepEqual(afterSingleRemove.saved, ["lash-paradise"]);
+  assert.equal(afterSingleRemove.count, "1 saved");
+  assert.match(afterSingleRemove.remaining, /Lash Paradise/);
+  await desktop.reload({ waitUntil:"domcontentloaded" });
+  assert.equal(await desktop.$eval("#pickedCount", el => el.textContent), "1 saved",
+    "Removed products must not come back after reload");
+
+  await desktop.click("#clearSelectedProducts");
+  const afterClearAll = await desktop.evaluate(key => ({
+    storage:localStorage.getItem(key),
+    count:document.querySelector("#pickedCount").textContent,
+    chips:document.querySelectorAll("#chosenProducts .saved-chip").length,
+    clearDisabled:document.querySelector("#clearSelectedProducts").disabled,
+    feedback:document.querySelector("#routineFeedback").textContent
+  }), storageKey);
+  assert.equal(afterClearAll.storage, null, "Clear All removes the storage entry");
+  assert.equal(afterClearAll.count, "0 saved");
+  assert.equal(afterClearAll.chips, 0);
+  assert.equal(afterClearAll.clearDisabled, true);
+  assert.match(afterClearAll.feedback, /All saved products cleared/);
+  await desktop.reload({waitUntil:"domcontentloaded"});
+  assert.equal(await desktop.$eval("#pickedCount", el => el.textContent), "0 saved",
+    "Clear All must persist after reload");
+  assert.equal(await desktop.$eval("#clearSelectedProducts", el => el.disabled), true);
+
   await desktop.screenshot({ path: "/tmp/final-beauty-desktop.png", fullPage: true });
   await desktop.close();
 
