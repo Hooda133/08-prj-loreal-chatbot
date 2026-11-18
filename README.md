@@ -4,21 +4,23 @@ A responsive student project featuring a personalized beauty chat interface for 
 
 ## New: real-product routine builder
 
-The **Find your ritual** studio adds a searchable L'Oréal Paris skincare catalog and a
-personalized morning/evening routine generator without changing the existing secure
-chat architecture.
+The **Find your ritual** studio features a searchable catalog of real L'Oréal Paris
+skincare, Elvive haircare, and makeup products plus three tailored routine journeys,
+without changing the existing secure chat architecture.
 
-- **Browse real products:** `product-catalog.js` contains 11 named products,
+- **Browse real products:** `product-catalog.js` contains 23 named products,
   sourced from publicly available pages on `lorealparisusa.com` and reviewed in
   November 2026. Each card includes an official product link, category, concise
   description, and original student artwork (not a misleading product photo).
 - **Choose your favorites:** visitors can search/filter by category, save/remove
   products in their current page session, and ask the AI about a specific item.
-- **Build a routine:** choose skin type, primary goal, and morning/evening preference.
-  `routine-builder.js` selects suitable saved products first, fills remaining
-  steps from the verified catalog, orders cleanser → serum → moisturizer → AM SPF,
-  avoids stacking glycolic exfoliants, and excludes stronger acid products from
-  the sensitive-skin starter routine. Results have official source links.
+- **Build a routine:** choose a skincare, haircare, or makeup focus. Each journey has
+  relevant preference questions. Skincare orders cleanser → serum → moisturizer → AM
+  SPF; haircare builds a wash-day shampoo → conditioner → optional leave-in sequence;
+  makeup recommends complexion → eyes → lips without inventing a shade match.
+  `routine-builder.js` prioritizes suitable saved products, avoids stacking multiple
+  exfoliating treatments, and excludes stronger acids for sensitive-skin starter
+  routines. Results link to official source pages.
 - **Refine with AI:** the *Refine with Beauty AI* button sends the actual chosen
   product names and profile to the existing Cloudflare beauty chatbot as a
   bounded user message. The Worker remains solely responsible for OpenAI calls,
@@ -34,6 +36,13 @@ access to L'Oréal's internal catalog; it uses the selected verified names plus
 its existing general beauty knowledge. This is an independent student project,
 not an L'Oréal-approved diagnostic or recommendation service.
 
+**Safety correction:** Official details for RevitaLift Triple Power Rich Night
+Moisturizer list exfoliating glycolic acid, BHA, and PHA. That product is now
+flagged as a stronger acid treatment; it is excluded from sensitive-skin starter
+plans and never paired with an exfoliating serum in the same night routine.
+Haircare routines do not imply daily washing, and makeup routines do not claim
+skin-tone or shade matching.
+
 **Privacy and caution:** saved selections and preferences are only kept in
 the current webpage session. Asking the AI sends the routine/profile in the
 existing Cloudflare request; no product question is sent directly to OpenAI
@@ -42,7 +51,7 @@ directions are recommended. Medical diagnosis is out of scope.
 
 **Checks:** Run `node --test tests/chatbot-flow.test.mjs tests/routine-builder.test.mjs`.
 After a PR is merged, verify mobile/desktop search, selecting/removing,
-AM/PM plans, copy, and the AI handoff on the published GitHub Pages page.
+skincare AM/PM, hair wash-day, makeup plans, copy, and the AI handoff on the published GitHub Pages page.
 No Worker redeployment is required for this frontend-only feature.
 
 ## Atelier Studio — original premium icon collection
