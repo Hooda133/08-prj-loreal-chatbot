@@ -296,6 +296,14 @@
             <button type="button" data-prompt="Help me find an everyday L'Oréal makeup look for my preferences."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg><span>Find my signature look</span></button>
             <button type="button" data-prompt="Help me discover a L'Oréal fragrance. Ask me what scents I enjoy."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg><span>Find my scent</span></button>
           </div>
+          <div id="followUpSuggestions" class="followup-ideas" role="group" aria-label="Continue your beauty conversation" hidden>
+            <span class="followup-ideas__label">KEEP THE CONVERSATION GOING</span>
+            <div class="followup-ideas__choices">
+              <button type="button" data-followup="Which of the products or steps we just discussed should I use first?">Which goes first?</button>
+              <button type="button" data-followup="Can you tell me how often I should use the L'Oréal products we just discussed?">How often should I use them?</button>
+              <button type="button" data-followup="Could you simplify my L'Oréal routine based on our conversation so far?">Simplify my routine</button>
+            </div>
+          </div>
           <div id="status" class="status" role="status" aria-live="polite"></div>
           <form class="chat-form" id="chatForm">
             <label for="userInput" class="sr-only">Ask about L’Oréal products or beauty routines</label>
