@@ -56,18 +56,37 @@ jobs:
               }
               const get=await inspect({method:'GET'});
               let post={skipped:true,reason:'GET was not handled by the public Worker'};
-              if(get.status === 405){
-                post=await inspect({
-                  method:'POST',
-                  headers:{'Content-Type':'application/json'},
-                  body:JSON.stringify({messages:[{role:'user',
-                    content:"What is new in L'Oréal Paris RevitaLift serums? Please show web sources."}],
-                    searchWeb:true})
-                });
-              }
+              // Direct POST already succeeded during the prior diagnostic.
+              // Full UI below now tests two requests without repeating it.
               return {pageOrigin:location.origin,get,post};
             });
             console.log('Chrome live Worker diagnostic:',JSON.stringify(diagnostic));
+            // Real UI acceptance test, no mocked Worker: use the same controls
+            // and query shown by the visitor.
+            async function ask(question){
+              await page.click('#webSearchToggle');
+              await page.focus('#userInput');
+              await page.type('#userInput',question);
+              await page.click('#sendBtn');
+              await page.waitForFunction(() => !document.querySelector('#sendBtn').disabled,{timeout:45000});
+              const result = await page.evaluate(() => {
+                const messages=[...document.querySelectorAll('.chat-window .message.ai')];
+                const last=messages.at(-1);
+                return {
+                  error:document.querySelector('#status')?.textContent.slice(0,230),
+                  lastReply: last?.textContent.slice(0,300),
+                  sourceLinks:last?.querySelectorAll('.chat-source-link')?.length||0,
+                  inlineLinks:last?.querySelectorAll('.chat-inline-citation')?.length||0,
+                  webSearchSelected:document.querySelector('#webSearchToggle')?.checked,
+                  scriptLoaded:typeof window.sendMessage==='function'
+                };
+              });
+              console.log('Real UI question:',JSON.stringify({question, ...result}));
+              await page.reload({waitUntil:'domcontentloaded'});
+            }
+            await ask('any cologne recommendation');
+            await ask("Latest L'Oréal Paris RevitaLift serum information with web sources?");
+
           } catch(error){
             console.log('Chrome diagnostic failure:',String(error).slice(0,300));
           } finally {
