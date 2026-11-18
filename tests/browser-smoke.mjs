@@ -826,14 +826,18 @@ try {
   }
   await mobile.close();
 
-  // RTL language support: verify the real grid, saved products and chat
-  // geometry at desktop and touchscreen sizes. LTR tests above stay intact.
+  // Browser translation drives RTL automatically. No website language selector,
+  // no English/Arabic toggle, no manually chosen or persisted language state.
+  // Simulate the DOM signals Chrome/Edge translators expose, without requiring
+  // a third-party translation service during automated browser tests.
   const rtlDesktop = await setupPage(1440, 900);
   // Puppeteer pages share a browser profile. Isolate saved-product fixtures
   // from the prior mobile test so a click starts with an unselected card.
   await rtlDesktop.evaluate(() => localStorage.removeItem("beauty-atelier:selected-products:v1"));
   await rtlDesktop.reload({waitUntil:"domcontentloaded"});
-  await rtlDesktop.select("#languageDirection", "ar");
+  assert.equal(await rtlDesktop.$("#languageDirection"), null, "The page must not have a custom language selector");
+  await rtlDesktop.evaluate(() => document.documentElement.classList.add("translated-rtl"));
+  await rtlDesktop.waitForFunction(() => document.documentElement.dir === "rtl");
   const rtlLayout = await rtlDesktop.evaluate(() => {
     const grid = document.querySelector("#productGrid");
     const cards = [...grid.querySelectorAll(".catalog-card")];
@@ -843,7 +847,7 @@ try {
     return {
       dir:document.documentElement.dir,
       lang:document.documentElement.lang,
-      select:document.querySelector("#languageDirection").value,
+      customLanguageControls:document.querySelectorAll("#languageDirection,.language-switch").length,
       gridDirection:getComputedStyle(grid).direction,
       savedDirection:getComputedStyle(document.querySelector("#chosenProducts")).direction,
       chatDirection:getComputedStyle(chat).direction,
@@ -855,8 +859,8 @@ try {
     };
   });
   assert.equal(rtlLayout.dir, "rtl");
-  assert.equal(rtlLayout.lang, "ar");
-  assert.equal(rtlLayout.select, "ar");
+  assert.equal(rtlLayout.lang, "en", "Page language is not overwritten by the website");
+  assert.equal(rtlLayout.customLanguageControls, 0);
   assert.equal(rtlLayout.gridDirection, "rtl");
   assert.equal(rtlLayout.savedDirection, "rtl");
   assert.equal(rtlLayout.chatDirection, "rtl");
@@ -923,39 +927,73 @@ try {
   assert.ok(rtlChat.sendX < rtlChat.inputX, "RTL chat composer mirrors send button and input");
   assert.ok(rtlChat.overflow <= 2);
 
-  // Switching to English leaves the conversation and saved choices alone.
-  await rtlDesktop.select("#languageDirection", "en");
+  // Clicking "Show original" in Chrome removes its translated-rtl class.
+  // Both layout and chat geometry must switch back without losing state.
+  await rtlDesktop.evaluate(() => document.documentElement.classList.remove("translated-rtl"));
+  await rtlDesktop.waitForFunction(() => document.documentElement.getAttribute("dir") === null);
   const switchedBack = await rtlDesktop.evaluate(() => ({
-    dir:document.documentElement.dir,
+    dir:getComputedStyle(document.documentElement).direction,
     lang:document.documentElement.lang,
     chat:document.querySelectorAll(".chat-window .message").length,
     saved:document.querySelector("#pickedCount").textContent,
     gridDirection:getComputedStyle(document.querySelector("#productGrid")).direction
   }));
   assert.deepEqual(switchedBack, {dir:"ltr",lang:"en",chat:3,saved:"2 saved",gridDirection:"ltr"});
-  await rtlDesktop.select("#languageDirection", "ar");
-  await rtlDesktop.reload({waitUntil:"domcontentloaded"});
-  assert.equal(await rtlDesktop.$eval("html", el => el.dir), "rtl", "RTL choice survives a reload");
-  assert.equal(await rtlDesktop.$eval("#pickedCount", el => el.textContent), "2 saved");
+
+  // Edge/other translators may change lang without adding a translated class.
+  await rtlDesktop.evaluate(() => document.documentElement.lang = "ar");
+  await rtlDesktop.waitForFunction(() => document.documentElement.dir === "rtl");
+  await rtlDesktop.evaluate(() => document.documentElement.lang = "en");
+  await rtlDesktop.waitForFunction(() => document.documentElement.getAttribute("dir") === null);
+
+  // Some translators only replace visible text; two static translated headings
+  // are enough to trigger RTL. An Arabic *chat message alone* must not.
+  const headings = await rtlDesktop.evaluate(() => {
+    const a = document.querySelector("#advisorTitle");
+    const b = document.querySelector(".catalog-header h3");
+    const original = [a.textContent, b.textContent];
+    a.textContent = "مستشار الجمال";
+    b.textContent = "اكتشف المجموعة";
+    return original;
+  });
+  await rtlDesktop.waitForFunction(() => document.documentElement.dir === "rtl");
+  await rtlDesktop.evaluate(originals => {
+    document.querySelector("#advisorTitle").textContent = originals[0];
+    document.querySelector(".catalog-header h3").textContent = originals[1];
+  }, headings);
+  await rtlDesktop.waitForFunction(() => document.documentElement.getAttribute("dir") === null);
+
+  // A browser-supplied dir=rtl always works even without the Chrome class.
+  await rtlDesktop.evaluate(() => document.documentElement.dir = "rtl");
+  assert.equal(await rtlDesktop.$eval("#chosenProducts", el => getComputedStyle(el).direction), "rtl");
+  await rtlDesktop.evaluate(() => document.documentElement.removeAttribute("dir"));
+
+  // The only persisted setting is the visitor's saved products, not a
+  // custom language preference; browser translation is external to this app.
+  await rtlDesktop.evaluate(() => document.documentElement.classList.add("translated-rtl"));
+  await rtlDesktop.waitForFunction(() => document.documentElement.dir === "rtl");
   await rtlDesktop.screenshot({path:"/tmp/beauty-rtl-desktop.png",fullPage:true});
+  await rtlDesktop.reload({waitUntil:"domcontentloaded"});
+  assert.equal(await rtlDesktop.$eval("html", el => el.getAttribute("dir")), null);
+  assert.equal(await rtlDesktop.$eval("#pickedCount", el => el.textContent), "2 saved");
+  assert.equal(await rtlDesktop.$eval("html", el => localStorage.getItem("beauty-atelier:layout-language:v1")), null);
   await rtlDesktop.close();
 
-  // RTL mobile: header selector is visible, and all three important areas
-  // fit without sideways scrolling, with touch actions still working.
+  // RTL mobile: Chrome's native Translate marker changes layout without
+  // adding any app-owned controls; touch interactions remain functional.
   const rtlMobile = await setupPage(375, 812, true, true);
   await rtlMobile.evaluate(() => localStorage.removeItem("beauty-atelier:selected-products:v1"));
   await rtlMobile.reload({waitUntil:"domcontentloaded"});
-  await rtlMobile.select("#languageDirection", "ar");
+  await rtlMobile.evaluate(() => document.documentElement.classList.add("translated-rtl"));
+  await rtlMobile.waitForFunction(() => document.documentElement.dir === "rtl");
   const mobileRtlState = await rtlMobile.evaluate(() => {
     const grid = document.querySelector("#productGrid");
-    const selector = document.querySelector("#languageDirection");
-    const rect = selector.getBoundingClientRect();
     return {
       dir:document.documentElement.dir,
       gridDirection:getComputedStyle(grid).direction,
       chatDirection:getComputedStyle(document.querySelector("#chatWindow")).direction,
       chosenDirection:getComputedStyle(document.querySelector("#chosenProducts")).direction,
-      selectorVisible:rect.width > 0 && rect.left >= 0 && rect.right <= innerWidth,
+      customLanguageControls:document.querySelectorAll("#languageDirection,.language-switch").length,
       overflow:document.documentElement.scrollWidth - innerWidth
     };
   });
@@ -963,7 +1001,7 @@ try {
   assert.equal(mobileRtlState.gridDirection, "rtl");
   assert.equal(mobileRtlState.chatDirection, "rtl");
   assert.equal(mobileRtlState.chosenDirection, "rtl");
-  assert.equal(mobileRtlState.selectorVisible, true);
+  assert.equal(mobileRtlState.customLanguageControls, 0);
   assert.ok(mobileRtlState.overflow <= 2, "375px RTL mobile page must not overflow");
   await rtlMobile.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
   assert.equal(await rtlMobile.$eval("#pickedCount", el => el.textContent), "1 saved");
