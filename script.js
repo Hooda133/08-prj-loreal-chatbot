@@ -506,7 +506,7 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
         : "The beauty advisor is taking too long. Please try sending your question again.";
     } else if (error?.name === "TypeError" || error?.name === "AbortError") {
       code = "NETWORK_OR_CORS";
-      statusEl.textContent = "Could not reach the Cloudflare Worker. A network filter, browser extension, or CORS restriction may have blocked this request.";
+      statusEl.textContent = "Could not reach the Cloudflare Worker. Check your connection; a network filter, browser extension, or CORS restriction may have blocked this request.";
     } else {
       statusEl.textContent = error?.message || "Something went wrong. Please try again.";
     }
