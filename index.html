@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Defense in depth: browser API requests may reach only this site and the Cloudflare Worker. -->
+  <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://loreal-beauty-advisor.elshamandy133.workers.dev" />
   <meta name="theme-color" content="#ffffff" />
   <meta name="description" content="Discover makeup, skincare, haircare and fragrance with Beauty Atelier, a personalized L’Oréal-inspired student concept." />
   <title>Beauty Atelier — The Beauty Edit</title>

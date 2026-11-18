@@ -83,6 +83,26 @@ try {
   assert.equal(state.buttons, 8, "All eight shortcut prompts remain functional");
   assert.ok(state.horizontalOverflow <= 2, "Desktop should not scroll horizontally: " + state.horizontalOverflow);
 
+  // The actual page CSP must block a browser fetch to OpenAI. Only the
+  // approved Worker is allowed to receive browser-side AI requests.
+  const cspViolations = await desktop.evaluate(async () => {
+    const seen = [];
+    const onViolation = event => seen.push({
+      directive:event.effectiveDirective, blocked:event.blockedURI
+    });
+    document.addEventListener("securitypolicyviolation", onViolation);
+    try {
+      await fetch("https://api.openai.com/v1/models", { method:"GET" });
+    } catch {
+      // A CSP denial normally makes fetch reject. No real API call is sent.
+    }
+    await new Promise(resolve => setTimeout(resolve, 75));
+    document.removeEventListener("securitypolicyviolation", onViolation);
+    return seen;
+  });
+  assert.ok(cspViolations.some(event => event.directive === "connect-src" &&
+    event.blocked.includes("api.openai.com")), "CSP must block direct OpenAI requests from the webpage");
+
   // Bonus: explicit web search sends a bounded opt-in flag and shows
   const lookup = await setupPage(1440, 900);
   // real-clickable source links alongside the in-answer citation.
