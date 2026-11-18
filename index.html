@@ -328,7 +328,7 @@
         <div class="builder-intro">
           <span class="builder-eyebrow">THE PERSONAL EDIT <span>— AN INTERACTIVE BEAUTY STUDIO</span></span>
           <h2 id="routine-title">Find your <em>ritual.</em></h2>
-          <p>Explore real L’Oréal Paris skincare, save the formulas that catch your eye, and create a morning or evening routine tailored to your needs. Then ask our AI concierge to make it even more personal.</p>
+          <p>Browse real L’Oréal Paris skincare, haircare, and makeup. Save your favorites, build a routine made for your preferences, and ask our AI concierge to refine every step.</p>
         </div>
         <div class="builder-layout">
           <div class="catalog-panel">
@@ -339,28 +339,39 @@
             <div class="catalog-filters">
               <div class="catalog-field catalog-field--search">
                 <label for="productSearch">SEARCH PRODUCTS</label>
-                <input id="productSearch" type="search" placeholder="Try hyaluronic, SPF, cleanser…" autocomplete="off" />
+                <input id="productSearch" type="search" placeholder="Try hyaluronic, mascara, shampoo…" autocomplete="off" />
               </div>
               <div class="catalog-field">
                 <label for="productCategory">CATEGORY</label>
                 <select id="productCategory">
+                  <option value="skincare">Skincare products</option>
+                  <option value="haircare">Haircare products</option>
+                  <option value="makeup">Makeup products</option>
                   <option value="all">All products</option>
-                  <option value="cleanser">Cleansers</option>
-                  <option value="serum">Serums</option>
-                  <option value="moisturizer">Moisturizers</option>
+                  <option value="serum">Skincare serums</option>
                   <option value="sunscreen">SPF protection</option>
+                  <option value="shampoo">Shampoos</option>
+                  <option value="conditioner">Conditioners</option>
                 </select>
               </div>
             </div>
-            <div class="catalog-grid" id="productGrid" aria-label="Real L’Oréal Paris skincare product catalog"></div>
+            <div class="catalog-grid" id="productGrid" aria-label="Real L’Oréal Paris beauty product catalog"></div>
             <p class="catalog-disclaimer">Curated from official L’Oréal Paris USA product pages, checked November 2026. Product details, availability and formulas can change. Artwork is original student illustration, not product photography. <a href="https://www.lorealparisusa.com/skin-care" target="_blank" rel="noopener noreferrer">Explore the official catalog ↗</a></p>
           </div>
           <aside class="builder-side" aria-labelledby="builder-side-title">
             <div class="builder-side__top"><span>02 / YOUR PERSONAL FORMULA</span><span class="builder-side__badge">MADE FOR YOU</span></div>
             <h3 id="builder-side-title">Your skin.<br /><em>Your edit.</em></h3>
-            <p>Three quick choices. Your saved products are considered first, when suitable.</p>
+            <p>Choose your beauty focus and tell us what you love. Your saved products are considered first, when suitable.</p>
             <div class="builder-field">
-              <label for="routineSkin">WHAT IS YOUR SKIN TYPE?</label>
+              <label for="routineFocus">YOUR BEAUTY FOCUS</label>
+              <select id="routineFocus">
+                <option value="skincare">Skincare</option>
+                <option value="haircare">Haircare</option>
+                <option value="makeup">Makeup</option>
+              </select>
+            </div>
+            <div class="builder-field">
+              <label id="routineSkinLabel" for="routineSkin">WHAT IS YOUR SKIN TYPE?</label>
               <select id="routineSkin">
                 <option value="normal">Normal</option>
                 <option value="dry">Dry</option>
@@ -370,7 +381,7 @@
               </select>
             </div>
             <div class="builder-field">
-              <label for="routineConcern">YOUR MAIN SKIN GOAL</label>
+              <label id="routineConcernLabel" for="routineConcern">YOUR MAIN SKIN GOAL</label>
               <select id="routineConcern">
                 <option value="hydration">Hydration &amp; comfort</option>
                 <option value="radiance">Radiance &amp; dark spots</option>
@@ -378,7 +389,7 @@
                 <option value="texture">Texture &amp; uneven tone</option>
               </select>
             </div>
-            <div class="builder-field">
+            <div class="builder-field" id="routineTimeField">
               <label for="routineTime">CHOOSE YOUR RITUAL</label>
               <select id="routineTime">
                 <option value="both">Morning + evening</option>
@@ -391,11 +402,11 @@
               <div id="chosenProducts" class="selected-products" aria-label="Selected products"></div>
             </div>
             <button type="button" class="routine-primary builder-generate" id="buildRoutine">BUILD MY ROUTINE <span aria-hidden="true">↗</span></button>
-            <p class="builder-side__fineprint">Educational beauty guidance, not medical advice. Start slowly, patch-test new products, and follow official directions.</p>
+            <p class="builder-side__fineprint">Independent educational guidance, not medical advice. Patch-test new products, check shade choices yourself, and follow official directions.</p>
           </aside>
         </div>
         <div id="routineResult" class="routine-result" aria-label="Your personalized routine" tabindex="-1">
-          <div class="routine-result__empty"><span>03 / YOUR PERSONALIZED PLAN</span><p>Your personalized routine will appear here.</p><small>Select your preferences and choose Build My Routine.</small></div>
+          <div class="routine-result__empty"><span>03 / YOUR PERSONALIZED PLAN</span><p>Your personalized beauty routine will appear here.</p><small>Select your preferences and choose Build My Routine.</small></div>
         </div>
         <div id="routineStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
       </div>
