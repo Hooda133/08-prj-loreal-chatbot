@@ -286,6 +286,59 @@ try {
     "Expanded state survives switching product categories");
   await desktop.select("#productCategory", "makeup");
 
+  // Product Search: filters immediately on each keystroke, combines
+  // keyword matches with category filters, and offers a clear/reset path.
+  await desktop.select("#productCategory", "all");
+  const inputSearch = await desktop.$eval("#productSearch", el => ({
+    kind:el.type, placeholder:el.placeholder, controls:el.getAttribute("aria-controls")
+  }));
+  assert.equal(inputSearch.kind, "search");
+  assert.equal(inputSearch.controls, "productGrid");
+  await desktop.focus("#productSearch");
+  await desktop.type("#productSearch", "serum hyaluronic");
+  const matched = await desktop.evaluate(() => ({
+    ids:[...document.querySelectorAll("#productGrid .catalog-card")].map(card => card.dataset.productId),
+    count:document.querySelector("#productCount").textContent,
+    clearVisible:!document.querySelector("#clearProductSearch").hidden,
+    inputFocused:document.activeElement === document.querySelector("#productSearch")
+  }));
+  assert.ok(matched.ids.includes("ha-serum"), "Search words match product name in any order");
+  assert.ok(matched.ids.every(id => id.includes("serum")), "Nonmatching products are filtered");
+  assert.equal(matched.count, matched.ids.length + " of 23 verified products");
+  assert.equal(matched.clearVisible, true);
+  assert.equal(matched.inputFocused, true, "Typing does not lose keyboard focus");
+
+  await desktop.select("#productCategory", "makeup");
+  assert.equal(await desktop.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length), 0,
+    "Keyword + nonmatching category results in empty state");
+  assert.match(await desktop.$eval("#productGrid .catalog-empty", el => el.textContent),
+    /No matching products found/);
+  await desktop.select("#productCategory", "serum");
+  assert.ok(await desktop.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length) > 0,
+    "Changing category updates results without clearing search");
+  assert.equal(await desktop.$eval("#productSearch", el => el.value), "serum hyaluronic");
+  await desktop.click("#clearProductSearch");
+  const clearedSearch = await desktop.evaluate(() => ({
+    search: document.querySelector("#productSearch").value,
+    category: document.querySelector("#productCategory").value,
+    clearHidden:document.querySelector("#clearProductSearch").hidden,
+    products:document.querySelectorAll("#productGrid .catalog-card").length
+  }));
+  assert.equal(clearedSearch.search, "");
+  assert.equal(clearedSearch.category, "serum", "Clearing keywords does not change category");
+  assert.equal(clearedSearch.clearHidden, true);
+  assert.ok(clearedSearch.products > 1);
+
+  await desktop.select("#productCategory", "all");
+  await desktop.type("#productSearch", "nonexistentzzproduct");
+  assert.equal(await desktop.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length), 0);
+  await desktop.click("#productGrid .catalog-empty__reset");
+  assert.equal(await desktop.$eval("#productSearch", el => el.value), "");
+  assert.equal(await desktop.$eval("#productCategory", el => el.value), "all");
+  assert.equal(await desktop.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length), 23,
+    "No-results reset restores entire product library");
+  await desktop.select("#productCategory", "makeup");
+
   // Product selection requirement: a click on the *card* toggles selection,
   // visibly highlights it, and updates the selected list above Build My Routine.
   const lumiCard = '[data-product-id="lumi-glotion"]';
@@ -643,6 +696,25 @@ try {
   assert.match(mobileCitations.link, /^https:\/\/www\.lorealparisusa\.com\//);
   assert.ok(mobileCitations.overflow <= 2);
   await mobile.click("#webSearchToggle");
+
+  // Product searching also works on narrow touchscreens, alongside categories.
+  await mobile.select("#productCategory", "all");
+  await mobile.focus("#productSearch");
+  await mobile.type("#productSearch", "oily shampoo");
+  const mobileMatches = await mobile.evaluate(() => ({
+    ids:[...document.querySelectorAll("#productGrid .catalog-card")].map(card => card.dataset.productId),
+    overflow:document.documentElement.scrollWidth - innerWidth,
+    clearVisible:!document.querySelector("#clearProductSearch").hidden
+  }));
+  assert.ok(mobileMatches.ids.includes("pure-shampoo"));
+  assert.ok(mobileMatches.ids.every(id => id.includes("shampoo")));
+  assert.equal(mobileMatches.clearVisible, true);
+  assert.ok(mobileMatches.overflow <= 2, "Product search must not overflow on mobile");
+  await mobile.select("#productCategory", "skincare");
+  assert.equal(await mobile.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length), 0);
+  await mobile.click("#clearProductSearch");
+  assert.equal(await mobile.$eval("#productCategory", el => el.value), "skincare");
+  assert.ok(await mobile.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length) > 0);
 
   // Finger taps use the same card-wide hit area at phone widths.
   await mobile.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
