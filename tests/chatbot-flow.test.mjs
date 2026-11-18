@@ -825,3 +825,59 @@ test("Final QA: pausing motion cannot hide newly created chat messages", async (
   assert.match(css, /\.motion-paused \.chat-window \.message\s*\{\s*animation:none!important;\s*opacity:1!important;/);
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
 });
+
+
+test("Follow-up uses selected routine context, prior reply, then resets on New chat", async () => {
+  const requests = [];
+  const app = createFrontend(async (_, options) => {
+    requests.push(JSON.parse(options.body));
+    return { ok:true, async json() { return { choices:[{message:{content:
+      "For your L'Oréal routine, use Lumi Glotion first, then Lash Paradise mascara."
+    }}] }; } };
+  });
+  assert.equal(app.elements.followUpSuggestions.hidden, true);
+  assert.equal(await app.sendMessage(
+    "Generate my L'Oréal makeup routine for a polished look.",
+    ["Selected: Lumi Glotion details.", "Selected: Lash Paradise details."],
+    ["Earlier L'Oréal makeup routine: Lumi Glotion (base); Lash Paradise mascara (eyes)."]
+  ), true);
+  assert.equal(app.elements.followUpSuggestions.hidden, false);
+  const chip = new FakeElement("button");
+  chip.dataset.followup = "Can I use these at night?";
+  app.elements.followUpSuggestions.listeners.click({target:chip});
+  await new Promise(resolve => setTimeout(resolve, 10));
+  assert.equal(requests.length, 2);
+  const followup = requests[1].messages;
+  assert.equal(followup.at(-1).content, "Can I use these at night?");
+  assert.ok(followup.some(m => m.content.includes("Lumi Glotion (base)")));
+  assert.ok(followup.some(m => m.content.includes("Lash Paradise mascara (eyes)")));
+  assert.ok(followup.some(m => m.role === "assistant" && m.content.includes("Lash Paradise mascara")));
+  assert.ok(followup.length <= 12);
+  assert.ok(followup.every(m => m.content.length <= 1000 && m.role !== "system"));
+
+  app.elements.resetBtn.listeners.click();
+  assert.equal(app.elements.followUpSuggestions.hidden, true);
+  await app.sendMessage("What L'Oréal products suit normal skin?");
+  const fresh = requests.at(-1).messages;
+  assert.equal(fresh.length, 1);
+  assert.doesNotMatch(JSON.stringify(fresh), /Lumi Glotion|Lash Paradise/);
+});
+
+test("Failed routine generation keeps last successful routine context", async () => {
+  const requests = [];
+  let fail = false;
+  const app = createFrontend(async (_, options) => {
+    requests.push(JSON.parse(options.body));
+    if (fail) { fail = false; return {ok:false, async json() {return {error:"Try again."};}}; }
+    return {ok:true, async json() {return {choices:[{message:{content:"Your L'Oréal routine is ready."}}]};}};
+  });
+  await app.sendMessage("Generate my L'Oréal skin routine.", ["Catalog A"],
+    ["Earlier L'Oréal routine used RevitaLift Hyaluronic Acid Serum."]);
+  fail = true;
+  assert.equal(await app.sendMessage("Change my L'Oréal routine.", ["Catalog B"],
+    ["Earlier L'Oréal routine used glycolic acid serum."]), false);
+  await app.sendMessage("What about the previous serum?");
+  const sent = JSON.stringify(requests.at(-1));
+  assert.match(sent, /Earlier L'Oréal routine used RevitaLift Hyaluronic Acid Serum/);
+  assert.doesNotMatch(sent, /Earlier L'Oréal routine used glycolic acid serum/);
+});
