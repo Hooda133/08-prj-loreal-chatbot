@@ -15,6 +15,65 @@ jobs:
       contents: read
     timeout-minutes: 4
     steps:
+      - name: Check actual website and Worker from Chrome
+        run: |
+          npm install --no-save --no-package-lock puppeteer-core
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          if [ -z "$CHROME" ]; then echo "No Chrome executable"; exit 1; fi
+          CHROME_PATH="$CHROME" node --input-type=module <<'JS'
+          import puppeteer from 'puppeteer-core';
+          let browser;
+          try {
+            browser = await puppeteer.launch({
+              headless:true, executablePath:process.env.CHROME_PATH,
+              args:['--no-sandbox','--disable-dev-shm-usage']
+            });
+            const page = await browser.newPage();
+            const navigation = await page.goto('https://hooda133.github.io/08-prj-loreal-chatbot/',{
+              waitUntil:'domcontentloaded',timeout:35000
+            });
+            console.log('Live website HTTP:',navigation?.status());
+            const diagnostic = await page.evaluate(async () => {
+              const endpoint='https://loreal-beauty-advisor.elshamandy133.workers.dev/';
+              async function inspect(options) {
+                try {
+                  const response = await fetch(endpoint,options);
+                  let data={};
+                  try { data=await response.json(); } catch {}
+                  return {
+                    status:response.status,ok:response.ok,
+                    fields:Object.keys(data).sort(),
+                    error:typeof data.error === 'string' ? data.error.slice(0,260) : null,
+                    searchStatus:data.searchStatus ?? null,
+                    sourceType:data.sourceType ?? null,
+                    sources:Array.isArray(data.sources) ? data.sources.length : 0,
+                    answerLength:typeof data.choices?.[0]?.message?.content === 'string'
+                      ? data.choices[0].message.content.length : 0
+                  };
+                } catch(error){
+                  return {requestError:String(error).slice(0,200)};
+                }
+              }
+              const get=await inspect({method:'GET'});
+              let post={skipped:true,reason:'GET was not handled by the public Worker'};
+              if(get.status === 405){
+                post=await inspect({
+                  method:'POST',
+                  headers:{'Content-Type':'application/json'},
+                  body:JSON.stringify({messages:[{role:'user',
+                    content:"What is new in L'Oréal Paris RevitaLift serums? Please show web sources."}],
+                    searchWeb:true})
+                });
+              }
+              return {pageOrigin:location.origin,get,post};
+            });
+            console.log('Chrome live Worker diagnostic:',JSON.stringify(diagnostic));
+          } catch(error){
+            console.log('Chrome diagnostic failure:',String(error).slice(0,300));
+          } finally {
+            if(browser) await browser.close();
+          }
+          JS
       - name: Check real public Worker response (one search request)
         run: |
           python3 - <<'PY'
