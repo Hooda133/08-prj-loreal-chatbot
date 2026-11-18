@@ -1331,3 +1331,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,.category-card:focus-vi
   .category-card,.has-motion .category-card[data-reveal].is-visible{transform:none!important}
   .luxury-ticker__track{transform:none!important}
 }
+
+
+/* Context-aware follow-up chips, revealed after a successful chat reply. */
+.followup-ideas[hidden]{display:none!important}
+.followup-ideas{margin:0 0 15px;padding:12px 13px;border:1px solid #e7dbd2;border-radius:10px;background:#fbf7f3}
+.followup-ideas__label{display:block;font:800 10px/1.5 "DM Sans",sans-serif;letter-spacing:.11em;color:#725344;margin-bottom:9px}
+.followup-ideas__choices{display:flex;gap:8px;flex-wrap:wrap}
+.followup-ideas__choices button{border:1px solid #c9a998;border-radius:20px;padding:9px 12px;background:#fff;color:#503a31;font:700 11px/1.35 "DM Sans",sans-serif;min-height:42px;cursor:pointer}
+.followup-ideas__choices button:hover:not(:disabled){background:#f0e2d8;border-color:#835d4c}
+.followup-ideas__choices button:focus-visible{outline:3px solid #70493f;outline-offset:2px}
+.followup-ideas__choices button:disabled{opacity:.5;cursor:wait}
+@media(max-width:570px){.followup-ideas{padding:11px}.followup-ideas__choices button{flex:1 1 auto}}
