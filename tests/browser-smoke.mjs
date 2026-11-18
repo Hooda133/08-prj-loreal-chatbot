@@ -763,6 +763,159 @@ try {
   }
   await mobile.close();
 
+  // RTL language support: verify the real grid, saved products and chat
+  // geometry at desktop and touchscreen sizes. LTR tests above stay intact.
+  const rtlDesktop = await setupPage(1440, 900);
+  // Puppeteer pages share a browser profile. Isolate saved-product fixtures
+  // from the prior mobile test so a click starts with an unselected card.
+  await rtlDesktop.evaluate(() => localStorage.removeItem("beauty-atelier:selected-products:v1"));
+  await rtlDesktop.reload({waitUntil:"domcontentloaded"});
+  await rtlDesktop.select("#languageDirection", "ar");
+  const rtlLayout = await rtlDesktop.evaluate(() => {
+    const grid = document.querySelector("#productGrid");
+    const cards = [...grid.querySelectorAll(".catalog-card")];
+    const catalog = document.querySelector(".catalog-panel");
+    const sidebar = document.querySelector(".builder-side");
+    const chat = document.querySelector("#chatWindow");
+    return {
+      dir:document.documentElement.dir,
+      lang:document.documentElement.lang,
+      select:document.querySelector("#languageDirection").value,
+      gridDirection:getComputedStyle(grid).direction,
+      savedDirection:getComputedStyle(document.querySelector("#chosenProducts")).direction,
+      chatDirection:getComputedStyle(chat).direction,
+      firstCardX:cards[0].getBoundingClientRect().x,
+      secondCardX:cards[1].getBoundingClientRect().x,
+      catalogX:catalog.getBoundingClientRect().x,
+      sidebarX:sidebar.getBoundingClientRect().x,
+      overflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.equal(rtlLayout.dir, "rtl");
+  assert.equal(rtlLayout.lang, "ar");
+  assert.equal(rtlLayout.select, "ar");
+  assert.equal(rtlLayout.gridDirection, "rtl");
+  assert.equal(rtlLayout.savedDirection, "rtl");
+  assert.equal(rtlLayout.chatDirection, "rtl");
+  assert.ok(rtlLayout.firstCardX > rtlLayout.secondCardX, "Product grid columns mirror right to left");
+  assert.ok(rtlLayout.catalogX > rtlLayout.sidebarX, "RTL catalog and sidebar mirror their positions");
+  assert.ok(rtlLayout.overflow <= 2, "RTL desktop layout must not scroll horizontally");
+
+  // The existing card selection + saved chips remain functional in RTL.
+  await rtlDesktop.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
+  await rtlDesktop.click('[data-product-id="glycolic-cleanser"] .catalog-card__art');
+  const rtlSaved = await rtlDesktop.evaluate(() => {
+    const chips = [...document.querySelectorAll("#chosenProducts .saved-chip")];
+    return {
+      count:document.querySelector("#pickedCount").textContent,
+      chips:chips.length,
+      firstX:chips[0].getBoundingClientRect().x,
+      secondX:chips[1].getBoundingClientRect().x,
+      firstY:chips[0].getBoundingClientRect().y,
+      secondY:chips[1].getBoundingClientRect().y,
+      containerRight:document.querySelector("#chosenProducts").getBoundingClientRect().right,
+      firstRight:chips[0].getBoundingClientRect().right,
+      pressed:document.querySelector('[data-product-id="radiant-cleanser"] .catalog-card__pick')
+        .getAttribute("aria-pressed")
+    };
+  });
+  assert.equal(rtlSaved.count, "2 saved");
+  assert.equal(rtlSaved.chips, 2);
+  assert.ok(Math.abs(rtlSaved.firstRight - rtlSaved.containerRight) < 5,
+    "The first selected chip starts at the right edge");
+  assert.ok(Math.abs(rtlSaved.firstY - rtlSaved.secondY) < 5
+    ? rtlSaved.firstX > rtlSaved.secondX
+    : rtlSaved.firstY < rtlSaved.secondY,
+    "RTL saved chips progress right-to-left, or wrap to the next row");
+  assert.equal(rtlSaved.pressed, "true");
+
+  await rtlDesktop.focus("#userInput");
+  await rtlDesktop.type("#userInput", "ما أفضل روتين من لوريال للبشرة الجافة؟");
+  await rtlDesktop.click("#sendBtn");
+  await rtlDesktop.waitForFunction(() =>
+    document.querySelectorAll(".chat-window .message.ai:not(.pending)").length === 2);
+  const rtlChat = await rtlDesktop.evaluate(() => {
+    const chat = document.querySelector("#chatWindow");
+    const ai = chat.querySelector(".message.ai");
+    const user = chat.querySelector(".message.user");
+    const send = document.querySelector("#sendBtn");
+    const input = document.querySelector("#userInput");
+    return {
+      messageCount:chat.querySelectorAll(".message").length,
+      aiX:ai.getBoundingClientRect().x,
+      userX:user.getBoundingClientRect().x,
+      userDir:user.getAttribute("dir"),
+      userLang:user.getAttribute("lang"),
+      aiLang:ai.getAttribute("lang"),
+      sendX:send.getBoundingClientRect().x,
+      inputX:input.getBoundingClientRect().x,
+      overflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.equal(rtlChat.messageCount, 3);
+  assert.ok(rtlChat.aiX > rtlChat.userX, "AI bubble starts on right, user bubble on left");
+  assert.equal(rtlChat.userDir, "auto", "Arabic message controls its own reading direction");
+  assert.equal(rtlChat.userLang, "ar");
+  assert.equal(rtlChat.aiLang, "en", "English brand copy retains English screen-reader language");
+  assert.ok(rtlChat.sendX < rtlChat.inputX, "RTL chat composer mirrors send button and input");
+  assert.ok(rtlChat.overflow <= 2);
+
+  // Switching to English leaves the conversation and saved choices alone.
+  await rtlDesktop.select("#languageDirection", "en");
+  const switchedBack = await rtlDesktop.evaluate(() => ({
+    dir:document.documentElement.dir,
+    lang:document.documentElement.lang,
+    chat:document.querySelectorAll(".chat-window .message").length,
+    saved:document.querySelector("#pickedCount").textContent,
+    gridDirection:getComputedStyle(document.querySelector("#productGrid")).direction
+  }));
+  assert.deepEqual(switchedBack, {dir:"ltr",lang:"en",chat:3,saved:"2 saved",gridDirection:"ltr"});
+  await rtlDesktop.select("#languageDirection", "ar");
+  await rtlDesktop.reload({waitUntil:"domcontentloaded"});
+  assert.equal(await rtlDesktop.$eval("html", el => el.dir), "rtl", "RTL choice survives a reload");
+  assert.equal(await rtlDesktop.$eval("#pickedCount", el => el.textContent), "2 saved");
+  await rtlDesktop.screenshot({path:"/tmp/beauty-rtl-desktop.png",fullPage:true});
+  await rtlDesktop.close();
+
+  // RTL mobile: header selector is visible, and all three important areas
+  // fit without sideways scrolling, with touch actions still working.
+  const rtlMobile = await setupPage(375, 812, true, true);
+  await rtlMobile.evaluate(() => localStorage.removeItem("beauty-atelier:selected-products:v1"));
+  await rtlMobile.reload({waitUntil:"domcontentloaded"});
+  await rtlMobile.select("#languageDirection", "ar");
+  const mobileRtlState = await rtlMobile.evaluate(() => {
+    const grid = document.querySelector("#productGrid");
+    const selector = document.querySelector("#languageDirection");
+    const rect = selector.getBoundingClientRect();
+    return {
+      dir:document.documentElement.dir,
+      gridDirection:getComputedStyle(grid).direction,
+      chatDirection:getComputedStyle(document.querySelector("#chatWindow")).direction,
+      chosenDirection:getComputedStyle(document.querySelector("#chosenProducts")).direction,
+      selectorVisible:rect.width > 0 && rect.left >= 0 && rect.right <= innerWidth,
+      overflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.equal(mobileRtlState.dir, "rtl");
+  assert.equal(mobileRtlState.gridDirection, "rtl");
+  assert.equal(mobileRtlState.chatDirection, "rtl");
+  assert.equal(mobileRtlState.chosenDirection, "rtl");
+  assert.equal(mobileRtlState.selectorVisible, true);
+  assert.ok(mobileRtlState.overflow <= 2, "375px RTL mobile page must not overflow");
+  await rtlMobile.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
+  assert.equal(await rtlMobile.$eval("#pickedCount", el => el.textContent), "1 saved");
+  await rtlMobile.click("#chosenProducts .saved-chip");
+  assert.equal(await rtlMobile.$eval("#pickedCount", el => el.textContent), "0 saved");
+  await rtlMobile.focus("#userInput");
+  await rtlMobile.type("#userInput", "هل عند لوريال منتجات للشعر؟");
+  await rtlMobile.click("#sendBtn");
+  await rtlMobile.waitForFunction(() => document.querySelectorAll(".chat-window .message.user").length === 1);
+  assert.equal(await rtlMobile.$eval(".chat-window .message.user", el => el.getAttribute("lang")), "ar");
+  await rtlMobile.screenshot({path:"/tmp/beauty-rtl-mobile.png",fullPage:true});
+  await rtlMobile.close();
+
+
+
   assert.deepEqual(failures, [], "There must be no uncaught browser JavaScript errors");
   console.log("PASS: Real Chrome desktop + mobile smoke test");
   console.log("PASS: Prompt buttons, distinct chat bubbles, preview, context, New Chat, motion and accessible input");
