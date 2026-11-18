@@ -299,7 +299,7 @@ function createFrontend(mockFetch, options = {}) {
   };
   const sandbox = {
     document, window, fetch: mockFetch,
-    AbortController,
+    URL, AbortController,
     setTimeout: options.setTimeout || setTimeout,
     clearTimeout: options.clearTimeout || clearTimeout
   };
