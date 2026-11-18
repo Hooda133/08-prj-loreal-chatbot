@@ -36,9 +36,15 @@ async function setupPage(width, height, reducedMotion = false, touch = false) {
           json: async () => ({
             choices: [{
               message: {
-                content: "## Your L’Oréal routine\n- Start by considering your skin type.\n- Choose products that fit your preferences."
+                content: request.searchWeb
+                  ? "Current L’Oréal serum information is available [1]."
+                  : "## Your L’Oréal routine\n- Start by considering your skin type.\n- Choose products that fit your preferences."
               }
-            }]
+            }],
+            ...(request.searchWeb ? { sources: [{
+              title: "L’Oréal Paris official serum catalog",
+              url: "https://www.lorealparisusa.com/skin-care/face-serums"
+            }] } : {})
           })
         });
       }
@@ -76,6 +82,40 @@ try {
   assert.match(state.inputLabel, /L.Oréal products/);
   assert.equal(state.buttons, 8, "All eight shortcut prompts remain functional");
   assert.ok(state.horizontalOverflow <= 2, "Desktop should not scroll horizontally: " + state.horizontalOverflow);
+
+  // Bonus: explicit web search sends a bounded opt-in flag and shows
+  const lookup = await setupPage(1440, 900);
+  // real-clickable source links alongside the in-answer citation.
+  await lookup.click("#webSearchToggle");
+  assert.equal(await lookup.$eval("#webSearchToggle", el => el.checked), true);
+  await sendQuestion(lookup, "What is the latest L'Oréal Paris serum information?");
+  const searched = await lookup.evaluate(() => {
+    const bubble = document.querySelector(".chat-window .message.ai:last-child");
+    const inline = bubble.querySelector(".chat-inline-citation");
+    const source = bubble.querySelector(".chat-source-link");
+    return {
+      request:window.__mockRequests.at(-1),
+      inline: inline?.textContent,
+      href: inline?.href,
+      source: source?.textContent,
+      sourceHref:source?.href,
+      rel:source?.rel,
+      present:!!bubble.querySelector(".chat-sources"),
+      horizontalOverflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.equal(searched.request.searchWeb, true);
+  assert.equal(searched.inline, "[1]");
+  assert.match(searched.href, /lorealparisusa\.com\/skin-care\/face-serums/);
+  assert.match(searched.source, /official serum catalog/);
+  assert.equal(searched.sourceHref, searched.href);
+  assert.equal(searched.rel, "noopener noreferrer");
+  assert.equal(searched.present, true);
+  assert.ok(searched.horizontalOverflow <= 2, "Search citation links must not cause horizontal overflow");
+  await lookup.click("#webSearchToggle");
+  assert.equal(await lookup.$eval("#webSearchToggle", el => el.checked), false);
+
+  await lookup.close();
 
   await sendQuestion(desktop, "My name is Emma. Can you suggest a L’Oréal routine?");
   state = await desktop.evaluate(() => ({
@@ -585,6 +625,24 @@ try {
   assert.ok(phoneDetail.overflow <= 2, "Expanded mobile details should not cause horizontal overflow");
   await mobile.click('[data-product-id="radiant-cleanser"] .catalog-card__details-toggle');
   assert.equal(await mobile.$eval('[data-product-id="radiant-cleanser"] .catalog-card__details', el => el.hidden), true);
+
+  // Search sources remain readable and tappable on a real touchscreen.
+  await mobile.click("#webSearchToggle");
+  const mobileSearchBefore = await mobile.evaluate(() => window.__mockRequests.length);
+  await mobile.focus("#userInput");
+  await mobile.type("#userInput", "What is new from L'Oréal Paris?");
+  await mobile.click("#sendBtn");
+  await mobile.waitForFunction(before => window.__mockRequests.length === before + 1, {}, mobileSearchBefore);
+  await mobile.waitForFunction(() => document.querySelector("#sendBtn").disabled === false);
+  const mobileCitations = await mobile.evaluate(() => ({
+    inline: document.querySelector(".chat-window .message.ai:last-child .chat-inline-citation")?.textContent,
+    link: document.querySelector(".chat-window .message.ai:last-child .chat-source-link")?.href,
+    overflow: document.documentElement.scrollWidth - innerWidth
+  }));
+  assert.equal(mobileCitations.inline, "[1]");
+  assert.match(mobileCitations.link, /^https:\/\/www\.lorealparisusa\.com\//);
+  assert.ok(mobileCitations.overflow <= 2);
+  await mobile.click("#webSearchToggle");
 
   // Finger taps use the same card-wide hit area at phone widths.
   await mobile.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
