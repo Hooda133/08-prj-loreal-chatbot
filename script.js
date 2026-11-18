@@ -14,6 +14,7 @@ const miniPrompts = document.getElementById("miniPrompts");
 const resetBtn = document.getElementById("resetBtn");
 const startButton = document.getElementById("startConsultation");
 const advisor = document.getElementById("concierge");
+const followUpSuggestions = document.getElementById("followUpSuggestions");
 
 const GREETING =
   "Welcome to Beauty Atelier.\n\nI can help with L’Oréal skincare, makeup, haircare and fragrances, plus personalized beauty routines. What would you like to explore?";
@@ -28,6 +29,9 @@ let messages = [];
 // Explicitly shared name stays in this page session only (no cookies/storage).
 // Keeping it separate preserves the name after older transcript turns roll off.
 let preferredName = "";
+// Product context from the most recently SUCCESSFUL generated routine.
+// Stored in memory only, never browser storage; New chat clears it.
+let activeRoutineNotes = [];
 let busy = false;
 const REPLY_TIMEOUT_MS = 30000;
 let requestGeneration = 0;
@@ -68,7 +72,7 @@ function nameFromIntroduction(message) {
   return name.length > 0 && name.length <= 70 ? name : "";
 }
 
-function buildContextMessages(question) {
+function buildContextMessages(question, includeRoutine = true) {
   const recent = messages.slice(-RECENT_CONTEXT_MESSAGES).map(message => ({
     role: message.role,
     content: message.content.slice(0, 1000)
@@ -102,10 +106,29 @@ function buildContextMessages(question) {
   const note = details.length
     ? "Earlier beauty preferences and details shared in this chat (context only, not a new question):\n" + details.join("\n")
     : "";
+  const personalNote = note ? { role: "user", content: note.slice(0, 1000) } : null;
+  const latestQuestion = { role: "user", content: question };
+  if (!includeRoutine || activeRoutineNotes.length === 0) {
+    return [
+      ...(personalNote ? [personalNote] : []),
+      ...recent,
+      latestQuestion
+    ];
+  }
+
+  // Keep the last generated product choices available for questions such as
+  // "Can I use those at night?" without losing recent conversation turns.
+  // Reserve at least one slot for the visitor's CURRENT question and stay
+  // under the Worker's strict 12-message limit.
+  const routineContext = activeRoutineNotes.map(content => ({ role: "user", content }));
+  const contextSlots = 11 - routineContext.length;
+  const keepPersonalNote = Boolean(personalNote && contextSlots >= 3);
+  const recentSlots = contextSlots - (keepPersonalNote ? 1 : 0);
   return [
-    ...(note ? [{ role: "user", content: note.slice(0, 1000) }] : []),
-    ...recent,
-    { role: "user", content: question }
+    ...(keepPersonalNote ? [personalNote] : []),
+    ...routineContext,
+    ...(recentSlots ? recent.slice(-recentSlots) : []),
+    latestQuestion
   ];
 }
 
@@ -187,9 +210,13 @@ function setBusy(value) {
   sendBtn.setAttribute("aria-label", value ? "Sending your question" : "Send message");
   ritualCta.disabled = value;
   windowEl.setAttribute("aria-busy", String(value));
-  document.querySelectorAll("[data-prompt]").forEach(button => {
+  document.querySelectorAll("[data-prompt], [data-followup]").forEach(button => {
     button.disabled = value;
   });
+}
+
+function updateFollowUpSuggestions() {
+  if (followUpSuggestions) followUpSuggestions.hidden = messages.length === 0;
 }
 
 function newChat(focusInput = true) {
@@ -203,6 +230,8 @@ function newChat(focusInput = true) {
   }
   messages = [];
   preferredName = "";
+  activeRoutineNotes = [];
+  updateFollowUpSuggestions();
   windowEl.replaceChildren();
   setQuestionPreview("");
   statusEl.textContent = "";
@@ -217,7 +246,7 @@ function newChat(focusInput = true) {
 
 // Optional catalog details are passed as separate, bounded user-role notes.
 // These go through the same secure Worker; no OpenAI key reaches the browser.
-async function sendMessage(text, referenceNotes = []) {
+async function sendMessage(text, referenceNotes = [], followUpNotes = []) {
   const content = text.trim();
   if (busy || !content) return false;
   if (content.length > 1000) {
@@ -229,6 +258,9 @@ async function sendMessage(text, referenceNotes = []) {
   const safeNotes = Array.isArray(referenceNotes)
     ? referenceNotes.filter(note => typeof note === "string" && note.trim() && note.length <= 1000).slice(0, 10)
     : [];
+  const lastingNotes = Array.isArray(followUpNotes)
+    ? followUpNotes.filter(note => typeof note === "string" && note.trim() && note.length <= 1000).slice(0, 3)
+    : [];
 
   statusEl.textContent = "";
   setQuestionPreview(content);
@@ -239,7 +271,7 @@ async function sendMessage(text, referenceNotes = []) {
 
   // Retain as much existing chat context as fits beside the selected products.
   // The actual generation question must remain the LAST user message.
-  let nextMessages = buildContextMessages(content);
+  let nextMessages = buildContextMessages(content, safeNotes.length === 0);
   if (safeNotes.length) {
     const questionMessage = nextMessages.pop();
     const roomForHistory = 11 - safeNotes.length;
@@ -296,6 +328,10 @@ async function sendMessage(text, referenceNotes = []) {
       "Beauty Concierge replied. " + reply.slice(0, 320) +
       (reply.length > 320 ? " The full response is in the conversation." : "");
     messages.push({ role: "user", content }, { role: "assistant", content: reply });
+    // Remember selected product details only when the generated routine
+    // succeeds. Failed or cancelled requests must not replace prior context.
+    if (safeNotes.length && lastingNotes.length) activeRoutineNotes = lastingNotes;
+    updateFollowUpSuggestions();
     // Update only after a successful completed exchange. Corrected names win.
     const introducedName = nameFromIntroduction(content);
     if (introducedName) preferredName = introducedName;
@@ -346,6 +382,14 @@ function handleSuggestedPrompt(event) {
 }
 suggestions.addEventListener("click", handleSuggestedPrompt);
 miniPrompts.addEventListener("click", handleSuggestedPrompt);
+
+// Optional shortcuts for relevant questions about the conversation so far.
+// Ordinary typed questions still use the very same sendMessage/history path.
+followUpSuggestions?.addEventListener("click", event => {
+  const button = event.target.closest("button[data-followup]");
+  if (!button) return;
+  sendMessage(button.dataset.followup);
+});
 
 function showTouchComposer() {
   // Center the input within the visible page before the virtual keyboard opens.
