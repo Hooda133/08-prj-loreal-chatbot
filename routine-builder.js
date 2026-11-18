@@ -225,6 +225,9 @@
     }
   }
   const selected = new Set(loadSavedProducts());
+  // Details may stay open when the visitor changes a catalog filter.
+  // This is visual-only state; nothing extra is stored or sent to the AI.
+  const expandedProductIds = new Set();
   let lastRoutine = null;
 
   function persistSavedProducts() {
@@ -356,6 +359,58 @@
     }
   }
 
+  function productDetailPanel(product) {
+    const panel = make("section", "catalog-card__details");
+    panel.id = "product-details-" + product.id;
+    panel.hidden = !expandedProductIds.has(product.id);
+
+    const heading = make("h4", "catalog-card__details-heading", "PRODUCT DESCRIPTION");
+    panel.appendChild(heading);
+    panel.appendChild(make("p", "catalog-card__details-copy", product.description));
+
+    // Show only sourced catalog attributes rather than inventing benefits
+    // or usage directions that the product listing did not provide.
+    const type = productType(product);
+    const goalNames = {
+      hydration:"Hydration", firmness:"Firmness", texture:"Texture",
+      radiance:"Radiance", oil:"Oily roots", repair:"Damage care",
+      definition:"Definition and color"
+    };
+    const matchNames = {
+      normal:"Normal", dry:"Dry", oily:"Oily", combination:"Combination",
+      sensitive:"Sensitive", damaged:"Damage-prone",
+      natural:"Natural look", polished:"Polished look"
+    };
+    const usage = type === "haircare"
+      ? "Wash-day care; follow the instructions on the package."
+      : type === "makeup"
+        ? "Makeup look; check the official listing for shade and application guidance."
+        : product.time === "am"
+          ? "Morning skincare"
+          : product.time === "pm"
+            ? "Evening skincare"
+            : "Morning or evening skincare";
+    const details = [
+      ["CATEGORY", (groupLabels[product.group] || product.group) + " / " + type],
+      ["CATALOG GOALS", product.concerns.map(goal => goalNames[goal] || goal).join(" · ")],
+      ["CATALOG MATCHES", product.skins.map(match => matchNames[match] || match).join(" · ")],
+      ["WHEN TO EXPLORE", usage]
+    ];
+    for (const [label, value] of details) {
+      const item = make("div", "catalog-card__detail-row");
+      item.appendChild(make("strong", "", label));
+      item.appendChild(make("span", "", value));
+      panel.appendChild(item);
+    }
+    if (product.exfoliating || product.strongActive) {
+      panel.appendChild(make("p", "catalog-card__details-caution",
+        "Contains an exfoliating or stronger active. Check official directions, start gradually, and avoid layering with other exfoliating acids in the same routine."));
+    }
+    panel.appendChild(make("p", "catalog-card__details-source",
+      "Curated product snapshot — check the official listing for the latest details."));
+    return panel;
+  }
+
   function renderCatalog() {
     const query = normalize(search.value);
     const category = filter.value;
@@ -389,7 +444,28 @@
       card.appendChild(make("span", "catalog-card__eyebrow", product.family + "  /  " + productType(product).toUpperCase()));
       card.appendChild(make("h3", "catalog-card__title", product.name));
       card.appendChild(make("p", "catalog-card__description", product.description));
-      card.appendChild(officialLink(product));
+
+      // Explicit button makes product descriptions discoverable without
+      // hover, works with touch/keyboard, and does not select the card.
+      const detailsButton = make("button", "catalog-card__details-toggle");
+      detailsButton.type = "button";
+      detailsButton.setAttribute("aria-controls", "product-details-" + product.id);
+      detailsButton.setAttribute("aria-label", (expandedProductIds.has(product.id) ? "Hide" : "View") +
+        " details for " + product.name);
+      detailsButton.setAttribute("aria-expanded", String(expandedProductIds.has(product.id)));
+      detailsButton.textContent = expandedProductIds.has(product.id) ? "HIDE DETAILS −" : "VIEW DETAILS +";
+      const detailPanel = productDetailPanel(product);
+      detailsButton.addEventListener("click", () => {
+        const isExpanded = detailsButton.getAttribute("aria-expanded") === "true";
+        detailPanel.hidden = isExpanded;
+        detailsButton.setAttribute("aria-expanded", String(!isExpanded));
+        detailsButton.setAttribute("aria-label",
+          (isExpanded ? "View" : "Hide") + " details for " + product.name);
+        detailsButton.textContent = isExpanded ? "VIEW DETAILS +" : "HIDE DETAILS −";
+        if (isExpanded) expandedProductIds.delete(product.id);
+        else expandedProductIds.add(product.id);
+      });
+      card.append(detailsButton, detailPanel, officialLink(product));
       const actions = make("div", "catalog-card__actions");
       const save = make("button", "catalog-button catalog-button--save", selected.has(product.id) ? "✓ Saved" : "+ Save product");
       save.type = "button";

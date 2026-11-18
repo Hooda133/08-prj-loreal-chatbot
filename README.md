@@ -2,6 +2,29 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## Assignment: Reveal Product Description
+
+Every L'Oréal catalog card displays a short summary and has a **VIEW DETAILS +**
+button to reveal a readable, expanded panel on click or keyboard activation:
+
+- The expanded panel shows the **product description**, product category,
+  catalog beauty goals, matched skin/hair/look preferences and general routine
+  context. Exfoliating or stronger-active products display a caution.
+- Buttons use `aria-expanded` and `aria-controls`, and the panel uses the
+  native `hidden` state. **Enter / Space** work alongside mouse or touch.
+  Each panel has a heading and readable text; no hover-only interaction.
+- View Details is **separate from selecting/unselecting a product**.
+  It does not change the selection count, saved-product storage or routine.
+  Product links and Ask AI remain available.
+- Open panels stay open when a visitor changes product category or search
+  filters and returns to the same product, within the current page.
+- The content uses existing curated product catalog attributes, **not
+  AI-generated claims, live prices, real-time inventory or new API calls**.
+
+The Chrome smoke test opens and closes product descriptions, checks ARIA
+attributes and product selection independence, tests keyboard Space, checks
+all 23 catalog entries, and repeats the interaction on a touch-size phone.
+
 ## Assignment: Save Selected Products after reload
 
 The Beauty Atelier **YOUR SAVED EDIT** list now uses browser **localStorage** to
