@@ -2,6 +2,35 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## Assignment: Follow-Up Chat with conversation context
+
+The chatbot keeps the latest user and AI replies in memory for the duration of
+the open page. Once a visitor successfully generates a routine using selected
+catalog products, it also stores a compact record of the **actual selected
+product names, routine focus, and preferences** in that same in-tab memory.
+
+- Visitors can type follow-up questions such as "What about at night?" or use
+  the **Keep the conversation going** suggestions shown under the chat
+  after the first successful AI reply.
+- Each follow-up sends the latest question, recent conversation, any relevant
+  earlier beauty preferences, and the last generated product context through
+  the existing Cloudflare Worker. The Worker then supplies it to OpenAI
+  together with the server's strict beauty-only instructions.
+- Catalog context stays in **user-role messages**, never system instructions,
+  and is packed into no more than three notes. Requests always contain at most
+  **12 messages**, each with at most **1,000 characters**.
+- New successfully generated routines supersede previous routine-product
+  context. Failed or cancelled requests do **not** save new context.
+- **New chat clears the transcript, preferred name, and selected routine
+  context**; page reload also clears it. No cookies, browser storage,
+  user accounts or API keys are added.
+- Follow-up shortcuts do not erase a different draft typed into the chat.
+
+Run \`node --test tests/chatbot-flow.test.mjs tests/routine-builder.test.mjs\`.
+The Chrome smoke test also verifies the complete routine → follow-up → new
+chat flow with mocked Worker replies. It does not prove live model relevance:
+test one real follow-up on the deployed site after merge.
+
 ## Assignment: Generate Routine with selected products and OpenAI
 
 The **Generate Routine** button is the AI workflow, separate from **Preview

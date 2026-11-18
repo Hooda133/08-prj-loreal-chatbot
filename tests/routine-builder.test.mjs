@@ -12,7 +12,7 @@ for (const file of ["product-catalog.js", "routine-builder.js"]) {
   runInNewContext(source, { window, document });
 }
 const catalog = window.BeautyCatalog;
-const { buildRoutine, questionForRoutine, buildSelectedProductNotes, questionForSelectedProducts } = window.BeautyRoutineLogic;
+const { buildRoutine, questionForRoutine, buildSelectedProductNotes, buildFollowUpProductNotes, questionForSelectedProducts } = window.BeautyRoutineLogic;
 
 test("catalog uses genuine named products with HTTPS official listing links", () => {
   assert.ok(catalog.length >= 23);
@@ -147,4 +147,21 @@ test("AI generation request includes user preferences and safe routine instructi
   assert.match(prompt, /timing: pm/);
   assert.match(prompt, /exfoliating acids/);
   assert.ok(prompt.length <= 1000);
+});
+
+
+test("Generated routine keeps all exact product names for follow-up turns", () => {
+  const products = catalog;
+  const notes = buildFollowUpProductNotes(products, {
+    type: "skincare", skin: "sensitive", concern: "hydration", time: "pm"
+  });
+  assert.ok(notes.length >= 1 && notes.length <= 3);
+  assert.ok(notes.every(note => note.length <= 1000));
+  const text = notes.join("\n");
+  for (const product of products) {
+    assert.ok(text.includes(product.name), "Missing selected product " + product.name);
+  }
+  assert.match(text, /sensitive/);
+  assert.match(text, /hydration/);
+  assert.match(text, /historical context only/);
 });

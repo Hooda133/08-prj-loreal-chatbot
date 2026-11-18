@@ -134,6 +134,30 @@
     return notes;
   }
 
+  // Compact session context for follow-up questions. Unlike the longer
+  // first-request catalog notes, this preserves all selected names in at
+  // most three Worker-safe messages while leaving room for recent chat.
+  function buildFollowUpProductNotes(products, profile) {
+    const topic = ["skincare", "haircare", "makeup"].includes(profile.type) ? profile.type : "skincare";
+    const heading = "Earlier AI-generated L'Oréal " + topic +
+      " routine. Selected products and original preferences (historical context only; newer requests win): " +
+      "preference=" + profile.skin + ", goal=" + profile.concern +
+      (topic === "skincare" ? ", timing=" + profile.time : "") + ".\n";
+    const notes = [];
+    let current = heading;
+    for (const product of products) {
+      const line = "- " + product.name + " (" + product.group +
+        (product.exfoliating ? ", exfoliating" : "") + ")\n";
+      if (current.length + line.length > 920 && current !== heading) {
+        notes.push(current.trim());
+        current = "Other products from the same earlier routine:\n";
+      }
+      current += line;
+    }
+    if (current.trim()) notes.push(current.trim());
+    return notes.slice(0, 3);
+  }
+
   function questionForSelectedProducts(profile, count) {
     const focus = ["skincare", "haircare", "makeup"].includes(profile.type) ? profile.type : "skincare";
     const when = focus === "skincare" ? "; timing: " + profile.time : "";
@@ -148,7 +172,8 @@
   }
 
   window.BeautyRoutineLogic = Object.freeze({
-    buildRoutine, questionForRoutine, buildSelectedProductNotes, questionForSelectedProducts
+    buildRoutine, questionForRoutine, buildSelectedProductNotes,
+    buildFollowUpProductNotes, questionForSelectedProducts
   });
 
   // Avoid running page UI setup in the pure-logic regression tests.
@@ -473,8 +498,10 @@
       return;
     }
 
-    const prompt = questionForSelectedProducts(currentProfile(), products.length);
+    const profile = currentProfile();
+    const prompt = questionForSelectedProducts(profile, products.length);
     const productNotes = buildSelectedProductNotes(products);
+    const followUpNotes = buildFollowUpProductNotes(products, profile);
     generateButton.disabled = true;
     generateButton.setAttribute("aria-busy", "true");
     feedback.textContent = "Creating your personalized routine in the Beauty Concierge chat…";
@@ -483,7 +510,7 @@
       behavior: "smooth", block: "start"
     });
     try {
-      const success = await window.sendMessage(prompt, productNotes);
+      const success = await window.sendMessage(prompt, productNotes, followUpNotes);
       feedback.textContent = success
         ? "Your personalized AI routine is ready in the Beauty Concierge chat."
         : "The AI routine could not be generated. See the chat error and try again.";
