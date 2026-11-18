@@ -639,3 +639,33 @@ html[dir="rtl"] .hero-story .hero-signature{text-align:right}
   .hero-grid,.hero-art,.catalog-card,.catalog-card__art .beauty-icon,.atelier-path a,
   .header-nav__cta,.category-card,.reading-progress span{animation:none!important;transition:none!important}
 }
+
+
+/* Optional, locally generated diagnostics: no chat text or credentials. */
+.request-diagnostic{
+  margin:8px 0 14px;
+  padding:10px 12px;
+  border:1px solid #d3b6b3;
+  background:#fff8f4;
+  color:#543541;
+  border-radius:7px;
+  font:500 12px/1.55 "DM Sans",Arial,sans-serif;
+  overflow-wrap:anywhere;
+}
+.request-diagnostic[hidden]{display:none!important}
+.request-diagnostic summary{cursor:pointer;font-weight:800;text-decoration:underline;text-underline-offset:2px}
+.request-diagnostic summary:focus-visible,.request-diagnostic__copy:focus-visible{outline:3px solid #855567;outline-offset:3px}
+.request-diagnostic p{margin:9px 0;color:#6f5858}
+.request-diagnostic pre{
+  padding:10px;white-space:pre-wrap;overflow-wrap:anywhere;
+  border:1px solid #e6d6cc;background:#fffdfb;
+  color:#463a3c;border-radius:5px;font:500 11px/1.7 ui-monospace,monospace;
+}
+.request-diagnostic__copy{
+  min-height:38px;margin:8px 8px 3px 0;padding:8px 13px;
+  background:#5c3544;border:1px solid #5c3544;color:#fff9f5;
+  border-radius:4px;cursor:pointer;font:800 11px/1.4 "DM Sans",Arial,sans-serif;
+}
+.request-diagnostic__copy:hover{background:#784d5a}
+#requestDiagnosticCopyStatus{display:inline-block;color:#6d5151}
+html[dir="rtl"] .request-diagnostic{text-align:start}
