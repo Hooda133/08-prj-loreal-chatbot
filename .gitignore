@@ -1,2 +1,17 @@
-# Secrets file containing API keys
+# Keep local secrets, environment settings and private keys out of git.
+# The Cloudflare Worker secret is configured in its dashboard, never in a file.
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+.npmrc
+*.pem
+*.p12
+*.pfx
+*.key
+*.credentials.json
 secrets.js
+secret.js
+api-key.js
+config.local.js
+wrangler.local.toml
