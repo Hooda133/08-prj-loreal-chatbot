@@ -393,7 +393,9 @@ html[dir="rtl"] .atelier-path__arrow{transform:scaleX(-1)}
 
 /* The bespoke routine desk: an elegant dark counterpoint. */
 .builder-side{
-  top:110px;
+  /* Keep every control reachable even on laptop-height viewports. The
+     header stays sticky; the taller form must not be pinned underneath it. */
+  top:16px;
   background:
     radial-gradient(circle at 115% -12%,#9c64715b,transparent 45%),
     linear-gradient(151deg,#3c2934 0%,#271b27 100%);
