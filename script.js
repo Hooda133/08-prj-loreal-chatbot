@@ -246,7 +246,7 @@ function newChat(focusInput = true) {
 
 // Optional catalog details are passed as separate, bounded user-role notes.
 // These go through the same secure Worker; no OpenAI key reaches the browser.
-async function sendMessage(text, referenceNotes = [], followUpNotes = []) {
+async function sendMessage(text, referenceNotes = [], followUpNotes = [], preserveDraft = false) {
   const content = text.trim();
   if (busy || !content) return false;
   if (content.length > 1000) {
@@ -267,7 +267,7 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = []) {
   const userBubble = addMessage(content, "user", false, true);
   // Generating from product cards should not wipe a question the visitor
   // was typing in the chat box. Ordinary chat submits keep their old behavior.
-  if (!safeNotes.length) input.value = "";
+  if (!safeNotes.length && !preserveDraft) input.value = "";
 
   // Retain as much existing chat context as fits beside the selected products.
   // The actual generation question must remain the LAST user message.
@@ -344,7 +344,7 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = []) {
     // A failed request must not leave a duplicate user message when retried.
     pending.remove();
     userBubble.remove();
-    if (!safeNotes.length) input.value = content;
+    if (!safeNotes.length && !preserveDraft) input.value = content;
     setQuestionPreview("");
     chatAnnouncement.textContent = "";
     if (didTimeOut) {
@@ -388,7 +388,7 @@ miniPrompts.addEventListener("click", handleSuggestedPrompt);
 followUpSuggestions?.addEventListener("click", event => {
   const button = event.target.closest("button[data-followup]");
   if (!button) return;
-  sendMessage(button.dataset.followup);
+  sendMessage(button.dataset.followup, [], [], true);
 });
 
 function showTouchComposer() {
