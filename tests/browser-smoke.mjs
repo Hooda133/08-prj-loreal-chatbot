@@ -133,6 +133,45 @@ try {
     getComputedStyle(document.querySelector(".chat-window .message")).opacity);
   assert.equal(newlyCreatedMessageOpacity, "1", "New chat remains visible while motion is paused");
 
+  // New routine-builder journeys must work in an actual browser, not only
+  // in the isolated recommendation logic tests.
+  await desktop.select("#routineFocus", "haircare");
+  await desktop.select("#routineSkin", "oily");
+  await desktop.select("#routineConcern", "oil");
+  await desktop.click("#buildRoutine");
+  const hairState = await desktop.evaluate(() => ({
+    heading: document.querySelector(".routine-result__panel h4")?.textContent,
+    products: [...document.querySelectorAll(".routine-result__step strong")].map(el => el.textContent),
+    filter: document.querySelector("#productCategory").value,
+    timeHidden: document.querySelector("#routineTimeField").hidden
+  }));
+  assert.match(hairState.heading, /Wash-day ritual/);
+  assert.equal(hairState.filter, "haircare");
+  assert.equal(hairState.timeHidden, true);
+  assert.equal(hairState.products.length, 2, "Oily roots should not get an unsuitable dry-hair leave-in");
+  assert.match(hairState.products[0], /Hyaluron.*Pure/);
+
+  await desktop.select("#routineFocus", "makeup");
+  await desktop.select("#routineSkin", "polished");
+  await desktop.select("#routineConcern", "definition");
+  await desktop.click("#buildRoutine");
+  const makeupState = await desktop.evaluate(() => ({
+    heading: document.querySelector(".routine-result__panel h4")?.textContent,
+    products: [...document.querySelectorAll(".routine-result__step strong")].map(el => el.textContent),
+    noShadeGuess: document.querySelector("#routineResult").textContent.includes("not matched")
+  }));
+  assert.match(makeupState.heading, /makeup edit/);
+  assert.match(makeupState.products[0], /True Match/);
+  assert.equal(makeupState.noShadeGuess, true, "The builder must not invent makeup shade matching");
+
+  const beforeRefine = await desktop.evaluate(() => window.__mockRequests.length);
+  await desktop.click("#routineResult .routine-primary");
+  await desktop.waitForFunction(previous => window.__mockRequests.length === previous + 1, {}, beforeRefine);
+  const aiHandoff = await desktop.evaluate(() => window.__mockRequests.at(-1).messages.at(-1).content);
+  assert.match(aiHandoff, /makeup routine/);
+  assert.match(aiHandoff, /True Match/);
+  assert.ok(aiHandoff.length <= 1000, "AI handoff respects Worker input size limits");
+
   await desktop.screenshot({ path: "/tmp/final-beauty-desktop.png", fullPage: true });
   await desktop.close();
 
