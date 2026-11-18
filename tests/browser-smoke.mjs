@@ -172,6 +172,62 @@ try {
   assert.match(aiHandoff, /True Match/);
   assert.ok(aiHandoff.length <= 1000, "AI handoff respects Worker input size limits");
 
+  // Product selection requirement: a click on the *card* toggles selection,
+  // visibly highlights it, and updates the selected list above Build My Routine.
+  const lumiCard = '[data-product-id="lumi-glotion"]';
+  await desktop.click(lumiCard + " .catalog-card__art");
+  let productState = await desktop.evaluate(() => {
+    const card = document.querySelector('[data-product-id="lumi-glotion"]');
+    return {
+      selected: card.classList.contains("catalog-card--selected"),
+      pressed: card.querySelector(".catalog-card__pick").getAttribute("aria-pressed"),
+      label: card.querySelector(".catalog-card__selection-label").textContent,
+      count: document.querySelector("#pickedCount").textContent,
+      inList: document.querySelector("#chosenProducts").textContent.includes("Lumi Glotion"),
+      highlighted: getComputedStyle(card).boxShadow !== "none"
+    };
+  });
+  assert.deepEqual(productState, {
+    selected:true, pressed:"true", label:"✓ SELECTED", count:"1 saved",
+    inList:true, highlighted:true
+  }, "Clicking product artwork must select the product and update visuals + selected list");
+
+  await desktop.click(lumiCard + " .catalog-card__title");
+  productState = await desktop.evaluate(() => {
+    const card = document.querySelector('[data-product-id="lumi-glotion"]');
+    return {
+      selected:card.classList.contains("catalog-card--selected"),
+      pressed:card.querySelector(".catalog-card__pick").getAttribute("aria-pressed"),
+      count:document.querySelector("#pickedCount").textContent,
+      inList:document.querySelector("#chosenProducts").textContent.includes("Lumi Glotion")
+    };
+  });
+  assert.deepEqual(productState, {
+    selected:false, pressed:"false", count:"0 saved", inList:false
+  }, "Clicking the same product again must unselect it and remove its saved chip");
+
+  // Keyboard visitors can toggle selection without losing focus on a re-render.
+  await desktop.focus(lumiCard + " .catalog-card__pick");
+  await desktop.keyboard.press("Enter");
+  const afterKeyboard = await desktop.evaluate(() => ({
+    pressed:document.querySelector('[data-product-id="lumi-glotion"] .catalog-card__pick').getAttribute("aria-pressed"),
+    focusPreserved:document.activeElement === document.querySelector('[data-product-id="lumi-glotion"] .catalog-card__pick'),
+    saved:document.querySelectorAll("#chosenProducts .saved-chip").length
+  }));
+  assert.deepEqual(afterKeyboard, {pressed:"true",focusPreserved:true,saved:1});
+
+  // Ask AI stays independent; clicking it must not unselect the product.
+  await desktop.click(lumiCard + " .catalog-button--ask");
+  assert.equal(await desktop.$eval(lumiCard + " .catalog-card__pick", el => el.getAttribute("aria-pressed")), "true");
+
+  // Explicit Save product control and selected chip use the same state as card clicks.
+  await desktop.click(lumiCard + " .catalog-button--save");
+  assert.equal(await desktop.$eval("#pickedCount", el => el.textContent), "0 saved");
+  await desktop.click(lumiCard + " .catalog-button--save");
+  assert.equal(await desktop.$eval("#pickedCount", el => el.textContent), "1 saved");
+  await desktop.click("#chosenProducts .saved-chip");
+  assert.equal(await desktop.$eval(lumiCard + " .catalog-card__pick", el => el.getAttribute("aria-pressed")), "false");
+
   await desktop.screenshot({ path: "/tmp/final-beauty-desktop.png", fullPage: true });
   await desktop.close();
 
@@ -269,6 +325,15 @@ try {
   assert.equal(afterReset.messages, 1, "New Chat resets to the welcome message");
   assert.ok(afterReset.top >= 0 && afterReset.bottom <= afterReset.viewport,
     "New Chat must leave the mobile composer visible");
+
+  // Finger taps use the same card-wide hit area at phone widths.
+  await mobile.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
+  const mobileSelected = await mobile.evaluate(() => ({
+    selected: document.querySelector('[data-product-id="radiant-cleanser"]').classList.contains("catalog-card--selected"),
+    count: document.querySelector("#pickedCount").textContent,
+    chip: document.querySelector("#chosenProducts").textContent.includes("Radiant Smoothing")
+  }));
+  assert.deepEqual(mobileSelected, {selected:true,count:"1 saved",chip:true});
 
   for (const width of [320, 768]) {
     await mobile.setViewport({ width, height: 840, deviceScaleFactor: 1 });
