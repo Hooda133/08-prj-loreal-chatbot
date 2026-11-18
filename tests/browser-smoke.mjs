@@ -766,6 +766,10 @@ try {
   // RTL language support: verify the real grid, saved products and chat
   // geometry at desktop and touchscreen sizes. LTR tests above stay intact.
   const rtlDesktop = await setupPage(1440, 900);
+  // Puppeteer pages share a browser profile. Isolate saved-product fixtures
+  // from the prior mobile test so a click starts with an unselected card.
+  await rtlDesktop.evaluate(() => localStorage.removeItem("beauty-atelier:selected-products:v1"));
+  await rtlDesktop.reload({waitUntil:"domcontentloaded"});
   await rtlDesktop.select("#languageDirection", "ar");
   const rtlLayout = await rtlDesktop.evaluate(() => {
     const grid = document.querySelector("#productGrid");
@@ -867,6 +871,8 @@ try {
   // RTL mobile: header selector is visible, and all three important areas
   // fit without sideways scrolling, with touch actions still working.
   const rtlMobile = await setupPage(375, 812, true, true);
+  await rtlMobile.evaluate(() => localStorage.removeItem("beauty-atelier:selected-products:v1"));
+  await rtlMobile.reload({waitUntil:"domcontentloaded"});
   await rtlMobile.select("#languageDirection", "ar");
   const mobileRtlState = await rtlMobile.evaluate(() => {
     const grid = document.querySelector("#productGrid");
