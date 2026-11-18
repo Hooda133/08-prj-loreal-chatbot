@@ -2,6 +2,34 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## Assignment: Add Product Search
+
+The collection includes an instant **SEARCH PRODUCTS** field beside the
+**CATEGORY** dropdown. Filtering happens in the browser, using the reviewed
+L'Oréal product catalog (no API or live search request is necessary).
+
+- Enter any product name or keywords (e.g. `serum hyaluronic`,
+  `oily shampoo`, `spf 50`, `face wash`, `mascara`).
+- Multiple terms match **in any order**, across name, family, description,
+  product category, ingredient/beauty-goal keywords and relevant skin/hair
+  preferences. Search is insensitive to case, accent marks and apostrophes.
+- The selected category and typed keywords are applied **together**.
+  Changing categories doesn't clear the search query, and search updates
+  on **every keystroke**, not just on Enter.
+- The result counter updates as matches change; the `Clear ×` button
+  removes the search terms without changing the category.
+- When no matches exist, a useful **No matching products** message offers
+  **CLEAR SEARCH & SHOW ALL** to reset both filters.
+- Saved selections and expanded descriptions stay intact while products
+  are temporarily hidden by search/category filtering.
+- The search uses the 23-product catalog snapshot only; it does not
+  fetch new products, inventory, prices, or contact OpenAI.
+
+Browser tests validate typing and results, multiple keyword matching,
+category intersections, recovery from zero results, responsive mobile
+layout and preserving existing card features. Node tests validate search
+logic independently.
+
 ## Bonus: live web search with visible citations
 
 **Opt-in feature:** In Beauty Concierge, enable **SEARCH THE LIVE WEB**
