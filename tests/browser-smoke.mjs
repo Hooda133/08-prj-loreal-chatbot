@@ -228,6 +228,58 @@ try {
   await desktop.click("#chosenProducts .saved-chip");
   assert.equal(await desktop.$eval(lumiCard + " .catalog-card__pick", el => el.getAttribute("aria-pressed")), "false");
 
+  // Routine Generation requirement: empty selection must not send an API request.
+  await desktop.waitForFunction(() => document.querySelector("#sendBtn").disabled === false);
+  const emptyCount = await desktop.evaluate(() => window.__mockRequests.length);
+  await desktop.click("#generateRoutineAI");
+  const emptyGeneration = await desktop.evaluate(() => ({
+    count: window.__mockRequests.length,
+    feedback: document.querySelector("#routineFeedback").textContent
+  }));
+  assert.equal(emptyGeneration.count, emptyCount, "No selected products: do not call the API");
+  assert.match(emptyGeneration.feedback, /Choose at least one product/);
+
+  // Select two verified products, then Generate Routine. The request must
+  // include actual catalog names, descriptions and official links, not just
+  // an unsourced generic text prompt.
+  await desktop.click(lumiCard + " .catalog-card__art");
+  await desktop.click('[data-product-id="lash-paradise"] .catalog-card__art');
+  assert.equal(await desktop.$eval("#pickedCount", node => node.textContent), "2 saved");
+  await desktop.type("#userInput", "Draft a separate question");
+  const beforeGeneration = await desktop.evaluate(() => window.__mockRequests.length);
+  await desktop.click("#generateRoutineAI");
+  await desktop.waitForFunction(previous => window.__mockRequests.length === previous + 1, {}, beforeGeneration);
+  await desktop.waitForFunction(() => document.querySelector("#generateRoutineAI").disabled === false &&
+    document.querySelector(".chat-window .message.ai:last-child:not(.pending)") !== null);
+  const generated = await desktop.evaluate(() => {
+    const req = window.__mockRequests.at(-1);
+    return {
+      request: req,
+      lastQuestion: req.messages.at(-1).content,
+      transcript: document.querySelector("#chatWindow").textContent,
+      feedback: document.querySelector("#routineFeedback").textContent,
+      draft: document.querySelector("#userInput").value,
+      busy: document.querySelector("#generateRoutineAI").disabled,
+      count: document.querySelector("#pickedCount").textContent
+    };
+  });
+  assert.ok(generated.request.messages.length <= 12, "Worker request has at most 12 messages");
+  assert.ok(generated.request.messages.every(m => m.content.length <= 1000), "Each Worker message stays within limits");
+  assert.ok(generated.request.messages.every(m => ["user","assistant"].includes(m.role)), "No browser-supplied system role");
+  assert.match(generated.lastQuestion, /Generate a personalized L'Oréal Paris makeup routine/);
+  assert.match(generated.lastQuestion, /main goal: definition/);
+  assert.match(generated.lastQuestion, /polished/);
+  const selectedReference = generated.request.messages.map(m => m.content).join("\n");
+  assert.match(selectedReference, /True Match Lumi Glotion Glow Enhancer/);
+  assert.match(selectedReference, /Voluminous Lash Paradise Washable Mascara/);
+  assert.match(selectedReference, /lorealparisusa.com\/makeup/);
+  assert.match(selectedReference, /Sheer glow enhancer/);
+  assert.match(generated.transcript, /Your L’Oréal routine/, "Generated AI response shows in the chat");
+  assert.match(generated.feedback, /ready in the Beauty Concierge chat/);
+  assert.equal(generated.draft, "Draft a separate question", "Generating must not erase a typed chat draft");
+  assert.equal(generated.busy, false, "Generate button is reenabled after a response");
+  assert.equal(generated.count, "2 saved", "Selected products remain saved after generation");
+
   await desktop.screenshot({ path: "/tmp/final-beauty-desktop.png", fullPage: true });
   await desktop.close();
 
@@ -334,6 +386,20 @@ try {
     chip: document.querySelector("#chosenProducts").textContent.includes("Radiant Smoothing")
   }));
   assert.deepEqual(mobileSelected, {selected:true,count:"1 saved",chip:true});
+
+  // The touch workflow also submits selected product details to the Worker.
+  const mobileBefore = await mobile.evaluate(() => window.__mockRequests.length);
+  await mobile.click("#generateRoutineAI");
+  await mobile.waitForFunction(previous => window.__mockRequests.length === previous + 1, {}, mobileBefore);
+  await mobile.waitForFunction(() => document.querySelector("#generateRoutineAI").disabled === false);
+  const mobileGenerated = await mobile.evaluate(() => ({
+    payload:window.__mockRequests.at(-1).messages.map(m => m.content).join("\n"),
+    text:document.querySelector("#chatWindow").textContent,
+    button:document.querySelector("#generateRoutineAI").textContent
+  }));
+  assert.match(mobileGenerated.payload, /RevitaLift Radiant Smoothing Cream Cleanser/);
+  assert.match(mobileGenerated.text, /Your L’Oréal routine/);
+  assert.match(mobileGenerated.button, /GENERATE ROUTINE/);
 
   for (const width of [320, 768]) {
     await mobile.setViewport({ width, height: 840, deviceScaleFactor: 1 });
