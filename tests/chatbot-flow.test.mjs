@@ -250,7 +250,11 @@ class FakeElement {
   getAttribute(key) { return this.attributes[key] ?? null; }
   addEventListener(name, handler) { this.listeners[name] = handler; }
   querySelector(selector) { return this.queries[selector] || null; }
-  closest(selector) { return selector === "button[data-prompt]" && this.dataset.prompt ? this : null; }
+  closest(selector) {
+    if (selector === "button[data-prompt]" && this.dataset.prompt) return this;
+    if (selector === "button[data-followup]" && this.dataset.followup) return this;
+    return null;
+  }
   remove() {
     if (this.parent) this.parent.nodes = this.parent.nodes.filter(node => node !== this);
   }
@@ -263,7 +267,7 @@ function createFrontend(mockFetch, options = {}) {
     "chatForm", "userInput", "chatWindow", "status", "chatAnnouncement",
     "questionPreview", "questionPreviewText",
     "sendBtn", "suggestions", "miniPrompts", "resetBtn", "startConsultation",
-    "concierge", "ritualCta", "motionToggle"
+    "concierge", "ritualCta", "motionToggle", "followUpSuggestions"
   ];
   const elements = Object.fromEntries(ids.map(id => [id, new FakeElement()]));
   const category = new FakeElement("button");
@@ -283,7 +287,7 @@ function createFrontend(mockFetch, options = {}) {
     getElementById: id => elements[id] || null,
     createElement: tag => new FakeElement(tag),
     createTextNode: text => ({ textContent: String(text) }),
-    querySelectorAll: selector => selector === "[data-prompt]" ? prompts
+    querySelectorAll: selector => selector === "[data-prompt], [data-followup]" ? prompts
       : selector === ".category-card" ? [category] : [],
     addEventListener() {}
   };
@@ -293,16 +297,17 @@ function createFrontend(mockFetch, options = {}) {
       addEventListener() {}
     })
   };
-  vm.runInNewContext(frontendSource, {
+  const sandbox = {
     document, window, fetch: mockFetch,
     AbortController,
     setTimeout: options.setTimeout || setTimeout,
     clearTimeout: options.clearTimeout || clearTimeout
-  }, {
+  };
+  vm.runInNewContext(frontendSource, sandbox, {
     filename: "script.js",
     timeout: 3000
   });
-  return { elements, category, quick };
+  return { elements, category, quick, sendMessage: sandbox.sendMessage };
 }
 
 test("Real frontend captures typed input, posts it and displays AI replies", async () => {
