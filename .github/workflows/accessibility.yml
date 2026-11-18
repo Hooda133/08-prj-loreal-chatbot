@@ -5,6 +5,9 @@ on:
     paths:
       - "index.html"
       - "style.css"
+      - "routine-builder.css"
+      - "atelier-redesign.css"
+      - "atelier-experience.js"
       - "script.js"
       - ".github/workflows/accessibility.yml"
   workflow_dispatch:

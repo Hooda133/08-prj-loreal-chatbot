@@ -83,6 +83,49 @@ try {
   assert.equal(state.buttons, 8, "All eight shortcut prompts remain functional");
   assert.ok(state.horizontalOverflow <= 2, "Desktop should not scroll horizontally: " + state.horizontalOverflow);
 
+  // The Atelier Edition design is a real page redesign, not a mock-up:
+  // inspect live layout, navigation, color, product art and movement.
+  const editorial = await desktop.evaluate(() => {
+    const hero = document.querySelector("#consultation");
+    const heading = document.querySelector("#hero-title");
+    const links = [...document.querySelectorAll(".atelier-path a")];
+    const firstCard = document.querySelector("#productGrid .catalog-card");
+    return {
+      theme:document.querySelector('meta[name="theme-color"]')?.content,
+      cssLoaded:[...document.styleSheets].some(sheet => sheet.href?.endsWith("/atelier-redesign.css")),
+      darkCover:getComputedStyle(hero).backgroundImage.includes("linear-gradient"),
+      headingColor:getComputedStyle(heading).color,
+      stickyHeader:getComputedStyle(document.querySelector(".site-header")).position,
+      journeyLinks:links.map(link => link.getAttribute("href")),
+      editorialArt:!!document.querySelector(".hero-art__issue"),
+      issue:document.querySelector(".hero-art__issue")?.textContent,
+      progress:!!document.querySelector("#readingProgressBar"),
+      cardEdition:firstCard?.querySelector(".catalog-card__edition")?.textContent,
+      cardEditionHidden:firstCard?.querySelector(".catalog-card__edition")?.getAttribute("aria-hidden"),
+      hasBuilder:!!document.querySelector("#routine-builder"),
+      hasChat:!!document.querySelector("#chatWindow")
+    };
+  });
+  assert.equal(editorial.theme, "#251b20");
+  assert.equal(editorial.cssLoaded, true, "Premium design stylesheet should load");
+  assert.equal(editorial.darkCover, true, "Cover must use editorial gradients");
+  assert.equal(editorial.headingColor, "rgb(255, 250, 242)");
+  assert.equal(editorial.stickyHeader, "relative", "Masthead must not cover scrolled-to controls");
+  assert.deepEqual(editorial.journeyLinks, ["#concierge", "#routine-builder", "#discover"]);
+  assert.match(editorial.issue, /ATELIER/);
+  assert.equal(editorial.progress, true);
+  assert.equal(editorial.cardEdition, "01 / 23");
+  assert.equal(editorial.cardEditionHidden, "true");
+  assert.equal(editorial.hasBuilder, true);
+  assert.equal(editorial.hasChat, true);
+  await desktop.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight / 3));
+  await desktop.waitForFunction(() => {
+    const t = document.querySelector("#readingProgressBar").style.transform;
+    return /scaleX\(0\.[1-9]/.test(t);
+  });
+  await desktop.evaluate(() => window.scrollTo(0, 0));
+
+
   // The actual page CSP must block a browser fetch to OpenAI. Only the
   // approved Worker is allowed to receive browser-side AI requests.
   const cspViolations = await desktop.evaluate(async () => {

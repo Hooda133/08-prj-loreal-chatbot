@@ -5,6 +5,9 @@ on:
     paths:
       - "index.html"
       - "style.css"
+      - "routine-builder.css"
+      - "atelier-redesign.css"
+      - "atelier-experience.js"
       - ".github/workflows/beauty-visual-preview.yml"
   workflow_dispatch:
 

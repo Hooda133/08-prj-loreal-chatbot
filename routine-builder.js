@@ -490,6 +490,13 @@
       pick.setAttribute("aria-describedby", "productSelectionHint");
       pick.addEventListener("click", () => toggleSelectedProduct(product, card));
       card.appendChild(pick);
+      // Quiet magazine-style edition number. It never changes selection,
+      // filters, product data, or any interactive card controls.
+      const edition = make("span", "catalog-card__edition",
+        String(catalog.indexOf(product) + 1).padStart(2, "0") + " / " +
+        String(catalog.length).padStart(2, "0"));
+      edition.setAttribute("aria-hidden", "true");
+      card.appendChild(edition);
       const image = make("div", "catalog-card__art catalog-card__art--" + product.group);
       image.appendChild(productIcon(product));
       card.appendChild(image);
