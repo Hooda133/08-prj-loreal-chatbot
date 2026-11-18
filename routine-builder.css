@@ -138,3 +138,11 @@
 .catalog-selection-help{font:500 12px/1.5 "DM Sans",sans-serif;color:#6f5d4d;margin:-7px 0 20px}
 @media(hover:hover){.catalog-card__pick:hover:not(:focus-visible){background:#a1784d08}}
 @media(max-width:570px){.catalog-card__selection-label{top:19px;right:20px}.catalog-selection-help{margin:0 0 17px}}
+
+
+/* The primary button invokes the secure AI; the secondary button keeps
+   the original on-page preview for visitors who prefer no API request. */
+.builder-preview{width:100%;display:block;margin-top:10px;text-align:center;background:#fff9f1;color:#43362e}
+.routine-feedback{font:500 12px/1.6 "DM Sans",sans-serif;color:#654b3b;margin:12px 0 6px;min-height:38px}
+.builder-section .builder-generate:disabled{opacity:.67;cursor:wait;filter:none;transform:none}
+.builder-section .builder-generate[aria-busy="true"]{background:#685240}

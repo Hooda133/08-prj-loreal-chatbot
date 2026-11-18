@@ -215,22 +215,40 @@ function newChat(focusInput = true) {
   if (focusInput && window.matchMedia("(pointer: fine)").matches) input.focus();
 }
 
-async function sendMessage(text) {
+// Optional catalog details are passed as separate, bounded user-role notes.
+// These go through the same secure Worker; no OpenAI key reaches the browser.
+async function sendMessage(text, referenceNotes = []) {
   const content = text.trim();
-  if (busy || !content) return;
+  if (busy || !content) return false;
   if (content.length > 1000) {
     statusEl.textContent = "Please keep your question under 1,000 characters.";
-    return;
+    return false;
   }
+  // The Worker limits each message to 1,000 characters and each request to
+  // 12 messages. Never give catalog notes system-level privileges.
+  const safeNotes = Array.isArray(referenceNotes)
+    ? referenceNotes.filter(note => typeof note === "string" && note.trim() && note.length <= 1000).slice(0, 10)
+    : [];
 
   statusEl.textContent = "";
   setQuestionPreview(content);
   const userBubble = addMessage(content, "user", false, true);
-  input.value = "";
+  // Generating from product cards should not wipe a question the visitor
+  // was typing in the chat box. Ordinary chat submits keep their old behavior.
+  if (!safeNotes.length) input.value = "";
 
-  // Send contextual recent history and earlier beauty preferences.
-  // Never send the full unbounded session or repeat the synthetic note in memory.
-  const nextMessages = buildContextMessages(content);
+  // Retain as much existing chat context as fits beside the selected products.
+  // The actual generation question must remain the LAST user message.
+  let nextMessages = buildContextMessages(content);
+  if (safeNotes.length) {
+    const questionMessage = nextMessages.pop();
+    const roomForHistory = 11 - safeNotes.length;
+    nextMessages = [
+      ...nextMessages.slice(-roomForHistory),
+      ...safeNotes.map(note => ({ role: "user", content: note })),
+      questionMessage
+    ];
+  }
   const pending = addMessage("Preparing your personalized beauty recommendations…", "ai", true);
   chatAnnouncement.textContent = "Question sent. Your beauty advisor is preparing a response.";
   // Capture focus before disabling the input, which may move focus to body.
@@ -284,12 +302,13 @@ async function sendMessage(text) {
     if (messages.length > MAX_SESSION_MESSAGES) {
       messages = messages.slice(-MAX_SESSION_MESSAGES);
     }
+    return true;
   } catch (error) {
     if (thisRequest !== requestGeneration) return;
     // A failed request must not leave a duplicate user message when retried.
     pending.remove();
     userBubble.remove();
-    input.value = content;
+    if (!safeNotes.length) input.value = content;
     setQuestionPreview("");
     chatAnnouncement.textContent = "";
     if (didTimeOut) {
@@ -299,6 +318,7 @@ async function sendMessage(text) {
     } else {
       statusEl.textContent = error?.message || "Something went wrong. Please try again.";
     }
+    return false;
   } finally {
     clearTimeout(timeoutId);
     if (thisRequest === requestGeneration) {

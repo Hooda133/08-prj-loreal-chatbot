@@ -12,7 +12,7 @@ for (const file of ["product-catalog.js", "routine-builder.js"]) {
   runInNewContext(source, { window, document });
 }
 const catalog = window.BeautyCatalog;
-const { buildRoutine, questionForRoutine } = window.BeautyRoutineLogic;
+const { buildRoutine, questionForRoutine, buildSelectedProductNotes, questionForSelectedProducts } = window.BeautyRoutineLogic;
 
 test("catalog uses genuine named products with HTTPS official listing links", () => {
   assert.ok(catalog.length >= 23);
@@ -109,4 +109,42 @@ test("sensitive skin never receives an exfoliating night cream even when saved",
   const plan = buildRoutine({ type:"skincare", skin:"sensitive", concern:"firmness", time:"pm" }, ["night-moisturizer"]);
   assert.ok(plan.pm.every(s => !s.product.exfoliating));
   assert.ok(plan.notes.some(s => s.includes("Sensitive-skin")));
+});
+
+test("selected products become source-backed context messages with real product details", () => {
+  const serum = catalog.find(item => item.id === "ha-serum");
+  const mascara = catalog.find(item => item.id === "lash-paradise");
+  const notes = buildSelectedProductNotes([serum, mascara]);
+  assert.equal(notes.length, 1);
+  assert.match(notes[0], /Selected L'Oréal Paris products/);
+  assert.ok(notes[0].includes(serum.name));
+  assert.ok(notes[0].includes(serum.description));
+  assert.ok(notes[0].includes(serum.url));
+  assert.ok(notes[0].includes(mascara.name));
+  assert.ok(notes[0].includes(mascara.url));
+  assert.ok(notes.every(note => note.length <= 1000));
+});
+
+test("selecting every catalog item preserves all products within Worker message limits", () => {
+  const notes = buildSelectedProductNotes(catalog);
+  assert.ok(notes.length >= 2 && notes.length <= 10);
+  assert.ok(notes.every(note => note.trim().length > 0 && note.length <= 1000));
+  const transmitted = notes.join("\n");
+  for (const product of catalog) {
+    assert.ok(transmitted.includes(product.name), "Missing selected product " + product.name);
+    assert.ok(transmitted.includes(product.url), "Missing official listing for " + product.name);
+  }
+});
+
+test("AI generation request includes user preferences and safe routine instructions", () => {
+  const prompt = questionForSelectedProducts({
+    type:"skincare",skin:"sensitive",concern:"hydration",time:"pm"
+  }, 3);
+  assert.match(prompt, /Generate a personalized L'Oréal Paris skincare routine/);
+  assert.match(prompt, /3 selected products/);
+  assert.match(prompt, /sensitive/);
+  assert.match(prompt, /hydration/);
+  assert.match(prompt, /timing: pm/);
+  assert.match(prompt, /exfoliating acids/);
+  assert.ok(prompt.length <= 1000);
 });
