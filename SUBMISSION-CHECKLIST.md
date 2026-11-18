@@ -22,7 +22,7 @@
 ## Automated quality gates
 
 GitHub Actions checks on the final PR:
-- **Chatbot interaction checks:** Node tests cover the frontend, Worker integration contract, scope restriction, name retention, preview, cancellation, errors and icons. Run locally with: node --test tests/chatbot-flow.test.mjs
+- **Chatbot + security checks:** Node tests cover frontend-to-Worker routing, server-only OpenAI authorization, scope restriction, conversation context, errors, CSP connect-src and credential leak patterns. Run locally with: `node --test tests/chatbot-flow.test.mjs tests/routine-builder.test.mjs tests/security-boundary.test.mjs`
 - **Accessibility Lighthouse audit:** reports a numerical automated Accessibility score; a 100/100 score is not proof of full WCAG conformance.
 - **Final pre-submission browser smoke test:** runs actual Chrome at desktop/mobile sizes with mocked Worker replies; checks visible bubbles, form input, question preview, reset behavior, motion and unintended horizontal scrolling. It uploads desktop/mobile screenshots.
 - **Beauty visual preview:** screenshots editorial/product designs at desktop and mobile widths.
@@ -33,7 +33,8 @@ GitHub Actions checks on the final PR:
 2. Verify the latest page shows the updated name-aware conversation and L’Oréal-specific input instructions.
 3. Send an actual **on-topic** question, then a **follow-up** referring to an earlier skin preference.
 4. Send an **off-topic** question and confirm the Worker returns the polite apology/redirection. If it doesn't, the Cloudflare-deployed Worker may be older than RESOURCE_cloudflare-worker.js; update it in Cloudflare without changing the secret or origin allowlist.
-5. Verify the desktop/mobile appearance at your own screen size and check browser Developer Tools for unexpected errors.
-6. Keep the branding disclaimer that this is an **independent student project**, not an official L’Oréal website.
+5. Open browser DevTools → Network and ask about a L'Oréal product: confirm the browser POST targets only `loreal-beauty-advisor.elshamandy133.workers.dev`, without an Authorization header or API key. Verify the **live Cloudflare Worker** still has `OPENAI_API_KEY` configured as a secret and `ALLOWED_ORIGIN` set to the site origin; deployment is independent of GitHub.
+6. Verify the desktop/mobile appearance at your own screen size and check browser Developer Tools for unexpected errors.
+7. Keep the branding disclaimer that this is an **independent student project**, not an official L’Oréal website.
 
 **Privacy/limits:** Conversation memory is in the currently open page, not persistent storage. Questions are still sent to the Cloudflare Worker and OpenAI for processing. The API key is stored only as a Cloudflare secret, not in the public repo.
