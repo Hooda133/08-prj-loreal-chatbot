@@ -203,6 +203,9 @@ function addInlineText(parent, value, sources = []) {
 }
 function renderAssistantReply(bubble, responseText, sources = [], sourceType = "cited") {
   const shouldScroll = isNearChatBottom();
+  // Consulted pages are useful references, not claim-level citations.
+  // Only annotated search results may create clickable inline [1] links.
+  const inlineSources = sourceType === "consulted" ? [] : sources;
   bubble.setAttribute("dir", "auto");
   bubble.setAttribute("lang", /[\u0600-\u06FF]/.test(responseText) ? "ar" : "en");
   bubble.replaceChildren();
@@ -227,7 +230,7 @@ function renderAssistantReply(bubble, responseText, sources = [], sourceType = "
         listKind = kind;
       }
       const item = document.createElement("li");
-      addInlineText(item, (numbered || bullet)[1], sources);
+      addInlineText(item, (numbered || bullet)[1], inlineSources);
       list.appendChild(item);
       continue;
     }
@@ -235,7 +238,7 @@ function renderAssistantReply(bubble, responseText, sources = [], sourceType = "
     listKind = "";
     const heading = line.match(/^#{1,4}\s+(.+)$/);
     const element = document.createElement(heading ? "h3" : "p");
-    addInlineText(element, heading ? heading[1] : line, sources);
+    addInlineText(element, heading ? heading[1] : line, inlineSources);
     bubble.appendChild(element);
   }
   if (sources.length) {
