@@ -811,13 +811,22 @@ try {
       chips:chips.length,
       firstX:chips[0].getBoundingClientRect().x,
       secondX:chips[1].getBoundingClientRect().x,
+      firstY:chips[0].getBoundingClientRect().y,
+      secondY:chips[1].getBoundingClientRect().y,
+      containerRight:document.querySelector("#chosenProducts").getBoundingClientRect().right,
+      firstRight:chips[0].getBoundingClientRect().right,
       pressed:document.querySelector('[data-product-id="radiant-cleanser"] .catalog-card__pick')
         .getAttribute("aria-pressed")
     };
   });
   assert.equal(rtlSaved.count, "2 saved");
   assert.equal(rtlSaved.chips, 2);
-  assert.ok(rtlSaved.firstX > rtlSaved.secondX, "RTL selected products flow starts on the right");
+  assert.ok(Math.abs(rtlSaved.firstRight - rtlSaved.containerRight) < 5,
+    "The first selected chip starts at the right edge");
+  assert.ok(Math.abs(rtlSaved.firstY - rtlSaved.secondY) < 5
+    ? rtlSaved.firstX > rtlSaved.secondX
+    : rtlSaved.firstY < rtlSaved.secondY,
+    "RTL saved chips progress right-to-left, or wrap to the next row");
   assert.equal(rtlSaved.pressed, "true");
 
   await rtlDesktop.focus("#userInput");
