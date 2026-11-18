@@ -402,12 +402,14 @@
               <div class="builder-selections__heading"><strong>YOUR SAVED EDIT</strong><span id="pickedCount">0 saved</span></div>
               <div id="chosenProducts" class="selected-products" aria-label="Selected products"></div>
             </div>
-            <button type="button" class="routine-primary builder-generate" id="buildRoutine">BUILD MY ROUTINE <span aria-hidden="true">↗</span></button>
+            <button type="button" class="routine-primary builder-generate" id="generateRoutineAI">GENERATE ROUTINE <span aria-hidden="true">✦</span></button>
+            <button type="button" class="routine-secondary builder-preview" id="buildRoutine">PREVIEW ROUTINE WITHOUT AI</button>
+            <p id="routineFeedback" class="routine-feedback" role="status" aria-live="polite">Select at least one product, then generate an AI routine in the chat.</p>
             <p class="builder-side__fineprint">Independent educational guidance, not medical advice. Patch-test new products, check shade choices yourself, and follow official directions.</p>
           </aside>
         </div>
         <div id="routineResult" class="routine-result" aria-label="Your personalized routine" tabindex="-1">
-          <div class="routine-result__empty"><span>03 / YOUR PERSONALIZED PLAN</span><p>Your personalized beauty routine will appear here.</p><small>Select your preferences and choose Build My Routine.</small></div>
+          <div class="routine-result__empty"><span>03 / YOUR PERSONALIZED PLAN</span><p>Your personalized beauty routine will appear here.</p><small>Select your preferences and choose Preview Routine Without AI, or generate an AI routine in chat.</small></div>
         </div>
         <div id="routineStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
       </div>
