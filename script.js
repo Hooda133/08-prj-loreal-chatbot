@@ -15,6 +15,7 @@ const resetBtn = document.getElementById("resetBtn");
 const startButton = document.getElementById("startConsultation");
 const advisor = document.getElementById("concierge");
 const followUpSuggestions = document.getElementById("followUpSuggestions");
+const webSearchToggle = document.getElementById("webSearchToggle");
 
 const GREETING =
   "Welcome to Beauty Atelier.\n\nI can help with L’Oréal skincare, makeup, haircare and fragrances, plus personalized beauty routines. What would you like to explore?";
@@ -139,6 +140,11 @@ function addMessage(text, role, pending = false, forceScroll = false) {
   bubble.className = "message " + role + (pending ? " pending" : "");
   bubble.setAttribute("role", "group");
   bubble.setAttribute("aria-label", role === "user" ? "Your message" : "Beauty Concierge message");
+  // The outer chat panel mirrors in RTL; each message keeps the natural
+  // direction and language of its own content, so English product names
+  // and Arabic conversations remain readable side by side.
+  bubble.setAttribute("dir", "auto");
+  bubble.setAttribute("lang", /[\u0600-\u06FF]/.test(text) ? "ar" : "en");
   bubble.textContent = text;
   windowEl.appendChild(bubble);
   scrollChatIfNeeded(shouldScroll);
@@ -147,21 +153,58 @@ function addMessage(text, role, pending = false, forceScroll = false) {
 
 // Make simple Markdown from the AI readable without importing libraries
 // or turning AI-generated text into executable HTML.
-function addInlineText(parent, value) {
-  const boldPattern = /\*\*([^*]+)\*\*/g;
+// Only allow real HTTPS URLs as clickable search citations. Never interpret
+// any text from OpenAI or a third-party website as HTML.
+function verifiedSources(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.slice(0, 8).filter(item => {
+    if (!item || typeof item.url !== "string" || typeof item.title !== "string") return false;
+    try {
+      const url = new URL(item.url);
+      return url.protocol === "https:" && !url.username && !url.password &&
+        !/^(localhost|127\.|10\.|192\.168\.)/i.test(url.hostname);
+    } catch {
+      return false;
+    }
+  });
+}
+
+function sourceAnchor(source, index, inline = false) {
+  const link = document.createElement("a");
+  link.href = source.url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.className = inline ? "chat-inline-citation" : "chat-source-link";
+  link.textContent = inline ? "[" + (index + 1) + "]" :
+    "[" + (index + 1) + "] " + source.title;
+  link.setAttribute("aria-label", "Source " + (index + 1) + ": " + source.title + " (opens new tab)");
+  return link;
+}
+
+function addInlineText(parent, value, sources = []) {
+  const formatPattern = /\*\*([^*]+)\*\*|\[(\d+)\]/g;
   let last = 0;
   let match;
-  while ((match = boldPattern.exec(value)) !== null) {
+  while ((match = formatPattern.exec(value)) !== null) {
     parent.appendChild(document.createTextNode(value.slice(last, match.index)));
-    const strong = document.createElement("strong");
-    strong.textContent = match[1];
-    parent.appendChild(strong);
+    if (match[1] !== undefined) {
+      const strong = document.createElement("strong");
+      strong.textContent = match[1];
+      parent.appendChild(strong);
+    } else {
+      const index = Number(match[2]) - 1;
+      const source = sources[index];
+      if (source) parent.appendChild(sourceAnchor(source, index, true));
+      else parent.appendChild(document.createTextNode(match[0]));
+    }
     last = match.index + match[0].length;
   }
   parent.appendChild(document.createTextNode(value.slice(last)));
 }
-function renderAssistantReply(bubble, responseText) {
+function renderAssistantReply(bubble, responseText, sources = []) {
   const shouldScroll = isNearChatBottom();
+  bubble.setAttribute("dir", "auto");
+  bubble.setAttribute("lang", /[\u0600-\u06FF]/.test(responseText) ? "ar" : "en");
   bubble.replaceChildren();
   const lines = responseText.split(/\r?\n/);
   let list = null;
@@ -184,7 +227,7 @@ function renderAssistantReply(bubble, responseText) {
         listKind = kind;
       }
       const item = document.createElement("li");
-      addInlineText(item, (numbered || bullet)[1]);
+      addInlineText(item, (numbered || bullet)[1], sources);
       list.appendChild(item);
       continue;
     }
@@ -192,8 +235,24 @@ function renderAssistantReply(bubble, responseText) {
     listKind = "";
     const heading = line.match(/^#{1,4}\s+(.+)$/);
     const element = document.createElement(heading ? "h3" : "p");
-    addInlineText(element, heading ? heading[1] : line);
+    addInlineText(element, heading ? heading[1] : line, sources);
     bubble.appendChild(element);
+  }
+  if (sources.length) {
+    const section = document.createElement("section");
+    section.className = "chat-sources";
+    section.setAttribute("aria-label", "Web sources for this answer");
+    const heading = document.createElement("strong");
+    heading.textContent = "WEB SOURCES · OPEN TO VERIFY";
+    section.appendChild(heading);
+    const list = document.createElement("ol");
+    for (const [index, source] of sources.entries()) {
+      const item = document.createElement("li");
+      item.appendChild(sourceAnchor(source, index));
+      list.appendChild(item);
+    }
+    section.appendChild(list);
+    bubble.appendChild(section);
   }
   scrollChatIfNeeded(shouldScroll);
 }
@@ -281,7 +340,10 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
       questionMessage
     ];
   }
-  const pending = addMessage("Preparing your personalized beauty recommendations…", "ai", true);
+  const isWebSearch = webSearchToggle?.checked === true;
+  const pending = addMessage(isWebSearch
+    ? "Searching current L'Oréal sources and verifying links…"
+    : "Preparing your personalized beauty recommendations…", "ai", true);
   chatAnnouncement.textContent = "Question sent. Your beauty advisor is preparing a response.";
   // Capture focus before disabling the input, which may move focus to body.
   const returnFocus = document.activeElement === input || document.activeElement === sendBtn;
@@ -301,12 +363,18 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
     if (!WORKER_URL.startsWith("https://")) {
       throw new Error("Cloudflare Worker URL is not configured.");
     }
-    const response = await fetch(WORKER_URL, {
+    // Normal conversations keep the existing Worker message shape.
+    // Search adds only a boolean flag; never put credentials in this payload.
+    const options = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: nextMessages }),
       signal: controller.signal
-    });
+    };
+    if (isWebSearch) {
+      options.body = JSON.stringify({ messages: nextMessages, searchWeb: true });
+    }
+    const response = await fetch(WORKER_URL, options);
     if (thisRequest !== requestGeneration) return;
     let data;
     try {
@@ -322,8 +390,12 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
     if (typeof reply !== "string" || !reply.trim()) {
       throw new Error("The beauty advisor returned an empty response.");
     }
+    const sources = verifiedSources(data?.sources);
+    if (isWebSearch && sources.length === 0) {
+      throw new Error("No verifiable sources were returned. Try another product question or turn off live search.");
+    }
     pending.classList.remove("pending");
-    renderAssistantReply(pending, reply);
+    renderAssistantReply(pending, reply, sources);
     chatAnnouncement.textContent =
       "Beauty Concierge replied. " + reply.slice(0, 320) +
       (reply.length > 320 ? " The full response is in the conversation." : "");

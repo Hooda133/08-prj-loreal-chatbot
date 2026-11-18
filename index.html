@@ -197,6 +197,14 @@
       <span class="brand__sub">BEAUTY ATELIER <b>·</b> INDEPENDENT STUDENT CONCEPT</span>
       <span class="sr-only">— home</span>
     </a>
+    <div class="language-switch" role="group" aria-label="Choose reading direction">
+      <label for="languageDirection">LAYOUT <span lang="ar" dir="rtl">/ الاتجاه</span></label>
+      <select id="languageDirection" aria-label="Layout language and text direction">
+        <option value="en">English · LTR</option>
+        <option value="ar" lang="ar" dir="rtl">العربية · RTL</option>
+      </select>
+      <span id="directionAnnouncement" class="sr-only" role="status" aria-live="polite"></span>
+    </div>
     <nav class="header-nav" aria-label="Main navigation">
       <a href="#discover">THE BEAUTY EDIT</a>
       <a class="header-nav__ritual" href="#routine-builder">BUILD A ROUTINE</a>
@@ -306,6 +314,13 @@
               <button type="button" data-followup="Could you simplify my L'Oréal routine based on our conversation so far?">Simplify my routine</button>
             </div>
           </div>
+          <label class="web-search-choice" for="webSearchToggle">
+            <input id="webSearchToggle" type="checkbox" />
+            <span class="web-search-choice__copy">
+              <strong>SEARCH THE LIVE WEB <span aria-hidden="true">↗</span></strong>
+              <small>Current L'Oréal info with clickable sources · may take longer</small>
+            </span>
+          </label>
           <div id="status" class="status" role="status" aria-live="polite"></div>
           <form class="chat-form" id="chatForm">
             <label for="userInput" class="sr-only">Ask about L’Oréal products or beauty routines</label>
@@ -344,16 +359,20 @@
           <div class="catalog-panel">
             <div class="catalog-header">
               <div><span class="catalog-header__eyebrow">01 / THE PRODUCT LIBRARY</span><h3>Discover the collection.</h3></div>
-              <span class="catalog-counter" id="productCount">Loading products…</span>
+              <span class="catalog-counter" id="productCount" role="status" aria-live="polite" aria-atomic="true">Loading products…</span>
             </div>
             <div class="catalog-filters">
               <div class="catalog-field catalog-field--search">
                 <label for="productSearch">SEARCH PRODUCTS</label>
-                <input id="productSearch" type="search" placeholder="Try hyaluronic, mascara, shampoo…" autocomplete="off" />
+                <div class="catalog-search-control">
+                  <input id="productSearch" type="search" placeholder="Try hyaluronic serum, oily shampoo…" autocomplete="off" aria-controls="productGrid" aria-describedby="productSearchHelp productCount" />
+                  <button type="button" id="clearProductSearch" class="catalog-search-clear" aria-label="Clear product search" hidden>Clear ×</button>
+                </div>
+                <small id="productSearchHelp" class="catalog-search-help">Results update as you type. Combine keywords and the category filter.</small>
               </div>
               <div class="catalog-field">
                 <label for="productCategory">CATEGORY</label>
-                <select id="productCategory">
+                <select id="productCategory" aria-controls="productGrid">
                   <option value="skincare">Skincare products</option>
                   <option value="haircare">Haircare products</option>
                   <option value="makeup">Makeup products</option>
@@ -491,5 +510,6 @@
   <script src="script.js"></script>
   <script src="product-catalog.js"></script>
   <script src="routine-builder.js"></script>
+  <script src="language-support.js"></script>
 </body>
 </html>

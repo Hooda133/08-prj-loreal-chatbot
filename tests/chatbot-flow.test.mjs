@@ -267,7 +267,7 @@ function createFrontend(mockFetch, options = {}) {
     "chatForm", "userInput", "chatWindow", "status", "chatAnnouncement",
     "questionPreview", "questionPreviewText",
     "sendBtn", "suggestions", "miniPrompts", "resetBtn", "startConsultation",
-    "concierge", "ritualCta", "motionToggle", "followUpSuggestions"
+    "concierge", "ritualCta", "motionToggle", "followUpSuggestions", "webSearchToggle"
   ];
   const elements = Object.fromEntries(ids.map(id => [id, new FakeElement()]));
   const category = new FakeElement("button");
@@ -299,7 +299,7 @@ function createFrontend(mockFetch, options = {}) {
   };
   const sandbox = {
     document, window, fetch: mockFetch,
-    AbortController,
+    URL, AbortController,
     setTimeout: options.setTimeout || setTimeout,
     clearTimeout: options.clearTimeout || clearTimeout
   };
@@ -880,4 +880,153 @@ test("Failed routine generation keeps last successful routine context", async ()
   const sent = JSON.stringify(requests.at(-1));
   assert.match(sent, /Earlier L'Oréal routine used RevitaLift Hyaluronic Acid Serum/);
   assert.doesNotMatch(sent, /Earlier L'Oréal routine used glycolic acid serum/);
+});
+
+
+test("Opt-in web search is routed through Worker and returns real citation links", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  const title = "L'Oréal Paris Serum - Official";
+  const url = "https://www.lorealparisusa.com/skin-care/face-serums";
+  const content = "The official L'Oréal Paris catalog includes a serum 【1†source】.";
+  const cite = "【1†source】";
+  globalThis.fetch = async (endpoint, options) => {
+    calls.push({ endpoint, payload: JSON.parse(options.body), auth: options.headers.Authorization });
+    if (String(endpoint).includes("/chat/completions")) {
+      return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify({
+        scope:"in_scope",answer:"General L'Oréal serum recommendation."
+      })}}]}), {status:200});
+    }
+    return new Response(JSON.stringify({output:[
+      {type:"web_search_call",status:"completed"},
+      {type:"message",role:"assistant",content:[{type:"output_text",text:content,annotations:[{
+        type:"url_citation",start_index:content.indexOf(cite),end_index:content.indexOf(cite)+cite.length,
+        title,url
+      }]}]}
+    ]}), {status:200});
+  };
+  try {
+    const response = await worker.fetch(new Request("https://example.workers.dev/", {
+      method:"POST", headers:{Origin:trustedOrigin,"Content-Type":"application/json"},
+      body:JSON.stringify({messages:[{role:"user",content:"What is new in L'Oréal Paris serums?"}],searchWeb:true})
+    }), {ALLOWED_ORIGIN:trustedOrigin,OPENAI_API_KEY:"unit-test-only"});
+    assert.equal(response.status, 200);
+    const result = await response.json();
+    assert.equal(calls.length, 2);
+    assert.equal(calls[0].endpoint, "https://api.openai.com/v1/chat/completions");
+    assert.equal(calls[1].endpoint, "https://api.openai.com/v1/responses");
+    assert.equal(calls[1].payload.model, "gpt-4.1");
+    assert.equal(calls[1].payload.tools[0].type, "web_search");
+    assert.equal(calls[1].payload.tool_choice, "required");
+    assert.equal(calls[1].payload.store, false);
+    assert.equal(calls[1].payload.input.at(-1).role, "user");
+    assert.equal(calls[1].auth, "Bearer unit-test-only");
+    assert.equal(result.sources.length, 1);
+    assert.equal(result.sources[0].url, url);
+    assert.equal(result.sources[0].title, title);
+    assert.match(result.choices[0].message.content, /\[1\]/);
+    assert.doesNotMatch(result.choices[0].message.content, /【1†source】/);
+    assert.doesNotMatch(JSON.stringify(result), /unit-test-only/);
+    assert.equal(response.headers.get("Cache-Control"), "no-store");
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test("Off-topic web search is blocked before searching, and malformed flags are rejected", async () => {
+  const originalFetch = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (endpoint) => {
+    calls.push(endpoint);
+    return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify({
+      scope:"out_of_scope",answer:""
+    })}}]}), {status:200});
+  };
+  try {
+    const env = {ALLOWED_ORIGIN:trustedOrigin,OPENAI_API_KEY:"unit-test-only"};
+    const offTopic = await worker.fetch(new Request("https://example.workers.dev/", {
+      method:"POST",headers:{Origin:trustedOrigin,"Content-Type":"application/json"},
+      body:JSON.stringify({messages:[{role:"user",content:"What are the football scores?"}],searchWeb:true})
+    }),env);
+    assert.equal(offTopic.status, 200);
+    assert.match((await offTopic.json()).choices[0].message.content,/outside my specialty/);
+    assert.equal(calls.length, 1, "No paid web search for an out-of-scope question");
+    const malformed = await worker.fetch(new Request("https://example.workers.dev/", {
+      method:"POST",headers:{Origin:trustedOrigin,"Content-Type":"application/json"},
+      body:JSON.stringify({messages:[{role:"user",content:"L'Oréal skincare"}],searchWeb:"true"})
+    }),env);
+    assert.equal(malformed.status,400);
+    assert.equal(calls.length,1);
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test("Search must return authentic safe HTTPS sources, not forged or script links", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async endpoint => {
+    if (String(endpoint).includes("/chat/completions")) return new Response(JSON.stringify({
+      choices:[{message:{content:JSON.stringify({scope:"in_scope",answer:"Beauty guidance."})}}]
+    }),{status:200});
+    return new Response(JSON.stringify({output:[
+      {type:"web_search_call"},
+      {type:"message",role:"assistant",content:[{type:"output_text",
+        text:"Here is a claim.",
+        annotations:[{type:"url_citation",start_index:0,end_index:4,
+          url:"javascript:alert(1)",title:"Danger"}]
+      }]}
+    ]}),{status:200});
+  };
+  try {
+    const response = await worker.fetch(new Request("https://example.workers.dev/",{
+      method:"POST",headers:{Origin:trustedOrigin,"Content-Type":"application/json"},
+      body:JSON.stringify({messages:[{role:"user",content:"L'Oréal current product info"}],searchWeb:true})
+    }),{ALLOWED_ORIGIN:trustedOrigin,OPENAI_API_KEY:"unit-test-only"});
+    assert.equal(response.status,502);
+    assert.doesNotMatch(JSON.stringify(await response.json()), /javascript:|alert\(1\)/);
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test("Web search UI shows clickable citations, maintains history and never exposes an API key", async () => {
+  const requests = [];
+  const app = createFrontend(async (url, options) => {
+    requests.push({url,body:JSON.parse(options.body),headers:options.headers});
+    return {ok:true,async json(){return {choices:[{message:{content:"New L'Oréal serum is listed [1]."}}],
+      sources:[{url:"https://www.lorealparisusa.com/skin-care/face-serums",title:"L'Oréal Paris Serums"}]
+    };}};
+  });
+  assert.equal(app.elements.webSearchToggle.checked, undefined, "Web search starts disabled");
+  app.elements.webSearchToggle.checked = true;
+  app.elements.userInput.value = "What are the latest L'Oréal serums?";
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  await new Promise(resolve => setTimeout(resolve,12));
+  assert.equal(requests.length,1);
+  assert.equal(requests[0].body.searchWeb,true);
+  assert.equal(requests[0].url,"https://loreal-beauty-advisor.elshamandy133.workers.dev");
+  assert.equal(requests[0].headers.Authorization,undefined);
+  const responseBubble = app.elements.chatWindow.nodes.at(-1);
+  const sources = responseBubble.nodes.find(node => node.className === "chat-sources");
+  assert.ok(sources,"Search answer renders a source section");
+  const inline = responseBubble.nodes.find(node => node.tagName === "P").nodes
+    .find(node => node.tagName === "A");
+  assert.equal(inline.textContent,"[1]");
+  assert.match(inline.href,/^https:\/\/www\.lorealparisusa\.com\//);
+  assert.equal(inline.rel,"noopener noreferrer");
+  assert.match(sources.textContent,/WEB SOURCES/);
+  app.elements.webSearchToggle.checked = false;
+  app.elements.userInput.value = "What about applying it at night?";
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  await new Promise(resolve => setTimeout(resolve,12));
+  assert.equal(requests.length,2);
+  assert.equal(requests[1].body.searchWeb,undefined, "Ordinary follow-up does not incur a search call");
+  assert.ok(requests[1].body.messages.some(m => m.role === "assistant" && m.content.includes("listed [1]")));
+});
+
+test("Invalid citation links cannot become clickable through the browser", async () => {
+  const app = createFrontend(async () => ({ok:true,async json(){return {
+    choices:[{message:{content:"Claim [1]."}}],
+    sources:[{url:"javascript:alert(1)",title:"Unsafe"}]
+  };}}));
+  app.elements.webSearchToggle.checked = true;
+  app.elements.userInput.value = "Latest L'Oréal products?";
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  await new Promise(resolve => setTimeout(resolve,12));
+  assert.match(app.elements.status.textContent,/No verifiable sources/);
+  assert.equal(app.elements.chatWindow.nodes.length,1,"Failed search is not saved in chat");
 });

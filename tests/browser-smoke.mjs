@@ -36,9 +36,15 @@ async function setupPage(width, height, reducedMotion = false, touch = false) {
           json: async () => ({
             choices: [{
               message: {
-                content: "## Your L’Oréal routine\n- Start by considering your skin type.\n- Choose products that fit your preferences."
+                content: request.searchWeb
+                  ? "Current L’Oréal serum information is available [1]."
+                  : "## Your L’Oréal routine\n- Start by considering your skin type.\n- Choose products that fit your preferences."
               }
-            }]
+            }],
+            ...(request.searchWeb ? { sources: [{
+              title: "L’Oréal Paris official serum catalog",
+              url: "https://www.lorealparisusa.com/skin-care/face-serums"
+            }] } : {})
           })
         });
       }
@@ -96,6 +102,40 @@ try {
   });
   assert.ok(cspViolations.some(event => event.directive === "connect-src" &&
     event.blocked.includes("api.openai.com")), "CSP must block direct OpenAI requests from the webpage");
+
+  // Bonus: explicit web search sends a bounded opt-in flag and shows
+  const lookup = await setupPage(1440, 900);
+  // real-clickable source links alongside the in-answer citation.
+  await lookup.click("#webSearchToggle");
+  assert.equal(await lookup.$eval("#webSearchToggle", el => el.checked), true);
+  await sendQuestion(lookup, "What is the latest L'Oréal Paris serum information?");
+  const searched = await lookup.evaluate(() => {
+    const bubble = document.querySelector(".chat-window .message.ai:last-child");
+    const inline = bubble.querySelector(".chat-inline-citation");
+    const source = bubble.querySelector(".chat-source-link");
+    return {
+      request:window.__mockRequests.at(-1),
+      inline: inline?.textContent,
+      href: inline?.href,
+      source: source?.textContent,
+      sourceHref:source?.href,
+      rel:source?.rel,
+      present:!!bubble.querySelector(".chat-sources"),
+      horizontalOverflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.equal(searched.request.searchWeb, true);
+  assert.equal(searched.inline, "[1]");
+  assert.match(searched.href, /lorealparisusa\.com\/skin-care\/face-serums/);
+  assert.match(searched.source, /official serum catalog/);
+  assert.equal(searched.sourceHref, searched.href);
+  assert.equal(searched.rel, "noopener noreferrer");
+  assert.equal(searched.present, true);
+  assert.ok(searched.horizontalOverflow <= 2, "Search citation links must not cause horizontal overflow");
+  await lookup.click("#webSearchToggle");
+  assert.equal(await lookup.$eval("#webSearchToggle", el => el.checked), false);
+
+  await lookup.close();
 
   await sendQuestion(desktop, "My name is Emma. Can you suggest a L’Oréal routine?");
   state = await desktop.evaluate(() => ({
@@ -266,6 +306,59 @@ try {
     "Expanded state survives switching product categories");
   await desktop.select("#productCategory", "makeup");
 
+  // Product Search: filters immediately on each keystroke, combines
+  // keyword matches with category filters, and offers a clear/reset path.
+  await desktop.select("#productCategory", "all");
+  const inputSearch = await desktop.$eval("#productSearch", el => ({
+    kind:el.type, placeholder:el.placeholder, controls:el.getAttribute("aria-controls")
+  }));
+  assert.equal(inputSearch.kind, "search");
+  assert.equal(inputSearch.controls, "productGrid");
+  await desktop.focus("#productSearch");
+  await desktop.type("#productSearch", "serum hyaluronic");
+  const matched = await desktop.evaluate(() => ({
+    ids:[...document.querySelectorAll("#productGrid .catalog-card")].map(card => card.dataset.productId),
+    count:document.querySelector("#productCount").textContent,
+    clearVisible:!document.querySelector("#clearProductSearch").hidden,
+    inputFocused:document.activeElement === document.querySelector("#productSearch")
+  }));
+  assert.ok(matched.ids.includes("ha-serum"), "Search words match product name in any order");
+  assert.ok(matched.ids.every(id => id.includes("serum")), "Nonmatching products are filtered");
+  assert.equal(matched.count, matched.ids.length + " of 23 verified products");
+  assert.equal(matched.clearVisible, true);
+  assert.equal(matched.inputFocused, true, "Typing does not lose keyboard focus");
+
+  await desktop.select("#productCategory", "makeup");
+  assert.equal(await desktop.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length), 0,
+    "Keyword + nonmatching category results in empty state");
+  assert.match(await desktop.$eval("#productGrid .catalog-empty", el => el.textContent),
+    /No matching products found/);
+  await desktop.select("#productCategory", "serum");
+  assert.ok(await desktop.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length) > 0,
+    "Changing category updates results without clearing search");
+  assert.equal(await desktop.$eval("#productSearch", el => el.value), "serum hyaluronic");
+  await desktop.click("#clearProductSearch");
+  const clearedSearch = await desktop.evaluate(() => ({
+    search: document.querySelector("#productSearch").value,
+    category: document.querySelector("#productCategory").value,
+    clearHidden:document.querySelector("#clearProductSearch").hidden,
+    products:document.querySelectorAll("#productGrid .catalog-card").length
+  }));
+  assert.equal(clearedSearch.search, "");
+  assert.equal(clearedSearch.category, "serum", "Clearing keywords does not change category");
+  assert.equal(clearedSearch.clearHidden, true);
+  assert.ok(clearedSearch.products > 1);
+
+  await desktop.select("#productCategory", "all");
+  await desktop.type("#productSearch", "nonexistentzzproduct");
+  assert.equal(await desktop.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length), 0);
+  await desktop.click("#productGrid .catalog-empty__reset");
+  assert.equal(await desktop.$eval("#productSearch", el => el.value), "");
+  assert.equal(await desktop.$eval("#productCategory", el => el.value), "all");
+  assert.equal(await desktop.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length), 23,
+    "No-results reset restores entire product library");
+  await desktop.select("#productCategory", "makeup");
+
   // Product selection requirement: a click on the *card* toggles selection,
   // visibly highlights it, and updates the selected list above Build My Routine.
   const lumiCard = '[data-product-id="lumi-glotion"]';
@@ -285,6 +378,19 @@ try {
     selected:true, pressed:"true", label:"✓ SELECTED", count:"1 saved",
     inList:true, highlighted:true
   }, "Clicking product artwork must select the product and update visuals + selected list");
+
+  // Filtering out a selected card does not remove its saved selection.
+  await desktop.focus("#productSearch");
+  await desktop.type("#productSearch", "mascara");
+  const temporarilyHidden = await desktop.evaluate(() => ({
+    hasLumi:!!document.querySelector('[data-product-id="lumi-glotion"]'),
+    saved:document.querySelector("#pickedCount").textContent,
+    chip:document.querySelector("#chosenProducts").textContent.includes("Lumi Glotion")
+  }));
+  assert.deepEqual(temporarilyHidden, {hasLumi:false,saved:"1 saved",chip:true});
+  await desktop.click("#clearProductSearch");
+  assert.equal(await desktop.$eval(lumiCard, card => card.classList.contains("catalog-card--selected")), true,
+    "Selected product returns highlighted after search is cleared");
 
   await desktop.click(lumiCard + " .catalog-card__title");
   productState = await desktop.evaluate(() => {
@@ -606,6 +712,43 @@ try {
   await mobile.click('[data-product-id="radiant-cleanser"] .catalog-card__details-toggle');
   assert.equal(await mobile.$eval('[data-product-id="radiant-cleanser"] .catalog-card__details', el => el.hidden), true);
 
+  // Search sources remain readable and tappable on a real touchscreen.
+  await mobile.click("#webSearchToggle");
+  const mobileSearchBefore = await mobile.evaluate(() => window.__mockRequests.length);
+  await mobile.focus("#userInput");
+  await mobile.type("#userInput", "What is new from L'Oréal Paris?");
+  await mobile.click("#sendBtn");
+  await mobile.waitForFunction(before => window.__mockRequests.length === before + 1, {}, mobileSearchBefore);
+  await mobile.waitForFunction(() => document.querySelector("#sendBtn").disabled === false);
+  const mobileCitations = await mobile.evaluate(() => ({
+    inline: document.querySelector(".chat-window .message.ai:last-child .chat-inline-citation")?.textContent,
+    link: document.querySelector(".chat-window .message.ai:last-child .chat-source-link")?.href,
+    overflow: document.documentElement.scrollWidth - innerWidth
+  }));
+  assert.equal(mobileCitations.inline, "[1]");
+  assert.match(mobileCitations.link, /^https:\/\/www\.lorealparisusa\.com\//);
+  assert.ok(mobileCitations.overflow <= 2);
+  await mobile.click("#webSearchToggle");
+
+  // Product searching also works on narrow touchscreens, alongside categories.
+  await mobile.select("#productCategory", "all");
+  await mobile.focus("#productSearch");
+  await mobile.type("#productSearch", "oily shampoo");
+  const mobileMatches = await mobile.evaluate(() => ({
+    ids:[...document.querySelectorAll("#productGrid .catalog-card")].map(card => card.dataset.productId),
+    overflow:document.documentElement.scrollWidth - innerWidth,
+    clearVisible:!document.querySelector("#clearProductSearch").hidden
+  }));
+  assert.ok(mobileMatches.ids.includes("pure-shampoo"));
+  assert.ok(mobileMatches.ids.every(id => id.includes("shampoo")));
+  assert.equal(mobileMatches.clearVisible, true);
+  assert.ok(mobileMatches.overflow <= 2, "Product search must not overflow on mobile");
+  await mobile.select("#productCategory", "skincare");
+  assert.equal(await mobile.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length), 0);
+  await mobile.click("#clearProductSearch");
+  assert.equal(await mobile.$eval("#productCategory", el => el.value), "skincare");
+  assert.ok(await mobile.$eval("#productGrid", el => el.querySelectorAll(".catalog-card").length) > 0);
+
   // Finger taps use the same card-wide hit area at phone widths.
   await mobile.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
   const mobileSelected = await mobile.evaluate(() => ({
@@ -639,6 +782,159 @@ try {
     assert.equal(extra.secondaryNavDisplay, "none", "Responsive navigation should fit at " + width + "px");
   }
   await mobile.close();
+
+  // RTL language support: verify the real grid, saved products and chat
+  // geometry at desktop and touchscreen sizes. LTR tests above stay intact.
+  const rtlDesktop = await setupPage(1440, 900);
+  // Puppeteer pages share a browser profile. Isolate saved-product fixtures
+  // from the prior mobile test so a click starts with an unselected card.
+  await rtlDesktop.evaluate(() => localStorage.removeItem("beauty-atelier:selected-products:v1"));
+  await rtlDesktop.reload({waitUntil:"domcontentloaded"});
+  await rtlDesktop.select("#languageDirection", "ar");
+  const rtlLayout = await rtlDesktop.evaluate(() => {
+    const grid = document.querySelector("#productGrid");
+    const cards = [...grid.querySelectorAll(".catalog-card")];
+    const catalog = document.querySelector(".catalog-panel");
+    const sidebar = document.querySelector(".builder-side");
+    const chat = document.querySelector("#chatWindow");
+    return {
+      dir:document.documentElement.dir,
+      lang:document.documentElement.lang,
+      select:document.querySelector("#languageDirection").value,
+      gridDirection:getComputedStyle(grid).direction,
+      savedDirection:getComputedStyle(document.querySelector("#chosenProducts")).direction,
+      chatDirection:getComputedStyle(chat).direction,
+      firstCardX:cards[0].getBoundingClientRect().x,
+      secondCardX:cards[1].getBoundingClientRect().x,
+      catalogX:catalog.getBoundingClientRect().x,
+      sidebarX:sidebar.getBoundingClientRect().x,
+      overflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.equal(rtlLayout.dir, "rtl");
+  assert.equal(rtlLayout.lang, "ar");
+  assert.equal(rtlLayout.select, "ar");
+  assert.equal(rtlLayout.gridDirection, "rtl");
+  assert.equal(rtlLayout.savedDirection, "rtl");
+  assert.equal(rtlLayout.chatDirection, "rtl");
+  assert.ok(rtlLayout.firstCardX > rtlLayout.secondCardX, "Product grid columns mirror right to left");
+  assert.ok(rtlLayout.catalogX > rtlLayout.sidebarX, "RTL catalog and sidebar mirror their positions");
+  assert.ok(rtlLayout.overflow <= 2, "RTL desktop layout must not scroll horizontally");
+
+  // The existing card selection + saved chips remain functional in RTL.
+  await rtlDesktop.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
+  await rtlDesktop.click('[data-product-id="glycolic-cleanser"] .catalog-card__art');
+  const rtlSaved = await rtlDesktop.evaluate(() => {
+    const chips = [...document.querySelectorAll("#chosenProducts .saved-chip")];
+    return {
+      count:document.querySelector("#pickedCount").textContent,
+      chips:chips.length,
+      firstX:chips[0].getBoundingClientRect().x,
+      secondX:chips[1].getBoundingClientRect().x,
+      firstY:chips[0].getBoundingClientRect().y,
+      secondY:chips[1].getBoundingClientRect().y,
+      containerRight:document.querySelector("#chosenProducts").getBoundingClientRect().right,
+      firstRight:chips[0].getBoundingClientRect().right,
+      pressed:document.querySelector('[data-product-id="radiant-cleanser"] .catalog-card__pick')
+        .getAttribute("aria-pressed")
+    };
+  });
+  assert.equal(rtlSaved.count, "2 saved");
+  assert.equal(rtlSaved.chips, 2);
+  assert.ok(Math.abs(rtlSaved.firstRight - rtlSaved.containerRight) < 5,
+    "The first selected chip starts at the right edge");
+  assert.ok(Math.abs(rtlSaved.firstY - rtlSaved.secondY) < 5
+    ? rtlSaved.firstX > rtlSaved.secondX
+    : rtlSaved.firstY < rtlSaved.secondY,
+    "RTL saved chips progress right-to-left, or wrap to the next row");
+  assert.equal(rtlSaved.pressed, "true");
+
+  await rtlDesktop.focus("#userInput");
+  await rtlDesktop.type("#userInput", "ما أفضل روتين من لوريال للبشرة الجافة؟");
+  await rtlDesktop.click("#sendBtn");
+  await rtlDesktop.waitForFunction(() =>
+    document.querySelectorAll(".chat-window .message.ai:not(.pending)").length === 2);
+  const rtlChat = await rtlDesktop.evaluate(() => {
+    const chat = document.querySelector("#chatWindow");
+    const ai = chat.querySelector(".message.ai");
+    const user = chat.querySelector(".message.user");
+    const send = document.querySelector("#sendBtn");
+    const input = document.querySelector("#userInput");
+    return {
+      messageCount:chat.querySelectorAll(".message").length,
+      aiX:ai.getBoundingClientRect().x,
+      userX:user.getBoundingClientRect().x,
+      userDir:user.getAttribute("dir"),
+      userLang:user.getAttribute("lang"),
+      aiLang:ai.getAttribute("lang"),
+      sendX:send.getBoundingClientRect().x,
+      inputX:input.getBoundingClientRect().x,
+      overflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.equal(rtlChat.messageCount, 3);
+  assert.ok(rtlChat.aiX > rtlChat.userX, "AI bubble starts on right, user bubble on left");
+  assert.equal(rtlChat.userDir, "auto", "Arabic message controls its own reading direction");
+  assert.equal(rtlChat.userLang, "ar");
+  assert.equal(rtlChat.aiLang, "en", "English brand copy retains English screen-reader language");
+  assert.ok(rtlChat.sendX < rtlChat.inputX, "RTL chat composer mirrors send button and input");
+  assert.ok(rtlChat.overflow <= 2);
+
+  // Switching to English leaves the conversation and saved choices alone.
+  await rtlDesktop.select("#languageDirection", "en");
+  const switchedBack = await rtlDesktop.evaluate(() => ({
+    dir:document.documentElement.dir,
+    lang:document.documentElement.lang,
+    chat:document.querySelectorAll(".chat-window .message").length,
+    saved:document.querySelector("#pickedCount").textContent,
+    gridDirection:getComputedStyle(document.querySelector("#productGrid")).direction
+  }));
+  assert.deepEqual(switchedBack, {dir:"ltr",lang:"en",chat:3,saved:"2 saved",gridDirection:"ltr"});
+  await rtlDesktop.select("#languageDirection", "ar");
+  await rtlDesktop.reload({waitUntil:"domcontentloaded"});
+  assert.equal(await rtlDesktop.$eval("html", el => el.dir), "rtl", "RTL choice survives a reload");
+  assert.equal(await rtlDesktop.$eval("#pickedCount", el => el.textContent), "2 saved");
+  await rtlDesktop.screenshot({path:"/tmp/beauty-rtl-desktop.png",fullPage:true});
+  await rtlDesktop.close();
+
+  // RTL mobile: header selector is visible, and all three important areas
+  // fit without sideways scrolling, with touch actions still working.
+  const rtlMobile = await setupPage(375, 812, true, true);
+  await rtlMobile.evaluate(() => localStorage.removeItem("beauty-atelier:selected-products:v1"));
+  await rtlMobile.reload({waitUntil:"domcontentloaded"});
+  await rtlMobile.select("#languageDirection", "ar");
+  const mobileRtlState = await rtlMobile.evaluate(() => {
+    const grid = document.querySelector("#productGrid");
+    const selector = document.querySelector("#languageDirection");
+    const rect = selector.getBoundingClientRect();
+    return {
+      dir:document.documentElement.dir,
+      gridDirection:getComputedStyle(grid).direction,
+      chatDirection:getComputedStyle(document.querySelector("#chatWindow")).direction,
+      chosenDirection:getComputedStyle(document.querySelector("#chosenProducts")).direction,
+      selectorVisible:rect.width > 0 && rect.left >= 0 && rect.right <= innerWidth,
+      overflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.equal(mobileRtlState.dir, "rtl");
+  assert.equal(mobileRtlState.gridDirection, "rtl");
+  assert.equal(mobileRtlState.chatDirection, "rtl");
+  assert.equal(mobileRtlState.chosenDirection, "rtl");
+  assert.equal(mobileRtlState.selectorVisible, true);
+  assert.ok(mobileRtlState.overflow <= 2, "375px RTL mobile page must not overflow");
+  await rtlMobile.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
+  assert.equal(await rtlMobile.$eval("#pickedCount", el => el.textContent), "1 saved");
+  await rtlMobile.click("#chosenProducts .saved-chip");
+  assert.equal(await rtlMobile.$eval("#pickedCount", el => el.textContent), "0 saved");
+  await rtlMobile.focus("#userInput");
+  await rtlMobile.type("#userInput", "هل عند لوريال منتجات للشعر؟");
+  await rtlMobile.click("#sendBtn");
+  await rtlMobile.waitForFunction(() => document.querySelectorAll(".chat-window .message.user").length === 1);
+  assert.equal(await rtlMobile.$eval(".chat-window .message.user", el => el.getAttribute("lang")), "ar");
+  await rtlMobile.screenshot({path:"/tmp/beauty-rtl-mobile.png",fullPage:true});
+  await rtlMobile.close();
+
+
 
   assert.deepEqual(failures, [], "There must be no uncaught browser JavaScript errors");
   console.log("PASS: Real Chrome desktop + mobile smoke test");

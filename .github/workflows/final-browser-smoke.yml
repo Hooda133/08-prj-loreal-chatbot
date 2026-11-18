@@ -5,6 +5,9 @@ on:
     paths:
       - "index.html"
       - "script.js"
+      - "language-support.js"
+      - "routine-builder.js"
+      - "routine-builder.css"
       - "style.css"
       - "tests/browser-smoke.mjs"
       - ".github/workflows/final-browser-smoke.yml"
@@ -52,4 +55,6 @@ jobs:
           path: |
             /tmp/final-beauty-desktop.png
             /tmp/final-beauty-mobile.png
+            /tmp/beauty-rtl-desktop.png
+            /tmp/beauty-rtl-mobile.png
           if-no-files-found: ignore

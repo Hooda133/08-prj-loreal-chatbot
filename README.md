@@ -6,17 +6,18 @@ A responsive student project featuring a personalized beauty chat interface for 
 
 **Verified source-code request flow:**
 
-`index.html` loads `script.js`, `product-catalog.js` and
-`routine-builder.js`. Typed questions, product advice, generated routines,
+`index.html` loads `script.js`, `product-catalog.js`,
+`routine-builder.js` and `language-support.js`. Typed questions, product advice, generated routines,
 and follow-up messages all use `sendMessage()` in `script.js`. That function
 sends a `POST` with a JSON `messages` array to the HTTPS
 `WORKER_URL` (`loreal-beauty-advisor.elshamandy133.workers.dev`).
 
 The Worker source (`RESOURCE_cloudflare-worker.js`) validates the
 origin and request shape, adds its L'Oréal-specific system prompt, then calls
-OpenAI's Chat Completions endpoint **server-side** using
-`env.OPENAI_API_KEY`. The Worker returns only the AI reply or a generic
-error to the browser. **Never place or print an actual API key in HTML, JS,
+OpenAI's Chat Completions endpoint (or the Responses API for optional
+live web search) **server-side** using
+`env.OPENAI_API_KEY`. The Worker returns the AI reply, validated citations for an explicitly
+requested live search, or a generic error to the browser. **Never place or print an actual API key in HTML, JS,
 GitHub, browser storage, or README examples.**
 
 **Defense in depth and future checks:**
@@ -46,6 +47,128 @@ Inspect the request headers; there must be **no Authorization header or API
 key sent from the browser**. The Cloudflare Worker should respond with the
 chat reply. Live deployment and Cloudflare secret settings cannot be proven
 by a repository test alone.
+
+## Assignment: Language support — right-to-left (RTL) layout
+
+Use the **LAYOUT / الاتجاه** selector in the site header to switch between
+**English · LTR** and **العربية · RTL**. The choice is saved only in this
+browser's localStorage, and a full page reload restores it. Browsers where
+localStorage is disabled can still switch directions for the current page.
+
+- The page sets semantic `<html dir="rtl" lang="ar">` in Arabic layout
+  mode, then restores `dir="ltr" lang="en"` for English.
+- The product grid starts on the **right**, and the catalog and routine
+  builder columns mirror their order. Product descriptions, search/category
+  controls, the selection indicator, saved-product chips, **Clear All**
+  control, and routine-step lists align to the right.
+- The chat window swaps the AI and visitor message sides. The composer,
+  prompt buttons, lists, source links, and toolbar also respect direction.
+- Each individual message uses `dir="auto"` and a matching `lang`
+  attribute: Arabic messages read right-to-left, while English product
+  names and chat content remain readable and screen-reader friendly.
+- Direction can be switched without deleting the conversation, selected
+  products, active search terms or generated routine. The saved layout
+  preference is separate from saved products.
+- The selector has an accessible label and announces a direction change
+  to assistive technology. Layout and controls are keyboard/touch usable.
+
+**Scope note:** This implements RTL-capable **layout support**, not a
+complete Arabic translation of the English catalog, marketing copy, or
+AI interface. Product names remain their original published English names.
+Users may type Arabic questions in the chat.
+
+**Acceptance test:** Switch to العربية · RTL, verify the catalog and
+selected chips begin at the right, send an Arabic question and confirm
+the assistant/user bubbles use opposite sides. Select two products,
+reload, and confirm the RTL layout and saved choices return. Switch to
+English and verify the existing chat and selections are unchanged.
+
+GitHub Actions' Chrome test covers 1440px desktop and 375px touch mobile,
+actual RTL positions, user/assistant alignment, Arabic message direction,
+saved products, switch/reload persistence, and no sideways scrolling.
+Screenshots are uploaded as `beauty-rtl-desktop.png` and
+`beauty-rtl-mobile.png`.
+
+## Assignment: Add Product Search
+
+The collection includes an instant **SEARCH PRODUCTS** field beside the
+**CATEGORY** dropdown. Filtering happens in the browser, using the reviewed
+L'Oréal product catalog (no API or live search request is necessary).
+
+- Enter any product name or keywords (e.g. `serum hyaluronic`,
+  `oily shampoo`, `spf 50`, `face wash`, `mascara`).
+- Multiple terms match **in any order**, across name, family, description,
+  product category, ingredient/beauty-goal keywords and relevant skin/hair
+  preferences. Search is insensitive to case, accent marks and apostrophes.
+- The selected category and typed keywords are applied **together**.
+  Changing categories doesn't clear the search query, and search updates
+  on **every keystroke**, not just on Enter.
+- The result counter updates as matches change; the `Clear ×` button
+  removes the search terms without changing the category.
+- When no matches exist, a useful **No matching products** message offers
+  **CLEAR SEARCH & SHOW ALL** to reset both filters.
+- Saved selections and expanded descriptions stay intact while products
+  are temporarily hidden by search/category filtering.
+- The search uses the 23-product catalog snapshot only; it does not
+  fetch new products, inventory, prices, or contact OpenAI.
+
+Browser tests validate typing and results, multiple keyword matching,
+category intersections, recovery from zero results, responsive mobile
+layout and preserving existing card features. Node tests validate search
+logic independently.
+
+## Bonus: live web search with visible citations
+
+**Opt-in feature:** In Beauty Concierge, enable **SEARCH THE LIVE WEB**
+before sending a current L'Oréal question. The chatbot searches recent online
+information and shows **clickable numbered citations in the answer** and
+a **WEB SOURCES** list with source titles and links.
+
+### How it works
+
+1. The browser adds `searchWeb: true` to its normal chat JSON request **only
+   when the visitor enables the checkbox**. All requests still go to the same
+   HTTPS Cloudflare Worker. The browser never calls OpenAI directly.
+2. The Worker first validates the request and classifies whether the
+   latest question is within L'Oréal beauty scope using the existing
+   `gpt-4.1` Chat Completions system-prompt route. Out-of-scope questions
+   receive the existing friendly refusal **without a search call**.
+3. For an in-scope search, the Worker sends a second server-side request to
+   OpenAI's **Responses API** with `gpt-4.1`,
+   `tools: [{ type: "web_search", search_context_size: "low" }]` and
+   `tool_choice: "required"`. The Worker uses the same
+   `env.OPENAI_API_KEY` secret; no additional browser credential is needed.
+4. The Worker extracts real `url_citation` annotations from the
+   `web_search_call` result and returns bounded HTTPS source links and
+   numbered citation markers. The frontend builds source links with safe DOM
+   APIs (`textContent` / anchors, never untrusted HTML).
+5. If the search fails or returns no verified citations, the chatbot shows
+   a helpful retry message rather than inventing a current source.
+
+**Costs:** Live search makes an additional model request and uses a billable
+web-search tool. The switch is **off by default** to avoid unexpected calls.
+Use Cloudflare rate limiting and OpenAI spending limits before public use.
+
+**Deployment requirement:** Merging the GitHub PR updates the website but
+**does not automatically deploy the Worker**. After merging, replace the
+running Worker script in Cloudflare with the updated
+`RESOURCE_cloudflare-worker.js` and **Save and Deploy**. Preserve
+`OPENAI_API_KEY` as a Cloudflare **Secret** and keep `ALLOWED_ORIGIN` set
+to `https://hooda133.github.io`. Until the new Worker is deployed, turning
+on the search checkbox will not produce real search citations, because the
+old Worker does not recognize `searchWeb`.
+
+**Manual acceptance test:** Open the live website, enable SEARCH THE LIVE WEB,
+ask "What are the latest L'Oréal Paris skincare launches?", and confirm the
+reply has one or more clickable numbered sources. Click a citation to open
+the sourced page. Check browser DevTools Network: browser requests go only
+to the Cloudflare Worker, never directly to OpenAI. Then turn the switch
+off and verify standard chat and follow-ups still work.
+
+Automated tests mock both upstream API calls and browser replies. They
+validate scope limits, the required Responses `web_search` call, safe
+citations, the non-search route, and desktop/mobile links. They do **not**
+verify live search results without deploying the Worker.
 
 ## Assignment: Reveal Product Description
 

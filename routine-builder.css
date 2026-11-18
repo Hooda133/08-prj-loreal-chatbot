@@ -183,3 +183,53 @@
 .catalog-card__details-caution{border-left:3px solid #b57e49;background:#f7ede1;color:#4e3626;padding:10px 12px;margin:7px 0;font:600 12px/1.55 "DM Sans",sans-serif}
 .catalog-card__details-source{margin:10px 0 0;color:#746355;font:400 11px/1.55 "DM Sans",sans-serif}
 @media(prefers-reduced-motion:reduce){.catalog-card__details-toggle{transition:none}}
+
+
+/* Instant keyword search with a keyboard-accessible clear control. */
+.catalog-search-control{position:relative;display:flex;align-items:center;min-width:0}
+.catalog-search-control input{width:100%;padding-right:76px}
+.catalog-search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);z-index:1;min-height:33px;padding:4px 9px;background:#f7eee5;border:1px solid #b6a08a;border-radius:3px;color:#543d30;font:800 11px/1.3 "DM Sans",sans-serif;cursor:pointer}
+.catalog-search-clear[hidden]{display:none!important}
+.catalog-search-clear:hover{background:#eddfcf}
+.catalog-search-clear:focus-visible,.catalog-empty__reset:focus-visible{outline:3px solid #70493f;outline-offset:2px}
+.catalog-search-help{display:block;margin:7px 1px 0;color:#685a4d;font:500 11px/1.5 "DM Sans",sans-serif}
+.catalog-empty strong{display:block;font-size:16px;color:#44352c;margin-bottom:5px}
+.catalog-empty p{margin:0 0 13px}
+.catalog-empty__reset{background:#5d4436;border:1px solid #5d4436;color:white;padding:11px 14px;min-height:44px;font:800 11px/1.3 "DM Sans",sans-serif;cursor:pointer}
+.catalog-empty__reset:hover{background:#3c2b23}
+@media(max-width:570px){.catalog-search-help{font-size:11px}.catalog-search-control input{font-size:16px}}
+
+
+/* RTL: mirror catalog grid, filter controls, the saved list and routine
+   detail accents. Keep proper English brand/product names in readable order. */
+html[dir="rtl"] .builder-section,
+html[dir="rtl"] .catalog-panel,
+html[dir="rtl"] .builder-side,
+html[dir="rtl"] .routine-result{direction:rtl}
+html[dir="rtl"] .catalog-header,
+html[dir="rtl"] .catalog-filters,
+html[dir="rtl"] .builder-selections__heading,
+html[dir="rtl"] .selected-products{direction:rtl}
+html[dir="rtl"] .catalog-card{text-align:right}
+html[dir="rtl"] .catalog-card__title,
+html[dir="rtl"] .catalog-card__description,
+html[dir="rtl"] .saved-chip{direction:ltr;text-align:right;unicode-bidi:isolate}
+html[dir="rtl"] .catalog-card__selection-label{right:auto;left:22px}
+html[dir="rtl"] .catalog-card__details{border-left:1px solid #d3bca8;border-right:3px solid #9d735b}
+html[dir="rtl"] .catalog-card__details-caution{border-left:0;border-right:3px solid #b57e49}
+html[dir="rtl"] .catalog-search-clear{right:auto;left:6px}
+html[dir="rtl"] .catalog-search-control input{padding-right:13px;padding-left:76px;text-align:right}
+html[dir="rtl"] .catalog-field input,
+html[dir="rtl"] .catalog-field select,
+html[dir="rtl"] .builder-field select{text-align:right}
+html[dir="rtl"] .catalog-card__details-toggle{align-self:flex-start}
+html[dir="rtl"] .clear-saved{margin-left:0;margin-right:auto}
+html[dir="rtl"] .routine-result__steps{padding-left:0;padding-right:21px}
+html[dir="rtl"] .routine-result__step{padding-left:0;padding-right:5px}
+html[dir="rtl"] .routine-result__notes{padding-left:0;padding-right:19px}
+html[dir="rtl"] .builder-preview{text-align:center}
+html[dir="rtl"] .catalog-link{unicode-bidi:isolate}
+@media(max-width:570px){
+ html[dir="rtl"] .catalog-card__selection-label{right:auto;left:20px}
+ html[dir="rtl"] .clear-saved{margin-left:0;margin-right:auto}
+}
