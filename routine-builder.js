@@ -19,6 +19,7 @@
     return String(value || "")
       .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
+      .replace(/['’]/g, "")
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, " ")
       .trim();
@@ -38,7 +39,7 @@
       lips: "lip lipstick color makeup"
     };
     return normalizeSearch([
-      product.name, product.family, product.description,
+      product.name, product.family, product.description, "L'Oréal Paris",
       productType(product), product.group, groupLabels[product.group],
       ...(product.concerns || []), ...(product.skins || []),
       keywords[product.group] || "",
