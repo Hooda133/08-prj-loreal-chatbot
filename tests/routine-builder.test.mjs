@@ -210,7 +210,8 @@ test("Product search intersects keyword matches with the selected category", () 
 });
 
 test("Product keyword matching is case, punctuation and accent insensitive", () => {
-  assert.equal(normalizeSearch("  L’Oréal  SPF-50!  "), "l oreal spf 50");
+  assert.equal(normalizeSearch("  L’Oréal  SPF-50!  "), "loreal spf 50");
+  assert.ok(filterCatalogProducts(catalog, "L’Oréal mascara", "all").some(p => p.id === "lash-paradise"));
   assert.equal(normalizeSearch("Hyalurónic acid"), "hyaluronic acid");
   const one = filterCatalogProducts(catalog, "SPF-50", "all");
   const two = filterCatalogProducts(catalog, "spf 50", "all");
