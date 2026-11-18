@@ -12,6 +12,48 @@
   const normalize = value => String(value || "").toLowerCase().trim();
   const productType = product => product.type || "skincare";
 
+  // Search while typing. Each word can match a DIFFERENT product field and
+  // words may appear in any order: e.g. "serum hyaluronic", "oily shampoo".
+  // Normalize accents and punctuation so "L'Oreal" and "L’Oréal" match.
+  function normalizeSearch(value) {
+    return String(value || "")
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  }
+
+  function searchableProductText(product) {
+    const keywords = {
+      sunscreen: "spf sun sunblock sunscreen sun protection uv",
+      cleanser: "face wash cleanse cleansing",
+      moisturizer: "moisturizer moisturising moisturizing face cream",
+      serum: "serum treatment",
+      shampoo: "shampoo wash hair scalp",
+      conditioner: "conditioner conditioning hair",
+      "leave-in": "leave in hair treatment",
+      base: "foundation face complexion makeup",
+      eyes: "mascara eye lash lashes makeup",
+      lips: "lip lipstick color makeup"
+    };
+    return normalizeSearch([
+      product.name, product.family, product.description,
+      productType(product), product.group, groupLabels[product.group],
+      ...(product.concerns || []), ...(product.skins || []),
+      keywords[product.group] || "",
+      product.exfoliating ? "exfoliating exfoliation acids" : ""
+    ].join(" "));
+  }
+
+  function filterCatalogProducts(products, searchQuery, category = "all") {
+    const words = normalizeSearch(searchQuery).split(/\s+/).filter(Boolean);
+    return products.filter(product =>
+      (category === "all" || product.group === category || productType(product) === category) &&
+      words.every(word => searchableProductText(product).includes(word))
+    );
+  }
+
   // Every recommendation comes from our curated official-page catalog.
   // Saved products get priority only within the matching beauty focus.
   function buildRoutine(profile, selectedIds = []) {
@@ -187,7 +229,8 @@
 
   window.BeautyRoutineLogic = Object.freeze({
     buildRoutine, questionForRoutine, buildSelectedProductNotes,
-    buildFollowUpProductNotes, questionForSelectedProducts, parseSavedProductIds
+    buildFollowUpProductNotes, questionForSelectedProducts, parseSavedProductIds,
+    normalizeSearch, filterCatalogProducts
   });
 
   // Avoid running page UI setup in the pure-logic regression tests.
@@ -195,6 +238,7 @@
   if (!section) return;
   const grid = document.getElementById("productGrid");
   const search = document.getElementById("productSearch");
+  const clearSearchButton = document.getElementById("clearProductSearch");
   const filter = document.getElementById("productCategory");
   const count = document.getElementById("productCount");
   const chosen = document.getElementById("chosenProducts");
@@ -412,16 +456,26 @@
   }
 
   function renderCatalog() {
-    const query = normalize(search.value);
+    const query = search.value;
     const category = filter.value;
-    const filtered = catalog.filter(product =>
-      (category === "all" || product.group === category || productType(product) === category) &&
-      (!query || normalize(product.name + " " + product.family + " " + product.description).includes(query))
-    );
+    const filtered = filterCatalogProducts(catalog, query, category);
+    clearSearchButton.hidden = query.length === 0;
     grid.replaceChildren();
     count.textContent = filtered.length + " of " + catalog.length + " verified products";
     if (!filtered.length) {
-      grid.appendChild(make("p", "catalog-empty", "No matching products. Try a different search or category."));
+      const empty = make("div", "catalog-empty");
+      empty.appendChild(make("strong", "", "No matching products found."));
+      empty.appendChild(make("p", "", "Try another keyword or change the category."));
+      const reset = make("button", "catalog-empty__reset", "CLEAR SEARCH & SHOW ALL");
+      reset.type = "button";
+      reset.addEventListener("click", () => {
+        search.value = "";
+        filter.value = "all";
+        renderCatalog();
+        search.focus();
+      });
+      empty.appendChild(reset);
+      grid.appendChild(empty);
       return;
     }
     for (const product of filtered) {
@@ -587,7 +641,7 @@
     fillOptions(skinSelect, config.skins);
     fillOptions(concernSelect, config.concerns);
     timeField.hidden = type !== "skincare";
-    search.value = "";
+    // A change of beauty focus should not unexpectedly erase a typed query.
     filter.value = type;
     renderCatalog();
     if (lastRoutine) renderRoutine(buildRoutine(currentProfile(), [...selected]));
@@ -653,6 +707,14 @@
   });
 
   search.addEventListener("input", renderCatalog);
+  // Clear button and the browser's native search-field reset both update
+  // products immediately, without resetting the user's chosen category.
+  clearSearchButton.addEventListener("click", () => {
+    search.value = "";
+    renderCatalog();
+    search.focus();
+  });
+  search.addEventListener("search", renderCatalog);
   filter.addEventListener("change", renderCatalog);
   buildButton.addEventListener("click", () => {
     renderRoutine(buildRoutine(currentProfile(), [...selected]));
