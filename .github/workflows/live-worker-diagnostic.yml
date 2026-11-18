@@ -51,6 +51,9 @@ jobs:
               if not isinstance(body, dict): body = {}
               print(f'{method}: HTTP {status} cors={allow!r} version={version!r}')
               print('fields:', sorted(body.keys()))
+              for key in ('cloudflare_error','error_name','error_code','error_category','title','detail','what_you_should_do','owner_action_required','retryable'):
+                  if key in body:
+                      print(f'cloudflare {key}: {str(body[key])[:250]}')
               print('error:', str(body.get('error', ''))[:250])
               print('searchStatus:', body.get('searchStatus'))
               print('sourceType:', body.get('sourceType'))
@@ -59,8 +62,5 @@ jobs:
 
           print('One live search probe; no secrets are transmitted from GitHub.')
           send('OPTIONS')
-          send('POST', {
-              'messages':[{'role':'user','content':"What is the latest L'Oreal Paris RevitaLift hyaluronic acid serum? Please use web search and provide sources."}],
-              'searchWeb': True
-          })
+          send('GET')
           PY
