@@ -5,73 +5,106 @@
   const catalog = window.BeautyCatalog || [];
   const groups = ["cleanser", "serum", "moisturizer", "sunscreen"];
   const groupLabels = {
-    cleanser: "Cleanse", serum: "Treat", moisturizer: "Moisturize", sunscreen: "Protect"
+    cleanser: "Cleanse", serum: "Treat", moisturizer: "Moisturize", sunscreen: "Protect",
+    shampoo: "Shampoo", conditioner: "Condition", "leave-in": "Leave-in care",
+    base: "Complexion", eyes: "Eyes", lips: "Lips"
   };
   const normalize = value => String(value || "").toLowerCase().trim();
+  const productType = product => product.type || "skincare";
 
-  // Pure logic is exposed for the lightweight built-in Node regression tests.
+  // Every recommendation comes from our curated official-page catalog.
+  // Saved products get priority only within the matching beauty focus.
   function buildRoutine(profile, selectedIds = []) {
-    const skin = normalize(profile.skin) || "normal";
-    const concern = normalize(profile.concern) || "hydration";
-    const time = normalize(profile.time) || "both";
+    const type = ["skincare", "haircare", "makeup"].includes(normalize(profile.type))
+      ? normalize(profile.type) : "skincare";
+    const skin = normalize(profile.skin) || (type === "makeup" ? "natural" : "normal");
+    const concern = normalize(profile.concern) || (type === "makeup" ? "radiance" : "hydration");
+    const time = type === "skincare" ? (normalize(profile.time) || "both") : type;
     const selected = new Set(selectedIds);
-    const notes = ["Patch-test new products and follow the instructions on the official packaging."];
-    const isSensitive = skin === "sensitive";
+    const notes = ["Check each product's official directions and patch-test new formulas."];
+    const isSensitive = type === "skincare" && skin === "sensitive";
 
-    function candidates(group, period, chosenSerum) {
+    function choices(group, period, avoidExfoliating = false) {
       return catalog
-        .filter(product => product.group === group)
-        .filter(product => product.time === "both" || product.time === period)
+        .filter(product => productType(product) === type && product.group === group)
+        .filter(product => type !== "skincare" || product.time === "both" || product.time === period)
         .filter(product => !isSensitive || (!product.exfoliating && !product.strongActive))
-        .filter(product => !(group === "cleanser" && chosenSerum?.exfoliating && product.exfoliating))
+        .filter(product => !avoidExfoliating || !product.exfoliating)
         .map(product => ({
           product,
           points: (selected.has(product.id) ? 30 : 0) +
             (product.concerns.includes(concern) ? 9 : 0) +
-            (product.skins.includes(skin) ? 5 : 0) +
+            (product.skins.includes(skin) ? 8 : -5) +
             (product.id === "radiant-cleanser" ? 2 : 0) +
-            (product.id === "fragrance-free" && isSensitive ? 6 : 0)
+            (product.id === "fragrance-free" && isSensitive ? 8 : 0)
         }))
         .sort((a, b) => b.points - a.points)
         .map(item => item.product);
     }
 
-    function forPeriod(period) {
-      const serum = candidates("serum", period)[0];
-      const steps = [];
-      // The order matters: cleanse, one treatment, moisturizer, AM SPF.
-      for (const group of groups) {
-        if (group === "sunscreen" && period === "pm") continue;
-        const product = group === "serum" ? serum : candidates(group, period, serum)[0];
-        if (product) steps.push({ group, label: groupLabels[group], product });
-      }
-      return steps;
+    function step(group, product) {
+      return product ? { group, label: groupLabels[group], product } : null;
     }
 
-    const am = time !== "pm" ? forPeriod("am") : [];
-    const pm = time !== "am" ? forPeriod("pm") : [];
-    if (isSensitive) notes.push("For sensitive skin, the starter routine omits stronger acids; introduce products slowly.");
-    if ([...am, ...pm].some(step => step.product.exfoliating)) {
-      notes.push("Go slowly with exfoliating products, avoid stacking exfoliating steps, and protect your skin from the sun.");
+    function skinPeriod(period) {
+      // Pick the treatment and cream before the cleanser so we can prevent
+      // a strong acid serum + exfoliating cream + acid cleanser combination.
+      const serum = choices("serum", period)[0];
+      const moisturizer = choices("moisturizer", period, Boolean(serum?.exfoliating))[0];
+      const activeTreatment = Boolean(serum?.exfoliating || moisturizer?.exfoliating);
+      const cleanser = choices("cleanser", period, activeTreatment)[0];
+      return [
+        step("cleanser", cleanser), step("serum", serum),
+        step("moisturizer", moisturizer),
+        period === "am" ? step("sunscreen", choices("sunscreen", period)[0]) : null
+      ].filter(Boolean);
     }
-    if (am.length) notes.push("Apply broad-spectrum sunscreen as the last morning skincare step; reapply as directed on its label.");
+
+    let am = [];
+    let pm = [];
+    if (type === "skincare") {
+      am = time !== "pm" ? skinPeriod("am") : [];
+      pm = time !== "am" ? skinPeriod("pm") : [];
+      if (isSensitive) notes.push("Sensitive-skin starter plan: stronger exfoliating acids are omitted. Introduce one new product at a time.");
+      if ([...am, ...pm].some(s => s.product.exfoliating)) {
+        notes.push("An exfoliating treatment is included. Start gradually and do not layer it with other acid treatments on the same occasion.");
+      }
+      if (am.length) notes.push("Use broad-spectrum SPF as the last skincare step each morning. Reapply as the label directs.");
+    } else if (type === "haircare") {
+      am = ["shampoo", "conditioner", "leave-in"]
+        .map(group => step(group, choices(group, "am")[0]))
+        .filter(Boolean);
+      notes.push("These are wash-day steps, not a requirement to wash daily. Apply conditioner mainly to lengths and ends; follow package timing.");
+      notes.push("Use leave-in treatments as directed after washing; frequency depends on hair needs.");
+    } else {
+      am = ["base", "eyes", "lips"]
+        .map(group => step(group, choices(group, "am")[0]))
+        .filter(Boolean);
+      notes.push("Use moisturizer and daytime broad-spectrum SPF before makeup; remove makeup gently at the end of the day.");
+      notes.push("Foundation and lipstick shades are not matched by this tool. Use official shade-finder and try-on guidance.");
+    }
+
     if (selected.size) {
-      const included = new Set([...am, ...pm].map(step => step.product.id));
+      const included = new Set([...am, ...pm].map(item => item.product.id));
       if ([...selected].some(id => !included.has(id))) {
-        notes.push("Some saved products were left out due to timing, skin sensitivity, or to keep the routine simple.");
+        notes.push("Some saved products were left out because they belong to another category, conflict with your selections, or don't fit this plan.");
       }
     }
-    return { am, pm, notes, skin, concern, time };
+    return { type, am, pm, notes, skin, concern, time };
   }
 
   function questionForRoutine(routine) {
+    const labels = routine.type === "haircare"
+      ? ["Wash day", ""] : routine.type === "makeup"
+        ? ["Makeup look", ""] : ["Morning", "Evening"];
     const parts = [
-      "Please personalize and explain this L'Oréal Paris skincare routine using the real catalog products listed. Do not invent product claims or prices.",
-      "My skin: " + routine.skin + ". My goal: " + routine.concern + ".",
-      ...[["Morning", routine.am], ["Evening", routine.pm]]
-        .filter(item => item[1].length)
-        .map(item => item[0] + ": " + item[1].map(step => step.product.name).join("; ") + "."),
-      "Give clear order and usage cautions. Ask one helpful follow-up."
+      "Please explain and refine this L'Oréal Paris " + routine.type +
+        " routine, using only these verified catalog product names. Do not invent product claims, shades, prices, or availability.",
+      "My preference: " + routine.skin + ". My goal: " + routine.concern + ".",
+      ...[[labels[0], routine.am], [labels[1], routine.pm]]
+        .filter(item => item[0] && item[1].length)
+        .map(item => item[0] + ": " + item[1].map(s => s.product.name).join("; ") + "."),
+      "Explain step order, note any precautions, and ask one useful beauty-related follow-up."
     ];
     return parts.join("\n").slice(0, 1000);
   }
@@ -87,7 +120,11 @@
   const count = document.getElementById("productCount");
   const chosen = document.getElementById("chosenProducts");
   const pickedCount = document.getElementById("pickedCount");
+  const focusSelect = document.getElementById("routineFocus");
   const skinSelect = document.getElementById("routineSkin");
+  const skinLabel = document.getElementById("routineSkinLabel");
+  const concernLabel = document.getElementById("routineConcernLabel");
+  const timeField = document.getElementById("routineTimeField");
   const concernSelect = document.getElementById("routineConcern");
   const timeSelect = document.getElementById("routineTime");
   const buildButton = document.getElementById("buildRoutine");
@@ -106,7 +143,7 @@
   function announceText(text) { announce.textContent = text; }
 
   function productIcon(product) {
-    const map = { cleanser: "ui-compact", serum: "ui-serum", moisturizer: "ui-hair", sunscreen: "ui-perfume" };
+    const map = { cleanser:"ui-compact", serum:"ui-serum", moisturizer:"ui-hair", sunscreen:"ui-perfume", shampoo:"ui-hair", conditioner:"ui-hair", "leave-in":"ui-serum", base:"ui-compact", eyes:"ui-lipstick", lips:"ui-lipstick" };
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", "0 0 80 80");
     svg.setAttribute("class", "beauty-icon");
@@ -178,7 +215,7 @@
     const query = normalize(search.value);
     const category = filter.value;
     const filtered = catalog.filter(product =>
-      (category === "all" || product.group === category) &&
+      (category === "all" || product.group === category || productType(product) === category) &&
       (!query || normalize(product.name + " " + product.family + " " + product.description).includes(query))
     );
     grid.replaceChildren();
@@ -192,7 +229,7 @@
       const image = make("div", "catalog-card__art catalog-card__art--" + product.group);
       image.appendChild(productIcon(product));
       card.appendChild(image);
-      card.appendChild(make("span", "catalog-card__eyebrow", product.family + "  /  " + product.group.toUpperCase()));
+      card.appendChild(make("span", "catalog-card__eyebrow", product.family + "  /  " + productType(product).toUpperCase()));
       card.appendChild(make("h3", "catalog-card__title", product.name));
       card.appendChild(make("p", "catalog-card__description", product.description));
       card.appendChild(officialLink(product));
@@ -220,12 +257,12 @@
   }
 
   function currentProfile() {
-    return { skin: skinSelect.value, concern: concernSelect.value, time: timeSelect.value };
+    return { type: focusSelect.value, skin: skinSelect.value, concern: concernSelect.value, time: timeSelect.value };
   }
 
   function routinePanel(period, steps) {
     const panel = make("div", "routine-result__panel");
-    panel.appendChild(make("h4", "", period === "am" ? "☀ Morning ritual" : "☾ Evening ritual"));
+    panel.appendChild(make("h4", "", lastRoutine?.type === "haircare" ? "✦ Wash-day ritual" : lastRoutine?.type === "makeup" ? "✦ Your makeup edit" : period === "am" ? "☀ Morning ritual" : "☾ Evening ritual"));
     const list = make("ol", "routine-result__steps");
     for (const step of steps) {
       const item = make("li", "routine-result__step");
@@ -244,8 +281,8 @@
   function routineAsText(routine) {
     return [
       "MY BEAUTY ATELIER ROUTINE",
-      "Skin: " + routine.skin + " | Goal: " + routine.concern,
-      ...[["MORNING", routine.am], ["EVENING", routine.pm]]
+      "Focus: " + routine.type + " | Preference: " + routine.skin + " | Goal: " + routine.concern,
+      ...[[routine.type === "haircare" ? "WASH DAY" : routine.type === "makeup" ? "MAKEUP LOOK" : "MORNING", routine.am], ["EVENING", routine.pm]]
         .filter(item => item[1].length)
         .flatMap(item => [item[0], ...item[1].map((step, index) =>
           (index + 1) + ". " + step.label + ": " + step.product.name + " (" + step.product.url + ")")]),
@@ -260,7 +297,8 @@
     const title = make("div", "routine-result__heading");
     title.appendChild(make("span", "routine-kicker", "THE PERSONAL EDIT / YOUR PLAN"));
     title.appendChild(make("h3", "", "Your ritual, thoughtfully curated."));
-    title.appendChild(make("p", "", "Based on your " + routine.skin + " skin and " + routine.concern + " goal. Each product links to its official listing."));
+    const preferenceLabel = routine.type === "haircare" ? "hair" : routine.type === "makeup" ? "style" : "skin";
+    title.appendChild(make("p", "", "Based on your " + routine.skin + " " + preferenceLabel + " preference and " + routine.concern + " goal. Every product links to its official listing."));
     output.appendChild(title);
     const columns = make("div", "routine-result__columns");
     if (routine.am.length) columns.appendChild(routinePanel("am", routine.am));
@@ -288,6 +326,48 @@
     output.appendChild(actions);
   }
 
+  // The same builder supports three distinct beauty journeys, with suitable
+  // profile questions and a catalog filter that follows the chosen journey.
+  const profileOptions = {
+    skincare: {
+      skinLabel: "WHAT IS YOUR SKIN TYPE?", concernLabel: "YOUR MAIN SKIN GOAL",
+      skins: [["normal","Normal"],["dry","Dry"],["oily","Oily"],["combination","Combination"],["sensitive","Sensitive"]],
+      concerns: [["hydration","Hydration & comfort"],["radiance","Radiance & dark spots"],["firmness","Fine lines & firmness"],["texture","Texture & uneven tone"]]
+    },
+    haircare: {
+      skinLabel: "WHICH BEST DESCRIBES YOUR HAIR?", concernLabel: "YOUR HAIR GOAL",
+      skins: [["dry","Dry/dehydrated"],["oily","Oily roots"],["damaged","Long or damage-prone"],["normal","Normal"]],
+      concerns: [["hydration","Hydration"],["oil","Refresh oily roots"],["repair","Reduce breakage"]]
+    },
+    makeup: {
+      skinLabel: "YOUR MAKEUP STYLE", concernLabel: "YOUR LOOK GOAL",
+      skins: [["natural","Natural / everyday"],["polished","Polished / fuller coverage"]],
+      concerns: [["radiance","Glow & radiance"],["definition","Definition & color"]]
+    }
+  };
+  function fillOptions(select, options) {
+    select.replaceChildren();
+    for (const [value, label] of options) {
+      const option = make("option", "", label);
+      option.value = value;
+      select.appendChild(option);
+    }
+  }
+  function setFocus(type) {
+    const config = profileOptions[type] || profileOptions.skincare;
+    skinLabel.textContent = config.skinLabel;
+    concernLabel.textContent = config.concernLabel;
+    fillOptions(skinSelect, config.skins);
+    fillOptions(concernSelect, config.concerns);
+    timeField.hidden = type !== "skincare";
+    search.value = "";
+    filter.value = type;
+    renderCatalog();
+    if (lastRoutine) renderRoutine(buildRoutine(currentProfile(), [...selected]));
+    announceText("Showing " + type + " products and preferences.");
+  }
+  focusSelect.addEventListener("change", () => setFocus(focusSelect.value));
+
   search.addEventListener("input", renderCatalog);
   filter.addEventListener("change", renderCatalog);
   buildButton.addEventListener("click", () => {
@@ -300,6 +380,6 @@
       if (lastRoutine) renderRoutine(buildRoutine(currentProfile(), [...selected]));
     });
   }
-  renderCatalog();
+  setFocus(focusSelect.value);
   renderSelection();
 })();
