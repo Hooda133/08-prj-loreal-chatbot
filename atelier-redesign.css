@@ -41,9 +41,10 @@ html[dir="rtl"] .reading-progress span{transform-origin:right center}
 .site-header{
   width:min(1390px,calc(100% - 68px));
   min-height:94px;
-  position:sticky;
-  top:0;
-  z-index:90;
+  /* Keep the masthead visually elevated without covering product controls
+     when browsers scroll a deep form field into view. */
+  position:relative;
+  z-index:3;
   padding:13px 24px;
   border:1px solid #e9ded4;
   border-top:0;
