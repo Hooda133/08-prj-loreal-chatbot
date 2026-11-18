@@ -37,8 +37,7 @@ New files: `atelier-redesign.css` and `atelier-experience.js`.
 Stylesheets load after the original site styles to preserve a clear baseline.
 
 **Accessibility and compatibility:** responsive desktop/tablet/mobile layouts,
-keyboard focus, contrast-conscious controls, semantic links, working English
-LTR and Arabic RTL direction modes, reduced motion and existing secure
+keyboard focus, contrast-conscious controls, semantic links, working LTR pages and browser-translated Arabic RTL layouts, reduced motion and existing secure
 Cloudflare Worker architecture. The original browser smoke suite adds checks
 for the new design system and moving reading-progress indicator.
 
@@ -93,46 +92,47 @@ key sent from the browser**. The Cloudflare Worker should respond with the
 chat reply. Live deployment and Cloudflare secret settings cannot be proven
 by a repository test alone.
 
-## Assignment: Language support — right-to-left (RTL) layout
+## Assignment: RTL support for native browser translation
 
-Use the **LAYOUT / الاتجاه** selector in the site header to switch between
-**English · LTR** and **العربية · RTL**. The choice is saved only in this
-browser's localStorage, and a full page reload restores it. Browsers where
-localStorage is disabled can still switch directions for the current page.
+There is **no language selector and no website translation feature**.
+Visitors use their browser's normal **Translate this page** functionality
+(for example, Chrome's Translate to Arabic). The browser translates the
+visible content; the site only adapts its existing layout when a translated
+page is right-to-left.
 
-- The page sets semantic `<html dir="rtl" lang="ar">` in Arabic layout
-  mode, then restores `dir="ltr" lang="en"` for English.
-- The product grid starts on the **right**, and the catalog and routine
-  builder columns mirror their order. Product descriptions, search/category
-  controls, the selection indicator, saved-product chips, **Clear All**
-  control, and routine-step lists align to the right.
-- The chat window swaps the AI and visitor message sides. The composer,
-  prompt buttons, lists, source links, and toolbar also respect direction.
-- Each individual message uses `dir="auto"` and a matching `lang`
-  attribute: Arabic messages read right-to-left, while English product
-  names and chat content remain readable and screen-reader friendly.
-- Direction can be switched without deleting the conversation, selected
-  products, active search terms or generated routine. The saved layout
-  preference is separate from saved products.
-- The selector has an accessible label and announces a direction change
-  to assistive technology. Layout and controls are keyboard/touch usable.
+- English stays the original source language (`<html lang="en">`).
+  The site never changes `html.lang` or stores a preferred layout language.
+- Lightweight `language-support.js` listens for signals from browser
+  translators: Chrome's `html.translated-rtl` marker, an RTL page language,
+  or RTL text in multiple static headings as a fallback for translators that
+  do not expose a class. A `MutationObserver` detects those changes
+  without a page reload or new on-page controls.
+- When RTL translation is detected, it applies `dir="rtl"`, which activates
+  existing CSS rules to mirror **the product grid, saved-products section,
+  product cards, filters, routine builder, chat messages, and composer**.
+  Translated product descriptions and saved-chip text are no longer forced
+  to LTR, while mixed English/Arabic text remains readable.
+- When a visitor chooses **Show original** in their browser, the page
+  returns to LTR and keeps the conversation and saved products.
+- The former website-owned `beauty-atelier:layout-language:v1` setting
+  is discarded. Product selections remain separately stored as before.
+- Arabic messages alone will not reverse the whole page: only translated
+  page content or translator-provided language/direction markers do.
+- No new API, cookie, translation service or external JavaScript is involved.
 
-**Scope note:** This implements RTL-capable **layout support**, not a
-complete Arabic translation of the English catalog, marketing copy, or
-AI interface. Product names remain their original published English names.
-Users may type Arabic questions in the chat.
+**Manual acceptance test:** In Chrome, open the live website, right-click
+and select **Translate to Arabic** (or click the browser's Translate icon).
+Check the actual translated text, that the product grid and saved chips
+start from the right, and that the chat layout mirrors on desktop and phone.
+Choose **Show original** in Chrome to restore LTR. Browser translation
+availability and exact wording vary by browser; it is not controlled by
+the website.
 
-**Acceptance test:** Switch to العربية · RTL, verify the catalog and
-selected chips begin at the right, send an Arabic question and confirm
-the assistant/user bubbles use opposite sides. Select two products,
-reload, and confirm the RTL layout and saved choices return. Switch to
-English and verify the existing chat and selections are unchanged.
-
-GitHub Actions' Chrome test covers 1440px desktop and 375px touch mobile,
-actual RTL positions, user/assistant alignment, Arabic message direction,
-saved products, switch/reload persistence, and no sideways scrolling.
-Screenshots are uploaded as `beauty-rtl-desktop.png` and
-`beauty-rtl-mobile.png`.
+The Chrome CI suite simulates the browser's `translated-rtl` marker and
+the alternative `lang`/translated-heading signals at desktop and mobile
+widths, validating geometry, selections, chat, and reversal. Because CI
+does not invoke the browser's actual translation service, the last
+manual check must confirm the text was really translated.
 
 ## Assignment: Add Product Search
 
