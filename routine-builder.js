@@ -68,7 +68,7 @@
     if (type === "skincare") {
       am = time !== "pm" ? skinPeriod("am") : [];
       pm = time !== "am" ? skinPeriod("pm") : [];
-      if (isSensitive) notes.push("Sensitive-skin starter plan: stronger exfoliating acids are omitted. Introduce one new product at a time.");
+      if (isSensitive) notes.push("Sensitive-skin starter plan: stronger exfoliating acids are omitted. If your skin is sensitive, introduce one new product at a time.");
       if ([...am, ...pm].some(s => s.product.exfoliating)) {
         notes.push("An exfoliating treatment is included. Start gradually and do not layer it with other acid treatments on the same occasion.");
       }
