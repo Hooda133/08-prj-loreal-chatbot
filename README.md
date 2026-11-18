@@ -2,6 +2,51 @@
 
 A responsive student project featuring a personalized beauty chat interface for skincare, makeup, haircare and fragrance. **Independent educational demo; not affiliated with L'Oréal.**
 
+## The Atelier Edition — visual redesign
+
+A couture-inspired, **midnight plum × champagne × warm ivory** design system.
+This is a working redesign of the site, not a static picture, mock website, or
+theme experiment.
+
+### Art direction and experiences
+
+- **Editorial cover:** sculptural burgundy hero, dramatic Bodoni Moda serif
+  display type, metallic champagne call to action, original beauty still-life,
+  delicate magazine gridwork, issue labeling and a light that follows the
+  pointer on desktop.
+- **Digital beauty studio:** refined ivory consultation card with a richer
+  message hierarchy, hand-tuned prompt buttons, warm focus states, and clear
+  live web-search citation styling.
+- **Journey navigation:** three anchor links (conversation → product edit →
+  inspiration) jump directly to working features without creating inert UI.
+- **Curated product library:** larger sculptural original product icons, edition
+  numbers, elegant product cards and distinct selected states. Filtering,
+  details, saving and AI routine generation are preserved.
+- **Bespoke routine counter:** deep plum panel with high-contrast champagne
+  buttons and readable form controls; sidebar collapses naturally on mobile.
+- **Editorial departments and closing statement:** four color stories and
+  a cinematic finale while preserving original category click actions.
+- **Micro-interactions:** fine scrolling-progress line and pointer-responsive
+  studio lighting. Existing Pause Motion button and reduced-motion preference
+  remain respected. No paid APIs, additional dependencies or image hotlinks
+  have been added.
+
+New files: `atelier-redesign.css` and `atelier-experience.js`.
+`index.html` includes the editorial layout and meaningful navigation links;
+`routine-builder.js` adds decorative `aria-hidden` catalog edition labels.
+Stylesheets load after the original site styles to preserve a clear baseline.
+
+**Accessibility and compatibility:** responsive desktop/tablet/mobile layouts,
+keyboard focus, contrast-conscious controls, semantic links, working English
+LTR and Arabic RTL direction modes, reduced motion and existing secure
+Cloudflare Worker architecture. The original browser smoke suite adds checks
+for the new design system and moving reading-progress indicator.
+
+**Review before merge:** On the PR page open **Checks → Visual preview -
+beauty illustrations → Summary → Artifacts** for desktop/narrow screenshots.
+Also inspect the real-browser screenshots, test the redesigned pages on a phone,
+and confirm the existing features work before merging.
+
 ## Assignment: Secure Cloudflare Worker integration
 
 **Verified source-code request flow:**
