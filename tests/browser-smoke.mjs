@@ -172,6 +172,80 @@ try {
   assert.match(aiHandoff, /True Match/);
   assert.ok(aiHandoff.length <= 1000, "AI handoff respects Worker input size limits");
 
+  // Reveal Product Description: every catalog card must expose a real
+  // expandable panel that can be opened by click, touch or keyboard.
+  await desktop.select("#productCategory", "all");
+  const detailCoverage = await desktop.evaluate(() => [...document.querySelectorAll(".catalog-card")].map(card => {
+    const button = card.querySelector(".catalog-card__details-toggle");
+    const panel = card.querySelector(".catalog-card__details");
+    return {
+      id:card.dataset.productId,
+      buttonTag:button?.tagName,
+      buttonType:button?.type,
+      controls:button?.getAttribute("aria-controls"),
+      expanded:button?.getAttribute("aria-expanded"),
+      panelId:panel?.id,
+      hidden:panel?.hidden,
+      description:panel?.querySelector(".catalog-card__details-copy")?.textContent
+    };
+  }));
+  assert.equal(detailCoverage.length, 23, "All catalog products must reveal a description");
+  for (const row of detailCoverage) {
+    assert.equal(row.buttonTag, "BUTTON");
+    assert.equal(row.buttonType, "button");
+    assert.equal(row.controls, row.panelId, row.id + ": button controls its own details");
+    assert.equal(row.expanded, "false", row.id + ": details initially collapsed");
+    assert.equal(row.hidden, true, row.id + ": details initially hidden");
+    assert.ok(row.description, row.id + ": details contain a readable product description");
+  }
+
+  const acidCard = '[data-product-id="glycolic-serum"]';
+  const countBeforeDetails = await desktop.$eval("#pickedCount", node => node.textContent);
+  await desktop.click(acidCard + " .catalog-card__details-toggle");
+  const acidExpanded = await desktop.evaluate(() => {
+    const card = document.querySelector('[data-product-id="glycolic-serum"]');
+    const panel = card.querySelector(".catalog-card__details");
+    const button = card.querySelector(".catalog-card__details-toggle");
+    return {
+      expanded:button.getAttribute("aria-expanded"),
+      hidden:panel.hidden,
+      visible:getComputedStyle(panel).display !== "none",
+      content:panel.textContent,
+      cardSelected:card.classList.contains("catalog-card--selected"),
+      count:document.querySelector("#pickedCount").textContent,
+      focused:document.activeElement === button
+    };
+  });
+  assert.equal(acidExpanded.expanded, "true");
+  assert.equal(acidExpanded.hidden, false);
+  assert.equal(acidExpanded.visible, true);
+  assert.match(acidExpanded.content, /Exfoliating serum for uneven-looking tone and texture/);
+  assert.match(acidExpanded.content, /CATALOG GOALS/);
+  assert.match(acidExpanded.content, /Check official directions/);
+  assert.equal(acidExpanded.cardSelected, false, "Opening details does not select the product");
+  assert.equal(acidExpanded.count, countBeforeDetails, "Details leave saved products alone");
+  assert.equal(acidExpanded.focused, true, "Details toggle preserves focus");
+
+  await desktop.keyboard.press("Space");
+  const acidCollapsed = await desktop.evaluate(() => {
+    const card = document.querySelector('[data-product-id="glycolic-serum"]');
+    return {
+      expanded:card.querySelector(".catalog-card__details-toggle").getAttribute("aria-expanded"),
+      hidden:card.querySelector(".catalog-card__details").hidden,
+      focused:document.activeElement === card.querySelector(".catalog-card__details-toggle")
+    };
+  });
+  assert.deepEqual(acidCollapsed, {expanded:"false",hidden:true,focused:true},
+    "Keyboard Space collapses product details and preserves focus");
+
+  await desktop.click(acidCard + " .catalog-card__details-toggle");
+  await desktop.select("#productCategory", "makeup");
+  await desktop.select("#productCategory", "all");
+  assert.equal(await desktop.$eval(acidCard + " .catalog-card__details-toggle",
+    node => node.getAttribute("aria-expanded")), "true",
+    "Expanded state survives switching product categories");
+  await desktop.select("#productCategory", "makeup");
+
   // Product selection requirement: a click on the *card* toggles selection,
   // visibly highlights it, and updates the selected list above Build My Routine.
   const lumiCard = '[data-product-id="lumi-glotion"]';
@@ -486,6 +560,31 @@ try {
   assert.equal(afterReset.messages, 1, "New Chat resets to the welcome message");
   assert.ok(afterReset.top >= 0 && afterReset.bottom <= afterReset.viewport,
     "New Chat must leave the mobile composer visible");
+
+  // On touch devices, tapping View Details must NOT trigger the card
+  // selection overlay, and text must remain visible in the expanded panel.
+  const mobileCountBeforeDetails = await mobile.$eval("#pickedCount", node => node.textContent);
+  await mobile.click('[data-product-id="radiant-cleanser"] .catalog-card__details-toggle');
+  const phoneDetail = await mobile.evaluate(() => {
+    const card = document.querySelector('[data-product-id="radiant-cleanser"]');
+    const panel = card.querySelector(".catalog-card__details");
+    return {
+      expanded:card.querySelector(".catalog-card__details-toggle").getAttribute("aria-expanded"),
+      visible:!panel.hidden && getComputedStyle(panel).display !== "none",
+      description:panel.textContent,
+      count:document.querySelector("#pickedCount").textContent,
+      selected:card.classList.contains("catalog-card--selected"),
+      overflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.equal(phoneDetail.expanded, "true");
+  assert.equal(phoneDetail.visible, true);
+  assert.match(phoneDetail.description, /Cream cleanser with a gentle smoothing/);
+  assert.equal(phoneDetail.selected, false);
+  assert.equal(phoneDetail.count, mobileCountBeforeDetails);
+  assert.ok(phoneDetail.overflow <= 2, "Expanded mobile details should not cause horizontal overflow");
+  await mobile.click('[data-product-id="radiant-cleanser"] .catalog-card__details-toggle');
+  assert.equal(await mobile.$eval('[data-product-id="radiant-cleanser"] .catalog-card__details', el => el.hidden), true);
 
   // Finger taps use the same card-wide hit area at phone widths.
   await mobile.click('[data-product-id="radiant-cleanser"] .catalog-card__art');
