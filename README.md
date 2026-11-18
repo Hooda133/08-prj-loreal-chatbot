@@ -183,29 +183,52 @@ a **WEB SOURCES** list with source titles and links.
    `tools: [{ type: "web_search", search_context_size: "low" }]` and
    `tool_choice: "required"`. The Worker uses the same
    `env.OPENAI_API_KEY` secret; no additional browser credential is needed.
-4. The Worker extracts real `url_citation` annotations from the
-   `web_search_call` result and returns bounded HTTPS source links and
-   numbered citation markers. The frontend builds source links with safe DOM
-   APIs (`textContent` / anchors, never untrusted HTML).
-5. If the search fails or returns no verified citations, the chatbot shows
-   a helpful retry message rather than inventing a current source.
+4. The Worker explicitly requests `web_search_call.action.sources`
+   and extracts genuine `url_citation` annotations when OpenAI supplies
+   them. Inline citations are clickable. If there are no inline annotations
+   but the web-search tool reports actual consulted URLs, it displays those
+   separately as **PAGES CONSULTED** rather than inventing citations.
+5. The Worker sends `searchStatus: "complete"` with validated HTTPS URLs
+   or `searchStatus: "out_of_scope"` when it refuses an unrelated request.
+   Without actual searched URLs or citations it shows a retryable error,
+   never a made-up product link. The browser uses safe DOM APIs and
+   `textContent` rather than injecting untrusted HTML.
 
 **Costs:** Live search makes an additional model request and uses a billable
 web-search tool. The switch is **off by default** to avoid unexpected calls.
 Use Cloudflare rate limiting and OpenAI spending limits before public use.
 
-**Deployment requirement:** Merging the GitHub PR updates the website but
-**does not automatically deploy the Worker**. After merging, replace the
-running Worker script in Cloudflare with the updated
-`RESOURCE_cloudflare-worker.js` and **Save and Deploy**. Preserve
-`OPENAI_API_KEY` as a Cloudflare **Secret** and keep `ALLOWED_ORIGIN` set
-to `https://hooda133.github.io`. Until the new Worker is deployed, turning
-on the search checkbox will not produce real search citations, because the
-old Worker does not recognize `searchWeb`.
+**Deployment requirement (the reason for the November 18 live
+search failure):** GitHub Pages deploys the frontend only. GitHub merging
+`RESOURCE_cloudflare-worker.js` **never updates the already-running
+Cloudflare Worker**. If the browser requests `searchWeb: true` but gets a
+standard chat answer without sources or `searchStatus`, the Worker is still
+running outdated code. The redesigned frontend now reports that specifically,
+rather than displaying the confusing "No verifiable sources" error.
+
+To update the production Worker after merging:
+
+1. Open the Cloudflare dashboard → **Workers & Pages** →
+   **loreal-beauty-advisor** → **Edit code**.
+2. Copy the **entire updated `RESOURCE_cloudflare-worker.js` file from
+   GitHub's `main` branch**, replace the Worker editor contents with it,
+   then click **Save and Deploy**.
+3. In the Worker settings, confirm `OPENAI_API_KEY` is configured as a
+   **Secret** (not a public variable), and the `ALLOWED_ORIGIN` value
+   includes exactly `https://hooda133.github.io`.
+4. Refresh the website, enable Search the Live Web, ask about a **specific
+   L'Oréal product**, and check that source links appear. If the advisor
+   declines an unrelated question, a scope-limited reply is expected,
+   not a search failure.
+
+**Do not paste your API key into GitHub, the chat, or browser code.**
+Search and citations cannot be fully live-tested in the GitHub browser mocks;
+Cloudflare production deployment must be checked separately.
 
 **Manual acceptance test:** Open the live website, enable SEARCH THE LIVE WEB,
 ask "What are the latest L'Oréal Paris skincare launches?", and confirm the
-reply has one or more clickable numbered sources. Click a citation to open
+reply contains **clickable inline citations or a clearly labeled
+PAGES CONSULTED list** with genuine HTTPS URLs. Click a source to open
 the sourced page. Check browser DevTools Network: browser requests go only
 to the Cloudflare Worker, never directly to OpenAI. Then turn the switch
 off and verify standard chat and follow-ups still work.
