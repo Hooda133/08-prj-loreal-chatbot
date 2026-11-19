@@ -734,7 +734,7 @@ test("Live-search guidance asks for short cited replies without raw tracking URL
       {type:"web_search_call",action:{sources:[{
         type:"url",url:"https://www.lancome-usa.com/fragrance",title:"Lancôme fragrance"
       }]}},
-      {type:"message",content:[{type:"output_text",text:"Lancôme has floral and fresh fragrances."}]}
+      {type:"message",role:"assistant",content:[{type:"output_text",text:"Lancôme has floral and fresh fragrances."}]}
     ]}), {status:200});
   };
   try {
