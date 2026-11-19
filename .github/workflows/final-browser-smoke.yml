@@ -1,9 +1,6 @@
 name: Final pre-submission browser smoke test
 
 on:
-  push:
-    branches:
-      - fix/show-beauty-chat-answers-and-sources
   pull_request:
     paths:
       - "index.html"
