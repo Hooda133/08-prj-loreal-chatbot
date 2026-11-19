@@ -215,7 +215,7 @@ try {
     [a11yDetails.askText,a11yDetails.askLabel],
     [a11yDetails.expandText,a11yDetails.expandLabel]
   ]) {
-    const words = visible.replace(/[^\\p{L}\\p{N} ]/gu,"").trim().toLowerCase();
+    const words = visible.replace(/[^a-z0-9 ]/gi,"").trim().toLowerCase();
     assert.ok(spoken.toLowerCase().includes(words),
       "Every visible control name must be included in its accessible name: " + visible);
   }
