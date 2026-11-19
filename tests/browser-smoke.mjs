@@ -599,6 +599,14 @@ try {
     saved:document.querySelectorAll("#chosenProducts .saved-chip").length
   }));
   assert.deepEqual(afterKeyboard, {pressed:"true",focusPreserved:true,saved:1});
+  const savedPhoto = await desktop.evaluate(() => ({
+    src:document.querySelector("#chosenProducts .saved-chip__photo")?.src,
+    official:window.BeautyPhotography.urlFor("lumi-glotion"),
+    remove:document.querySelector("#chosenProducts .saved-chip__remove")?.textContent
+  }));
+  assert.equal(savedPhoto.src,savedPhoto.official,
+    "Saved products display their own photographed packaging");
+  assert.equal(savedPhoto.remove,"×");
 
   // Ask AI stays independent; clicking it must not unselect the product.
   await desktop.click(lumiCard + " .catalog-button--ask");
