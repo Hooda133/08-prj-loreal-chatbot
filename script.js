@@ -14,12 +14,76 @@ const miniPrompts = document.getElementById("miniPrompts");
 const resetBtn = document.getElementById("resetBtn");
 const startButton = document.getElementById("startConsultation");
 const advisor = document.getElementById("concierge");
+const expandChatBtn = document.getElementById("expandChatBtn");
+const expandChatLabel = document.getElementById("expandChatLabel");
 const followUpSuggestions = document.getElementById("followUpSuggestions");
 const webSearchToggle = document.getElementById("webSearchToggle");
 const requestDiagnostic = document.getElementById("requestDiagnostic");
 const requestDiagnosticText = document.getElementById("requestDiagnosticText");
 const copyRequestDiagnostic = document.getElementById("copyRequestDiagnostic");
 const requestDiagnosticCopyStatus = document.getElementById("requestDiagnosticCopyStatus");
+
+
+// Optional large reading view: keep the SAME chat node and in-memory
+// conversation, so opening/closing cannot discard messages or web sources.
+// Move the node outside the hero's isolated stacking context for a true
+// viewport-sized overlay on both mobile and desktop.
+if (expandChatBtn && advisor) {
+  const originalParent = advisor.parentNode;
+  const placeholder = document.createComment("Beauty Concierge original position");
+  originalParent.insertBefore(placeholder, advisor);
+  let expanded = false;
+
+  function toggleChatFocusMode(open) {
+    if (open === expanded) return;
+    expanded = open;
+    if (open) {
+      document.body.appendChild(advisor);
+      advisor.classList.add("advisor--focus");
+      document.body.classList.add("chat-focus-open");
+      advisor.setAttribute("role", "dialog");
+      advisor.setAttribute("aria-modal", "true");
+      expandChatBtn.setAttribute("aria-pressed", "true");
+      expandChatBtn.setAttribute("aria-label", "Close large Beauty Concierge chat");
+      expandChatLabel.textContent = "Close";
+    } else {
+      originalParent.insertBefore(advisor, placeholder.nextSibling);
+      advisor.classList.remove("advisor--focus");
+      document.body.classList.remove("chat-focus-open");
+      advisor.removeAttribute("role");
+      advisor.removeAttribute("aria-modal");
+      expandChatBtn.setAttribute("aria-pressed", "false");
+      expandChatBtn.setAttribute("aria-label", "Open large Beauty Concierge chat");
+      expandChatLabel.textContent = "Expand";
+    }
+    expandChatBtn.focus({ preventScroll: true });
+  }
+
+  expandChatBtn.addEventListener("click", () => toggleChatFocusMode(!expanded));
+  document.addEventListener("keydown", event => {
+    if (!expanded) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      toggleChatFocusMode(false);
+      return;
+    }
+    if (event.key !== "Tab") return;
+    // Keep keyboard navigation inside the full-window consultation.
+    const selectors = "button:not([disabled]), a[href], input:not([disabled]), " +
+      "select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])";
+    const items = [...advisor.querySelectorAll(selectors)].filter(el =>
+      el.getClientRects().length > 0 && getComputedStyle(el).visibility !== "hidden");
+    if (!items.length) return;
+    const first = items[0], last = items[items.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+}
 
 const GREETING =
   "Welcome to Beauty Atelier.\n\nI can help with L’Oréal skincare, makeup, haircare and fragrances, plus personalized beauty routines. What would you like to explore?";

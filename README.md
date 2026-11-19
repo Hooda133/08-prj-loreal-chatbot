@@ -162,36 +162,36 @@ category intersections, recovery from zero results, responsive mobile
 layout and preserving existing card features. Node tests validate search
 logic independently.
 
-## Fix: make full AI replies and web sources visible on small screens
+## Extra-large Beauty Concierge chat and full-window reading view
 
-The Beauty Concierge used to have a fixed 690px mobile card height.
-After a conversation started, the quick prompts, follow-up suggestions,
-web-search toggle and composer could consume nearly all that height,
-leaving **only a tiny sliver of the actual answer** visible. This looked
-like live search was broken even when the Worker returned working links.
+A larger chat window is now a **first-class part of the visual design**, not
+just a narrow scroll strip under suggestions.
 
-- The card now **grows with its content** instead of shrinking the
-  conversation to make the controls fit.
-- On narrow screens (up to 940px) the entire transcript, including all
-  sourced answers, uses **normal page scrolling** instead of a nested
-  scroll area. Longer replies and source lists remain readable.
-- On desktops the transcript has a generous dedicated scroll region,
-  with a minimum height of 390px.
-- Once a conversation starts, the **introductory quick prompts collapse**
-  to prioritize the answer; the contextual follow-up suggestions remain.
-  Starting a New Chat restores the introductory prompts.
-- When a mobile reply finishes, the page **reveals the new answer** rather
-  than staying anchored to the input. Visitors who are reading older
-  messages during a request are not forcibly interrupted.
-- This is a frontend-only fix; it changes no Worker secrets, search
-  sources, conversation storage or API requests.
+- The standard desktop chat transcript is **at least 720px tall** and may
+  grow to 1000px depending on the viewport (previously only 390px).
+  Its dedicated transcript region scrolls independently of the composer.
+- On phones and tablets up to 940px wide, the transcript reserves
+  **at least 600px** and up to 850px on taller screens (formerly 280–310px).
+  The **entire transcript and sourced answers** are visible in normal
+  page scrolling; there is no nested tiny scrollbar.
+- Desktop Beauty Concierge now takes a **larger share of the editorial
+  cover width**. Chat bubbles are 16px with clearer 14px source links.
+- **Expand** in the chat header opens the SAME conversation as an almost
+  full-window consultation, on either desktop or phone. This keeps all
+  previous messages, live web-source links, input and search toggle.
+  Click **Close** or press **Escape** to return to the normal page;
+  keyboard focus stays within the large consultation while open.
+- After the first message, the introductory quick prompts hide to free
+  up space. Contextual follow-ups remain in normal view. **New Chat**
+  restores the introductory prompts.
+- The Cloudflare Worker, API key handling, product selection, browser
+  translation and saved state are unchanged.
 
-A real Chrome smoke test reproduces the screenshot conditions
-(**594 × 690**), sends a follow-up live-search question, checks
-that the conversation is at least 280px tall, verifies that its
-source links are fully inside the transcript, and confirms the input
-does not overlap the answer. The desktop, 375px phone, accessibility
-and RTL tests still run.
+**Verification:** a real-browser smoke test checks at least 720px of
+conversation at desktop, at least 600px on **320px, 375px, 594px and
+768px** mobile/tablet layouts, intact live-source links, no composer
+overlap or sideways scrolling, and Expand / Escape / restoration
+without losing the chat.
 
 ## Troubleshooting: live-search failures in a specific browser
 
