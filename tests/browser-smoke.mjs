@@ -1042,6 +1042,64 @@ try {
 
 
 
+  // Regression for the cramped Beauty Concierge screenshot (594x690):
+  // suggestion controls used to consume nearly all the fixed-height card,
+  // leaving only a ~40px strip where sourced answers should have appeared.
+  const replyLayout = await setupPage(594, 690, true, true);
+  await sendQuestion(replyLayout, "Help me find a L'Oréal fragrance.");
+  await replyLayout.click("#webSearchToggle");
+  await sendQuestion(replyLayout, "Latest L'Oréal Paris fragrances with sources?");
+  const replyGeometry = await replyLayout.evaluate(() => {
+    const advisor = document.querySelector("#concierge");
+    const chat = document.querySelector("#chatWindow");
+    const composer = document.querySelector(".advisor__composer");
+    const latest = chat.querySelector(".message.ai:last-child");
+    const source = latest.querySelector(".chat-source-link");
+    const chatBox = chat.getBoundingClientRect();
+    const sourceBox = source?.getBoundingClientRect();
+    return {
+      advisorHeight:advisor.getBoundingClientRect().height,
+      chatHeight:chatBox.height,
+      chatScrollHeight:chat.scrollHeight,
+      chatClientHeight:chat.clientHeight,
+      chatOverflow:getComputedStyle(chat).overflowY,
+      composerTop:composer.getBoundingClientRect().top,
+      chatBottom:chatBox.bottom,
+      sources:latest.querySelectorAll(".chat-source-link").length,
+      sourceInside:!!sourceBox && sourceBox.top >= chatBox.top &&
+        sourceBox.bottom <= chatBox.bottom + 2,
+      initialPromptDisplay:getComputedStyle(document.querySelector("#miniPrompts")).display,
+      followUpsVisible:!document.querySelector("#followUpSuggestions").hidden,
+      overflow:document.documentElement.scrollWidth - innerWidth
+    };
+  });
+  assert.ok(replyGeometry.chatHeight >= 280,
+    "Conversation area must not collapse below 280px when all controls are present");
+  assert.equal(replyGeometry.chatOverflow, "visible",
+    "Narrow layouts use normal page scrolling, not a tiny nested scrollbar");
+  assert.ok(replyGeometry.chatScrollHeight <= replyGeometry.chatClientHeight + 2,
+    "Entire answer should fit naturally in the mobile conversation");
+  assert.ok(replyGeometry.composerTop >= replyGeometry.chatBottom - 2,
+    "Composer may not overlap or conceal the conversation");
+  assert.equal(replyGeometry.sources, 1);
+  assert.equal(replyGeometry.sourceInside, true,
+    "Web source link is inside the visible expanded transcript");
+  assert.equal(replyGeometry.initialPromptDisplay, "none",
+    "One-time prompt choices should no longer crowd an active conversation");
+  assert.equal(replyGeometry.followUpsVisible, true);
+  assert.ok(replyGeometry.overflow <= 2,
+    "Expanded mobile conversation must not create sideways scrolling");
+  await replyLayout.waitForFunction(() => {
+    const bubble = document.querySelector("#chatWindow .message.ai:last-child");
+    const top = bubble?.getBoundingClientRect().top;
+    return typeof top === "number" && top >= -4 && top < innerHeight;
+  }, {timeout:5000});
+  await replyLayout.screenshot({path:"/tmp/beauty-chat-reply-visible.png",fullPage:true});
+  await replyLayout.click("#resetBtn");
+  assert.notEqual(await replyLayout.$eval("#miniPrompts", el => getComputedStyle(el).display),
+    "none", "New Chat restores introductory prompt shortcuts");
+  await replyLayout.close();
+
   // Reproduce a blocked Worker request on the phone and ensure that its
   // diagnostic can be expanded without exposing the visitor's message.
   const diagnosticsPhone = await setupPage(375, 812, true, true);
