@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#251b20" />
   <!-- Build marker for checking whether a browser has the latest published page. -->
   <meta name="beauty-atelier-build" content="2026-11-19-balanced-chat" />
-  <meta name="beauty-atelier-art-version" content="sculpted-icons-v2" />
+  <meta name="beauty-atelier-art-version" content="real-product-photography" />
   <meta name="description" content="Discover makeup, skincare, haircare and fragrance with Beauty Atelier, a personalized L’Oréal-inspired student concept." />
   <title>Beauty Atelier — The Beauty Edit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,253 +16,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="routine-builder.css" />
-  <link rel="stylesheet" href="atelier-redesign.css?v=20261119-sculpted-v2" />
+  <link rel="stylesheet" href="atelier-redesign.css?v=20261119-real-products" />
 </head>
 <body>
   <a class="skip-link" href="#concierge">Skip to beauty advisor</a>
   <div class="reading-progress" aria-hidden="true"><span id="readingProgressBar"></span></div>
-  <!-- Original Atelier Studio product vectors. Shared across product cards and chat;
-       independent student artwork, not photographs or official product renders. -->
-  <svg class="beauty-icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" width="0" height="0">
-    <defs>
-      <!-- Material palette: glass, translucent liquid, lacquer, satin gold, polished chrome. -->
-      <linearGradient id="ui-gold" x1="0" y1="0" x2="1" y2=".08">
-        <stop stop-color="#654725"/><stop offset=".14" stop-color="#b78c53"/>
-        <stop offset=".32" stop-color="#fff0bf"/><stop offset=".49" stop-color="#c89f61"/>
-        <stop offset=".7" stop-color="#f8db9d"/><stop offset=".9" stop-color="#a47440"/>
-        <stop offset="1" stop-color="#614528"/>
-      </linearGradient>
-      <linearGradient id="ui-glass" x1="0" y1="0" x2="1" y2=".15">
-        <stop stop-color="#b78a75" stop-opacity=".95"/>
-        <stop offset=".11" stop-color="#ffffff" stop-opacity=".98"/>
-        <stop offset=".3" stop-color="#fff9eb" stop-opacity=".88"/>
-        <stop offset=".65" stop-color="#eacbb4" stop-opacity=".92"/>
-        <stop offset=".89" stop-color="#f9e9d8" stop-opacity=".98"/>
-        <stop offset="1" stop-color="#a97664" stop-opacity=".92"/>
-      </linearGradient>
-      <linearGradient id="ui-amber" x1="0" y1="0" x2="1" y2=".18">
-        <stop stop-color="#6f382b"/><stop offset=".14" stop-color="#b8764f"/>
-        <stop offset=".33" stop-color="#fac98e"/><stop offset=".65" stop-color="#e2a46a"/>
-        <stop offset=".86" stop-color="#a96246"/><stop offset="1" stop-color="#6b3c35"/>
-      </linearGradient>
-      <linearGradient id="ui-noir" x1="0" y1="0" x2="1" y2=".08">
-        <stop stop-color="#080809"/><stop offset=".18" stop-color="#3d3539"/>
-        <stop offset=".33" stop-color="#6b5e5a"/><stop offset=".45" stop-color="#1e1c20"/>
-        <stop offset=".78" stop-color="#29252a"/><stop offset="1" stop-color="#050608"/>
-      </linearGradient>
-      <linearGradient id="ui-berry" x1="0" y1=".1" x2="1" y2=".3">
-        <stop stop-color="#581d37"/><stop offset=".2" stop-color="#b3415d"/>
-        <stop offset=".42" stop-color="#f48496"/><stop offset=".7" stop-color="#d64a67"/>
-        <stop offset="1" stop-color="#5b203c"/>
-      </linearGradient>
-      <linearGradient id="ui-satin" x1="0" y1="0" x2="1" y2=".12">
-        <stop stop-color="#eee1c7"/><stop offset=".17" stop-color="#ffffff"/>
-        <stop offset=".51" stop-color="#fbf7ec"/><stop offset=".86" stop-color="#e6d9bd"/>
-        <stop offset="1" stop-color="#bd9d72"/>
-      </linearGradient>
-      <linearGradient id="ui-roseglass" x1="0" y1="0" x2="1" y2=".18">
-        <stop stop-color="#af6471"/><stop offset=".15" stop-color="#ffe8e2"/>
-        <stop offset=".4" stop-color="#f3c5c4"/><stop offset=".72" stop-color="#e4a3ae"/>
-        <stop offset=".93" stop-color="#f9e2d7"/><stop offset="1" stop-color="#99616f"/>
-      </linearGradient>
-      <linearGradient id="ui-sheen" x1="0" y1="0" x2="1" y2="0">
-        <stop stop-color="#ffffff" stop-opacity="0"/>
-        <stop offset=".33" stop-color="#ffffff" stop-opacity=".78"/>
-        <stop offset=".72" stop-color="#ffffff" stop-opacity=".14"/>
-        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-      </linearGradient>
-      <linearGradient id="ui-mirror" x1="0" y1="0" x2=".9" y2="1">
-        <stop stop-color="#b6c5c9"/><stop offset=".19" stop-color="#fbfaf6"/>
-        <stop offset=".42" stop-color="#d4dde0"/><stop offset=".69" stop-color="#faf9f5"/>
-        <stop offset="1" stop-color="#93a9b0"/>
-      </linearGradient>
-      <radialGradient id="ui-powder" cx=".35" cy=".28" r=".9">
-        <stop stop-color="#f7d6c0"/><stop offset=".54" stop-color="#d7a48c"/>
-        <stop offset="1" stop-color="#9a624d"/>
-      </radialGradient>
-      <radialGradient id="ui-liquid" cx=".42" cy=".3" r=".8">
-        <stop stop-color="#ffe8bd" stop-opacity=".91"/>
-        <stop offset=".62" stop-color="#e5aa7e" stop-opacity=".85"/>
-        <stop offset="1" stop-color="#ab6275" stop-opacity=".83"/>
-      </radialGradient>
-      <filter id="ui-shadow" x="-.4" y="-.8" width="1.8" height="2.4">
-        <feGaussianBlur stdDeviation="2.1"/>
-      </filter>
-
-      <!-- Studio v2: tiny, directional highlights used by all five original icons.
-           No external product images, filters or fonts are required. -->
-      <linearGradient id="ui-bevel-v2" x1="0" y1="0" x2="1" y2=".7">
-        <stop offset="0" stop-color="#ffffff" stop-opacity=".9"/>
-        <stop offset=".23" stop-color="#fff8e8" stop-opacity=".21"/>
-        <stop offset=".62" stop-color="#caa796" stop-opacity=".1"/>
-        <stop offset="1" stop-color="#6e3e4c" stop-opacity=".44"/>
-      </linearGradient>
-      <linearGradient id="ui-prism-v2" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#ffffff" stop-opacity=".75"/>
-        <stop offset=".3" stop-color="#f8d6ee" stop-opacity=".38"/>
-        <stop offset=".65" stop-color="#ffd8a1" stop-opacity=".12"/>
-        <stop offset="1" stop-color="#ffffff" stop-opacity=".6"/>
-      </linearGradient>
-      <linearGradient id="ui-rose-metal-v2" x1="0" y1="0" x2="1" y2=".22">
-        <stop offset="0" stop-color="#623b3b"/>
-        <stop offset=".15" stop-color="#e9bd9d"/>
-        <stop offset=".33" stop-color="#fff6df"/>
-        <stop offset=".57" stop-color="#b97d69"/>
-        <stop offset=".77" stop-color="#f4d9b6"/>
-        <stop offset="1" stop-color="#694642"/>
-      </linearGradient>
-      <radialGradient id="ui-crystal-v2" cx=".26" cy=".15" r=".96">
-        <stop offset="0" stop-color="#ffffff" stop-opacity=".8"/>
-        <stop offset=".28" stop-color="#ffead8" stop-opacity=".15"/>
-        <stop offset="1" stop-color="#9b5d70" stop-opacity=".24"/>
-      </radialGradient>
-
-      <!-- 01: pearly pipette with amber liquid suspended inside a faceted serum bottle -->
-      <symbol id="ui-serum" viewBox="0 0 80 80">
-        <ellipse cx="40" cy="73" rx="23" ry="3.6" fill="#3e281d" opacity=".29" filter="url(#ui-shadow)"/>
-        <rect x="33.6" y="7.5" width="12.8" height="17" rx="3" fill="url(#ui-noir)" stroke="#8a7964" stroke-width=".5"/>
-        <path d="M36.2 10v10M39 9.6v11M41.8 9.6v11M44.3 10v10" stroke="#fff1cb" stroke-width=".55" opacity=".25"/>
-        <path d="M35 8.7h10.2" stroke="#fff0d7" opacity=".66" stroke-width=".85"/>
-        <rect x="30.4" y="23.5" width="19.2" height="6.8" rx="1.5" fill="url(#ui-gold)" stroke="#fff0c8" stroke-width=".55"/>
-        <path d="M33 27.9H47" stroke="#6c4b2a" opacity=".5" stroke-width=".8"/>
-        <rect x="37.8" y="30" width="4.4" height="28" rx="2.1" fill="#fff8e5" opacity=".38"/>
-        <path d="M28.5 28.8H51.5Q57.5 28.8 58.5 36.3L59.9 62.1Q60.2 69.9 52.5 70.6H27.5Q19.8 69.9 20.1 62.1L21.5 36.3Q22.5 28.8 28.5 28.8Z" fill="url(#ui-glass)" stroke="#fff8e9" stroke-width="1.6"/>
-        <path d="M23.5 47Q39.5 50.2 56.5 46.6L57 62Q56.9 68.1 51.6 68.3H28.7Q23 68.1 23 61.8Z" fill="url(#ui-liquid)" opacity=".75"/>
-        <path d="M25.9 34.4Q24.4 47 25.7 60.5" fill="none" stroke="#fff" stroke-width="3.1" stroke-linecap="round" opacity=".83"/>
-        <path d="M54.5 35Q56.4 48.5 55 59.2" fill="none" stroke="#8d5c53" stroke-width="1.4" opacity=".23"/>
-        <rect x="27.1" y="43.1" width="25.8" height="20.3" rx="1.4" fill="url(#ui-satin)" stroke="#efdbc0" stroke-width=".65"/>
-        <path d="M28.9 44.8H51" stroke="#fff" stroke-width="1.4" opacity=".8"/>
-        <text x="40" y="51.3" fill="#554232" font-family="Georgia,serif" font-size="5.1" letter-spacing=".35" text-anchor="middle">ATELIER</text>
-        <path d="M33 54.6H47" stroke="#987344" stroke-width=".6"/>
-        <text x="40" y="59.9" fill="#886b52" font-family="Arial,sans-serif" font-size="3.6" letter-spacing="1" text-anchor="middle">SERUM</text>
-        <path d="M27.3 67.5Q39.6 70.1 52.3 67.4" fill="none" stroke="#fff5d8" stroke-width="1" opacity=".75"/>
-        <path d="M47 31.4l4 2.1" stroke="#fff" stroke-width="1.1" opacity=".64"/>
-        <!-- Thick beveled glass edges and refracted liquid highlights. -->
-        <path d="M22.9 35.6L25.4 32.7L26.4 64.8L24.4 67Z" fill="url(#ui-bevel-v2)" opacity=".49"/>
-        <path d="M54.5 33L57.4 36.2L57.8 61.7L54.5 65.6Z" fill="url(#ui-prism-v2)" opacity=".65"/>
-        <path d="M30 65.6Q40.2 67.1 50.8 65.6" fill="none" stroke="#fff7e5" stroke-width=".95" opacity=".9"/>
-        <path d="M34.3 12.2v7.7" stroke="#fff6da" stroke-width=".9" opacity=".65"/>
-        <path d="M46.6 26.1h2" stroke="#fff7e4" stroke-width=".8" opacity=".7"/>
-        <path d="M29 41.1h22" stroke="#ffffff" stroke-width=".5" opacity=".48"/>
-        <circle cx="56.1" cy="34.2" r=".9" fill="#ffffff" opacity=".95"/>
-      </symbol>
-
-      <!-- 02: sculpted rose bullet, gold collar, black lacquered lipstick case -->
-      <symbol id="ui-lipstick" viewBox="0 0 80 80">
-        <ellipse cx="39" cy="72.6" rx="21.5" ry="4.1" fill="#2b1b1b" opacity=".27" filter="url(#ui-shadow)"/>
-        <g transform="rotate(-13 40 41)">
-          <path d="M29.1 14.4Q35.7 4.1 48.5 6.6Q51.8 7.1 51.8 12.2V32H29.1Z" fill="url(#ui-berry)" stroke="#672436" stroke-width=".65"/>
-          <path d="M29.2 14.4Q39 16 51.8 7.4V15.2Q38.6 24.8 29.2 21Z" fill="#fa98a3" opacity=".68"/>
-          <path d="M32 13.6Q37.4 9.6 42.3 9.8" stroke="#ffd0c7" opacity=".73" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <path d="M32.1 22Q30.9 26.3 32.7 31" stroke="#ffb2b3" opacity=".49" stroke-width="1.5" fill="none"/>
-          <rect x="27.2" y="31.4" width="26" height="11.1" rx="1.6" fill="url(#ui-gold)" stroke="#fff4d7" stroke-width=".65"/>
-          <path d="M29.1 33H51.5M28.6 40.2H51.6" stroke="#714825" stroke-width=".8" opacity=".52"/>
-          <path d="M34.5 33.7V40" stroke="white" opacity=".52" stroke-width="2.1"/>
-          <rect x="25.6" y="41.6" width="29.3" height="29.3" rx="3.3" fill="url(#ui-noir)" stroke="#857369" stroke-width=".85"/>
-          <path d="M29 45V66.4" stroke="url(#ui-sheen)" stroke-width="3.1" opacity=".67"/>
-          <path d="M52 45V66" stroke="#5f4e49" stroke-width="1.4" opacity=".75"/>
-          <path d="M26.9 65.6H53.9" stroke="#a88757" stroke-width="1.4"/>
-          <path d="M33 57.8H47" stroke="#c9ad7e" stroke-width=".65"/>
-          <text x="40.3" y="55.1" font-family="Georgia,serif" font-size="4.2" letter-spacing=".35" fill="#f3d9a8" text-anchor="middle">ATELIER</text>
-          <rect x="27.5" y="68.5" width="25.6" height="1.1" rx=".5" fill="#f2d399" opacity=".65"/>
-        </g>
-        <!-- Satin rose pigment, beveled gold cuff and piano-lacquer gleam. -->
-        <path d="M30.8 16.4Q32.5 12.7 37.9 10.7" fill="none" stroke="#ffe4d3" stroke-width="1.35" opacity=".93" stroke-linecap="round"/>
-        <path d="M47.9 11.4V28.7" stroke="#5b1835" stroke-width="1.8" opacity=".26"/>
-        <path d="M28.8 35.7H51.4" stroke="#fff8e1" stroke-width=".85" opacity=".83"/>
-        <path d="M29.7 45.2V63.5" stroke="#ffffff" stroke-width="1.4" opacity=".5" stroke-linecap="round"/>
-        <path d="M46.7 45V63.9" stroke="#f4d7b0" stroke-width=".65" opacity=".37"/>
-        <path d="M26.5 67.2h27.2" stroke="#f0c996" stroke-width=".75" opacity=".79"/>
-        <path d="M31.5 43.4h17.4" stroke="url(#ui-rose-metal-v2)" stroke-width="1.25" opacity=".82"/>
-      </symbol>
-
-      <!-- 03: faceted, rose-liquid fragrance bottle with heavy glass base -->
-      <symbol id="ui-perfume" viewBox="0 0 80 80">
-        <ellipse cx="40" cy="73" rx="29" ry="4" fill="#3a2629" opacity=".25" filter="url(#ui-shadow)"/>
-        <rect x="31.5" y="6.5" width="17" height="17.7" rx="2.8" fill="url(#ui-gold)" stroke="#fff2d5" stroke-width=".9"/>
-        <path d="M34.9 9.2h9.9" stroke="#fff9e7" stroke-width="1.4" opacity=".69"/>
-        <path d="M46 10v11.2" stroke="#69512c" stroke-width=".8" opacity=".45"/>
-        <rect x="29.5" y="23.1" width="21" height="6.8" rx="1.3" fill="url(#ui-noir)" stroke="#bfa67b" stroke-width=".7"/>
-        <path d="M16.8 29.5H63.2Q67.5 29.5 68 34L69.4 63Q69.5 69.5 63 70.2H17Q10.5 69.5 10.6 63L12 34Q12.5 29.5 16.8 29.5Z" fill="url(#ui-roseglass)" stroke="#fff6e6" stroke-width="1.7"/>
-        <path d="M15 34l5.5-2.2V66.5L15.3 64Z" fill="#fff" opacity=".23"/>
-        <path d="M65 33l-5.5-1.2V67L65.7 64Z" fill="#94586f" opacity=".19"/>
-        <path d="M15.3 49.4Q41 54.9 65 48.6L64.6 61.5Q64.4 66.4 59 66.9H20.4Q15.5 66.4 15.3 61.5Z" fill="url(#ui-liquid)" opacity=".68"/>
-        <path d="M20.5 32.2L23 64" stroke="#fff" stroke-width="3.5" opacity=".62" stroke-linecap="round"/>
-        <path d="M61.7 33L59.6 64" stroke="#fff" stroke-width="1.4" opacity=".57"/>
-        <rect x="24.5" y="41.3" width="31" height="21.4" rx="1.2" fill="url(#ui-satin)" stroke="#fff9ee" stroke-width="1.1"/>
-        <path d="M28 44.4H52" stroke="#bc996d" stroke-width=".55"/>
-        <text x="40" y="51.3" font-family="Georgia,serif" font-size="5.5" letter-spacing=".3" text-anchor="middle" fill="#654637">ATELIER</text>
-        <path d="M34 54H46" stroke="#b99b7d" stroke-width=".6"/>
-        <text x="40" y="59.5" font-family="Arial,sans-serif" font-size="3.7" letter-spacing=".8" text-anchor="middle" fill="#835d54">PARFUM</text>
-        <path d="M17 66.9Q40 70.8 63 66.9" stroke="#fff8df" stroke-width="1.5" opacity=".85" fill="none"/>
-        <path d="M14 36l3-3" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
-        <!-- Cut crystal shoulders, amber-pink depth and a weighty glass heel. -->
-        <path d="M14.7 33.1L19.2 30.9L20.3 64.9L16.2 67Z" fill="url(#ui-crystal-v2)" opacity=".63"/>
-        <path d="M64.1 31L66.6 33.6L67.4 62.9L63.7 67.3Z" fill="url(#ui-prism-v2)" opacity=".64"/>
-        <path d="M20.7 69L24 65.9H56L60.6 69" stroke="#fff9ec" stroke-width="1.3" fill="none" opacity=".86"/>
-        <path d="M21.8 32.7l2.3 5.8M58.1 33.1l-2.3 5.5" stroke="#ffffff" stroke-width="1" stroke-linecap="round" opacity=".58"/>
-        <path d="M34.9 12.1h9.6M35.2 15.1h9.4" stroke="#fff7db" stroke-width=".55" opacity=".82"/>
-        <path d="M27.5 43.5H52.6" stroke="#ffffff" stroke-width=".8" opacity=".7"/>
-        <path d="M34.4 68.1H47.2" stroke="#f7cbb3" stroke-width="1" opacity=".64"/>
-        <circle cx="63.7" cy="35.2" r="1.1" fill="#ffffff" opacity=".96"/>
-      </symbol>
-
-      <!-- 04: open jewel-like compact, soft mirror reflection and blush powder -->
-      <symbol id="ui-compact" viewBox="0 0 80 80">
-        <ellipse cx="40" cy="74" rx="29" ry="3.6" fill="#35251b" opacity=".26" filter="url(#ui-shadow)"/>
-        <path d="M15.5 43Q15.5 14 40 12Q64.5 14 64.5 43L62 47H18Z" fill="url(#ui-gold)" stroke="#fef0c8" stroke-width="1.1"/>
-        <path d="M20 42Q20.6 20.2 40 18Q59.4 20.2 60 42L57 44H23Z" fill="url(#ui-mirror)" stroke="#886e4e" stroke-width=".85"/>
-        <path d="M22.9 39Q30 22.3 51.6 21.8L24 42Z" fill="#fff" opacity=".39"/>
-        <path d="M42 21Q52 24 56.2 35" stroke="#fff" stroke-width="1.65" fill="none" stroke-linecap="round" opacity=".67"/>
-        <path d="M16.5 43.9H63.5Q68 43.9 69 48.5L70.2 58.8Q69.2 70.8 40 72.4Q10.8 70.8 9.8 58.8L11 48.5Q12 43.9 16.5 43.9Z" fill="url(#ui-gold)" stroke="#fff0c8" stroke-width="1.2"/>
-        <ellipse cx="40" cy="48.2" rx="28" ry="9.4" fill="#ae784f" stroke="#ffe9bb" stroke-width="1.1"/>
-        <ellipse cx="40" cy="47.1" rx="25" ry="7.2" fill="url(#ui-powder)" stroke="#f9d6ad" stroke-width=".75"/>
-        <path d="M21 45Q41 40.6 60 45" fill="none" stroke="#ffecdb" opacity=".5" stroke-width="1.6"/>
-        <path d="M13.5 55Q40 65.3 66.3 55" fill="none" stroke="#fff2cc" stroke-width="1.7" opacity=".68"/>
-        <path d="M15.2 61.1Q39.9 70 64.9 61.1" fill="none" stroke="#815d36" stroke-width=".75" opacity=".6"/>
-        <rect x="35.2" y="60.1" width="9.6" height="4.1" rx="1.2" fill="url(#ui-noir)" stroke="#f9d59c" stroke-width=".7"/>
-        <path d="M19 66.4Q40 72.8 61 66.4" stroke="#fff5d6" stroke-width="1" opacity=".47" fill="none"/>
-        <!-- Polished rim, iridescent mirror facet and pressed-powder sheen. -->
-        <path d="M23 39Q28 25.5 40.6 22.3" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".52"/>
-        <path d="M51.4 24.1Q56 28.6 58 37.3" stroke="#fff1dc" stroke-width=".9" fill="none" opacity=".7"/>
-        <path d="M18 43.6Q41 41.8 62 43.7" stroke="#fff4d2" stroke-width="1.15" fill="none" opacity=".9"/>
-        <path d="M17 49.8Q40 56.4 63 49.8" stroke="#fff2db" stroke-width=".85" fill="none" opacity=".6"/>
-        <path d="M22.6 46.8Q40.2 43.7 57.3 46.8" stroke="#ffe8d2" stroke-width=".95" opacity=".65" fill="none"/>
-        <path d="M13.4 60.2Q40 68.2 66.5 60.2" stroke="url(#ui-rose-metal-v2)" stroke-width="1.75" opacity=".8" fill="none"/>
-        <path d="M33 21.6l1.3-2.9 1.2 2.9 2.9 1.2-2.9 1.1-1.2 2.8-1.3-2.8-2.7-1.1Z" fill="#ffffff" opacity=".77"/>
-      </symbol>
-
-      <!-- 05: bronze pump, deep amber hair serum and soft-cream label -->
-      <symbol id="ui-hair" viewBox="0 0 80 80">
-        <ellipse cx="41" cy="73.7" rx="23" ry="3.2" fill="#302521" opacity=".27" filter="url(#ui-shadow)"/>
-        <rect x="33.1" y="17.2" width="14" height="12.2" rx="2.4" fill="url(#ui-noir)" stroke="#98816a" stroke-width=".65"/>
-        <path d="M36.5 18V9.5H61Q64 9.5 64 12.8V16.5H57.4V13.8H45V18Z" fill="url(#ui-gold)" stroke="#7f5d3d" stroke-width=".65"/>
-        <rect x="55.3" y="13.3" width="10.2" height="3.8" rx="1.2" fill="url(#ui-noir)"/>
-        <path d="M39 17V9.7" stroke="#fff9e4" stroke-width="1.5" opacity=".66"/>
-        <rect x="22.2" y="28" width="35.6" height="42.1" rx="9.1" fill="url(#ui-amber)" stroke="#f1d1a8" stroke-width="1.2"/>
-        <path d="M24.8 36.4Q27.6 30 34 30H48.2" stroke="#fff4df" opacity=".65" stroke-width="1.3" fill="none"/>
-        <path d="M27.9 34Q26.8 53.7 28.8 63.7" stroke="#ffe5bc" stroke-width="3.2" opacity=".67" stroke-linecap="round" fill="none"/>
-        <path d="M53.5 33.7Q55.6 49.4 53.2 63" stroke="#5b2822" stroke-width="1.5" opacity=".35" fill="none"/>
-        <path d="M25 58.5Q40 62.4 55 58.1V63Q55 68 49.6 68H30.4Q25 68 25 63Z" fill="#5f3025" opacity=".14"/>
-        <rect x="29" y="43.1" width="22.2" height="19.9" rx="1.3" fill="url(#ui-satin)" stroke="#ffe8c8" stroke-width=".65"/>
-        <path d="M31 46H49" stroke="#e2cbaa" stroke-width=".7"/>
-        <text x="40.1" y="51.8" font-family="Georgia,serif" font-size="4.9" letter-spacing=".25" fill="#63452f" text-anchor="middle">ATELIER</text>
-        <path d="M34.7 54.8H45.4" stroke="#9d7452" stroke-width=".65"/>
-        <text x="40" y="60" font-family="Arial,sans-serif" font-size="3.5" letter-spacing=".8" fill="#8b6c4e" text-anchor="middle">HAIR</text>
-        <path d="M29 68H51" stroke="#ffdfaf" stroke-width="1" opacity=".65"/>
-        <!-- Rounded amber bottle, embossed label and luminous rose-gold pump. -->
-        <path d="M23.6 37L25.5 33.6V63.7L27.3 67.5" stroke="#fff8dd" stroke-width="1.2" opacity=".56" fill="none" stroke-linecap="round"/>
-        <path d="M52.9 34.2Q55 47.4 53.5 60.2" stroke="#ffe2b0" stroke-width=".8" opacity=".62" fill="none"/>
-        <path d="M25.3 31.5Q40 28.7 54.6 31.4" stroke="#fff6df" stroke-width=".75" opacity=".68" fill="none"/>
-        <path d="M31.1 44.8h17.8" stroke="#ffffff" stroke-width=".7" opacity=".84"/>
-        <path d="M30.5 64.4H49.5" stroke="#ffe5be" stroke-width="1.2" opacity=".74"/>
-        <path d="M37.4 11.8H56.8" stroke="url(#ui-rose-metal-v2)" stroke-width="1" opacity=".9"/>
-        <path d="M46.5 18.5v7.5" stroke="#fff7d4" stroke-width=".8" opacity=".55"/>
-        <circle cx="26.9" cy="34.2" r=".9" fill="#ffffff" opacity=".9"/>
-      </symbol>
-    </defs>
-  </svg>
-  <div class="announcement"><span class="announcement__product" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span><span class="announcement__copy">THE ATELIER EDITION <b>✦</b> AN EXTRAORDINARY BEAUTY EXPERIENCE</span><span class="announcement__product" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span></div>
+  <!-- Real L'Oréal Paris photographed products; no fake illustrations. -->
+  <div class="announcement"><span class="announcement__product" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="lancome-fragrance" alt="" width="80" height="80" loading="lazy" decoding="async" /></span><span class="announcement__copy">THE ATELIER EDITION <b>✦</b> AN EXTRAORDINARY BEAUTY EXPERIENCE</span><span class="announcement__product" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="colour-riche" alt="" width="80" height="80" loading="lazy" decoding="async" /></span></div>
   <header class="site-header page-width">
     <a class="brand" href="#top">
       <span class="brand__mark">
@@ -293,63 +53,19 @@
         <div class="hero-art">
           <span class="hero-art__issue" aria-hidden="true">MAISON<br /><strong>ATELIER</strong><small>ISSUE 01 / PERSONAL BEAUTY</small></span>
           <div class="hero-art__spotlight" aria-hidden="true"></div>
-          <div class="hero-art__orbit hero-art__orbit--serum" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></div>
-          <div class="hero-art__orbit hero-art__orbit--lipstick" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></div>
-          <!-- Original vector still life; no third-party photography or model likeness. -->
-          <svg class="hero-art__still-life" viewBox="0 0 800 480" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="artwork-title" xmlns="http://www.w3.org/2000/svg">
-            <title id="artwork-title">Original luxury beauty still life featuring an imaginary perfume bottle and lipstick on a sculptural pedestal</title>
-            <defs>
-              <linearGradient id="studio-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8c2b5"/><stop offset=".52" stop-color="#e7d9ce"/><stop offset="1" stop-color="#a07c70"/></linearGradient>
-              <radialGradient id="studio-glow"><stop offset="0" stop-color="#fff8eb" stop-opacity=".88"/><stop offset="1" stop-color="#fff8eb" stop-opacity="0"/></radialGradient>
-              <linearGradient id="glass" x1="0" y1="0" x2="1" y2=".16"><stop offset="0" stop-color="#c49d8b" stop-opacity=".81"/><stop offset=".16" stop-color="#fff6e7" stop-opacity=".92"/><stop offset=".54" stop-color="#efd5bf" stop-opacity=".78"/><stop offset=".81" stop-color="#ffe9d6" stop-opacity=".84"/><stop offset="1" stop-color="#95695b" stop-opacity=".84"/></linearGradient>
-              <linearGradient id="liquid" x1="0" x2="1"><stop offset="0" stop-color="#be7e66"/><stop offset=".28" stop-color="#f0c4a3"/><stop offset=".72" stop-color="#d59681"/><stop offset="1" stop-color="#a76b61"/></linearGradient>
-              <linearGradient id="metal" x1="0" x2="1"><stop offset="0" stop-color="#644d46"/><stop offset=".2" stop-color="#e9c6a3"/><stop offset=".51" stop-color="#fff1d2"/><stop offset=".79" stop-color="#ba9274"/><stop offset="1" stop-color="#5c403b"/></linearGradient>
-              <linearGradient id="plinth" x1="0" x2="1"><stop offset="0" stop-color="#b29b90"/><stop offset=".28" stop-color="#f5e7d9"/><stop offset=".78" stop-color="#e3cfc1"/><stop offset="1" stop-color="#9b8277"/></linearGradient>
-              <linearGradient id="lipstick" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b324a"/><stop offset=".48" stop-color="#d45a6a"/><stop offset="1" stop-color="#6b263d"/></linearGradient>
-              <filter id="still-shadow" x="-60%" y="-60%" width="220%" height="250%"><feGaussianBlur stdDeviation="17"/></filter>
-            </defs>
-            <rect width="800" height="480" fill="url(#studio-bg)"/>
-            <ellipse cx="245" cy="125" rx="380" ry="290" fill="url(#studio-glow)"/>
-            <path d="M205 490V139a208 208 0 0 1 416 0v351" fill="none" stroke="#fff9ef" stroke-width="1.5" opacity=".46"/>
-            <path d="M239 490V145a173 173 0 0 1 346 0v345" fill="#f8ece4" opacity=".18"/>
-            <circle cx="156" cy="94" r="89" fill="#ffefe0" opacity=".23"/>
-            <path d="M660 49c-100 67-107 147-44 192 66-45 94-129 44-192z" fill="#bb817a" opacity=".34"/>
-            <path d="M709 111c-92 25-117 101-86 169 68-18 110-91 86-169z" fill="#f5e0cf" opacity=".53"/>
-            <path d="M682 83c-49 76-64 134-52 213" fill="none" stroke="#916b62" stroke-width="2" opacity=".28"/>
-            <ellipse cx="460" cy="419" rx="300" ry="36" fill="#513930" opacity=".22" filter="url(#still-shadow)"/>
-            <rect x="211" y="374" width="497" height="116" rx="5" fill="url(#plinth)"/>
-            <ellipse cx="459" cy="377" rx="249" ry="40" fill="#f6e8de"/>
-            <ellipse cx="459" cy="377" rx="248" ry="39" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="2"/>
-            <!-- Sculptural perfume flacon, entirely imaginary. -->
-            <ellipse cx="461" cy="363" rx="143" ry="24" fill="#4b2a23" opacity=".18" filter="url(#still-shadow)"/>
-            <rect x="420" y="83" width="83" height="69" rx="8" fill="url(#metal)" stroke="#f9e4c8" stroke-width="2"/>
-            <rect x="414" y="140" width="95" height="19" rx="3" fill="#c59f7f"/>
-            <rect x="425" y="142" width="73" height="11" fill="#faf0d8" opacity=".54"/>
-            <rect x="348" y="157" width="230" height="218" rx="39" fill="url(#glass)" stroke="#fff7e7" stroke-width="4"/>
-            <path d="M365 276h195v56a27 27 0 0 1-27 27H392a27 27 0 0 1-27-27z" fill="url(#liquid)" opacity=".6"/>
-            <rect x="374" y="190" width="178" height="143" rx="14" fill="#fff1e2" opacity=".21"/>
-            <path d="M367 181q-13 94 0 163" fill="none" stroke="#fff" stroke-opacity=".68" stroke-width="13" stroke-linecap="round"/>
-            <path d="M559 185q11 83 0 155" fill="none" stroke="#fff" stroke-opacity=".37" stroke-width="6" stroke-linecap="round"/>
-            <rect x="389" y="222" width="148" height="101" rx="3" fill="#fef4e9" opacity=".85" stroke="#f6dfc9"/>
-            <text x="463" y="250" text-anchor="middle" fill="#493a36" font-size="22" letter-spacing="4" font-family="Georgia,serif">ATELIER</text>
-            <path d="M426 265h74" stroke="#b49781" stroke-width=".9"/>
-            <text x="463" y="284" text-anchor="middle" fill="#9a7567" font-size="10" letter-spacing="3" font-family="Arial,sans-serif">THE BEAUTY EDIT</text>
-            <text x="463" y="305" text-anchor="middle" fill="#926f65" font-size="9" letter-spacing="2" font-family="Arial,sans-serif">EST. FOR YOU</text>
-            <!-- Secondary lipstick silhouette creates editorial depth. -->
-            <g transform="translate(261 244) rotate(-15 33 80)">
-              <ellipse cx="38" cy="147" rx="40" ry="12" fill="#432925" opacity=".16"/>
-              <path d="M12 49q0-28 51-38v61H12z" fill="url(#lipstick)"/>
-              <path d="M12 49q26 8 51-7" fill="none" stroke="#f4a6a2" stroke-width="4" opacity=".54"/>
-              <rect x="9" y="69" width="58" height="20" rx="3" fill="url(#metal)"/>
-              <rect x="7" y="86" width="62" height="65" rx="4" fill="#342a2b"/>
-              <rect x="12" y="89" width="9" height="57" fill="#ffffff" opacity=".13"/>
-              <rect x="7" y="87" width="62" height="5" fill="#e0c09c"/>
-            </g>
-            <circle cx="585" cy="114" r="3" fill="#fff6e8" opacity=".7"/>
-            <circle cx="605" cy="96" r="2" fill="#fff6e8" opacity=".65"/>
-          </svg>
+          <div class="hero-art__orbit hero-art__orbit--serum" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="ha-serum" alt="" width="80" height="80" loading="lazy" decoding="async" /></div>
+          <div class="hero-art__orbit hero-art__orbit--lipstick" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="colour-riche" alt="" width="80" height="80" loading="lazy" decoding="async" /></div>
+          <!-- Actual L'Oréal Paris packshots on a CSS editorial display. -->
+          <div class="hero-art__still-life hero-product-scene" role="img" aria-label="Real L'Oréal Paris RevitaLift serum, moisturizer and Colour Riche lipstick displayed together">
+            <div class="hero-photo-arch" aria-hidden="true"></div>
+            <div class="hero-photo-plinth" aria-hidden="true"></div>
+            <img class="hero-photo hero-photo--cream" data-product-photo="fragrance-free" data-priority="high" alt="" />
+            <img class="hero-photo hero-photo--serum" data-product-photo="ha-serum" data-priority="high" alt="" />
+            <img class="hero-photo hero-photo--lipstick" data-product-photo="colour-riche" data-priority="high" alt="" />
+            <span class="hero-photo-caption" aria-hidden="true">L’ORÉAL PARIS · REAL PRODUCTS</span>
+          </div>
           <div class="hero-art__vertical" aria-hidden="true">BEAUTY, MADE PERSONAL / ISSUE Nº 01</div>
-          <div class="hero-art__label"><span class="hero-art__product-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span><span>THE ATELIER COLLECTION<br /><strong>INDIVIDUAL BY DESIGN</strong></span></div>
+          <div class="hero-art__label"><span class="hero-art__product-icon" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="lancome-fragrance" alt="" width="80" height="80" loading="lazy" decoding="async" /></span><span>THE REAL PRODUCT EDIT<br /><strong>L’ORÉAL PARIS</strong></span></div>
           <div class="hero-art__seal" aria-hidden="true"><span>THE<br /><i>BEAUTY</i><br />EDIT.</span></div>
         </div>
         <div class="hero-caption"><span>CRAFTED FOR THE WAY YOU ARE</span><span>01 <span class="hero-caption__rule"></span> 04</span></div>
@@ -357,7 +73,7 @@
       <section class="advisor" id="concierge" tabindex="-1" aria-labelledby="advisorTitle">
         <div class="advisor__header">
           <div class="advisor__identity">
-            <div class="advisor__avatar" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></div>
+            <div class="advisor__avatar" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="lumi-glotion" alt="" width="80" height="80" loading="lazy" decoding="async" /></div>
             <div><span class="advisor__eyebrow">THE PRIVATE CONSULTATION / 01</span><h2 id="advisorTitle">Beauty Concierge</h2><span class="advisor__availability"><i></i> YOUR BEAUTY EDIT IS OPEN</span></div>
           </div>
           <div class="advisor__header-actions">
@@ -365,7 +81,7 @@
             <button class="reset-btn" id="resetBtn" type="button" title="Start a new conversation"><span aria-hidden="true">↻</span> New chat</button>
           </div>
         </div>
-        <div class="advisor__intro"><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span><span>DISCOVER • EXPLORE • EXPRESS</span><span class="advisor__intro-icon" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span></div>
+        <div class="advisor__intro"><span class="advisor__intro-icon" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="ha-serum" alt="" width="80" height="80" loading="lazy" decoding="async" /></span><span>DISCOVER • EXPLORE • EXPRESS</span><span class="advisor__intro-icon" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="colour-riche" alt="" width="80" height="80" loading="lazy" decoding="async" /></span></div>
         <div class="question-preview" id="questionPreview" hidden>
           <span class="question-preview__label">YOU ASKED</span>
           <p class="question-preview__text" id="questionPreviewText"></p>
@@ -375,9 +91,9 @@
         <div class="advisor__composer">
           <div class="prompt-heading"><span>THE CONVERSATION STARTS HERE</span><span>YOUR EDIT ↓</span></div>
           <div class="quick-prompts" id="miniPrompts" role="group" aria-label="Suggested beauty questions">
-            <button type="button" data-prompt="Help me build a beginner L'Oréal skincare routine for my skin type."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg><span>Build my skincare routine</span></button>
-            <button type="button" data-prompt="Help me find an everyday L'Oréal makeup look for my preferences."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg><span>Find my signature look</span></button>
-            <button type="button" data-prompt="Help me discover a L'Oréal fragrance. Ask me what scents I enjoy."><svg class="beauty-icon beauty-icon--prompt" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg><span>Find my scent</span></button>
+            <button type="button" data-prompt="Help me build a beginner L'Oréal skincare routine for my skin type."><img class="beauty-icon beauty-icon--prompt real-product-shot" data-product-photo="ha-serum" alt="" width="80" height="80" loading="lazy" decoding="async" /><span>Build my skincare routine</span></button>
+            <button type="button" data-prompt="Help me find an everyday L'Oréal makeup look for my preferences."><img class="beauty-icon beauty-icon--prompt real-product-shot" data-product-photo="colour-riche" alt="" width="80" height="80" loading="lazy" decoding="async" /><span>Find my signature look</span></button>
+            <button type="button" data-prompt="Help me discover a fragrance from a L’Oréal Groupe brand like Lancôme. Ask me what scent notes I enjoy."><img class="beauty-icon beauty-icon--prompt real-product-shot" data-product-photo="lancome-fragrance" alt="" width="80" height="80" loading="lazy" decoding="async" /><span>Find my scent</span></button>
           </div>
           <div id="followUpSuggestions" class="followup-ideas" role="group" aria-label="Continue your beauty conversation" hidden>
             <span class="followup-ideas__label">KEEP THE CONVERSATION GOING</span>
@@ -407,23 +123,23 @@
             <input id="userInput" type="text" autocomplete="off" maxlength="1000" aria-describedby="chatHelp" placeholder="Ask about L’Oréal beauty products or routines…" required />
             <button type="submit" id="sendBtn" aria-label="Send message"><span aria-hidden="true">↗</span></button>
           </form>
-          <p class="advisor__fineprint" id="chatHelp"><span class="fineprint__product" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span>L’Oréal product guidance only; not medical advice. Check official product listings.</p>
+          <p class="advisor__fineprint" id="chatHelp"><span class="fineprint__product" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="ha-serum" alt="" width="80" height="80" loading="lazy" decoding="async" /></span>L’Oréal product guidance only; not medical advice. Check official product listings.</p>
         </div>
       </section>
     </div>
     <div class="luxury-ticker">
       <div class="luxury-ticker__track" aria-hidden="true">
         <div class="luxury-ticker__group">
-          <span>THE ART OF BEAUTY</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></i>
-          <span>MADE FOR YOU</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></i>
-          <span>DISCOVER YOUR RITUAL</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></i>
-          <span>EXPRESS YOURSELF</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></i>
+          <span>THE ART OF BEAUTY</span><i><img class="beauty-icon real-product-shot" data-product-photo="ha-serum" alt="" width="80" height="80" loading="lazy" decoding="async" /></i>
+          <span>MADE FOR YOU</span><i><img class="beauty-icon real-product-shot" data-product-photo="colour-riche" alt="" width="80" height="80" loading="lazy" decoding="async" /></i>
+          <span>DISCOVER YOUR RITUAL</span><i><img class="beauty-icon real-product-shot" data-product-photo="lancome-fragrance" alt="" width="80" height="80" loading="lazy" decoding="async" /></i>
+          <span>EXPRESS YOURSELF</span><i><img class="beauty-icon real-product-shot" data-product-photo="lumi-glotion" alt="" width="80" height="80" loading="lazy" decoding="async" /></i>
         </div>
 <div class="luxury-ticker__group">
-          <span>THE ART OF BEAUTY</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></i>
-          <span>MADE FOR YOU</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></i>
-          <span>DISCOVER YOUR RITUAL</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></i>
-          <span>EXPRESS YOURSELF</span><i><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></i>
+          <span>THE ART OF BEAUTY</span><i><img class="beauty-icon real-product-shot" data-product-photo="ha-serum" alt="" width="80" height="80" loading="lazy" decoding="async" /></i>
+          <span>MADE FOR YOU</span><i><img class="beauty-icon real-product-shot" data-product-photo="colour-riche" alt="" width="80" height="80" loading="lazy" decoding="async" /></i>
+          <span>DISCOVER YOUR RITUAL</span><i><img class="beauty-icon real-product-shot" data-product-photo="lancome-fragrance" alt="" width="80" height="80" loading="lazy" decoding="async" /></i>
+          <span>EXPRESS YOURSELF</span><i><img class="beauty-icon real-product-shot" data-product-photo="lumi-glotion" alt="" width="80" height="80" loading="lazy" decoding="async" /></i>
         </div>
       </div>
     </div>
@@ -542,23 +258,23 @@
       <div class="category-grid" id="suggestions">
         <button class="category-card category-card--skin" type="button" data-prompt="Help me create a simple personalized L'Oréal skincare routine. Ask me about my skin type and concerns first." aria-label="Explore Skincare: The routine that feels like you.">
   <span class="category-card__number">01 / THE SKIN EDIT</span>
-  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg class="beauty-icon beauty-icon--showcase" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span></span>
+  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><img class="beauty-icon beauty-icon--showcase real-product-shot" data-product-photo="ha-serum" alt="" width="80" height="80" loading="lazy" decoding="async" /></span></span>
   <span class="category-card__bottom"><span><strong>Skincare</strong><small>The routine that feels like you.</small></span><span class="category-card__arrow" aria-hidden="true">↗</span></span>
 </button>
 <button class="category-card category-card--makeup" type="button" data-prompt="Help me find L'Oréal makeup for a polished everyday look. Ask about my skin tone, style, and budget." aria-label="Explore Makeup: Your look, your rules.">
   <span class="category-card__number">02 / THE MAKEUP EDIT</span>
-  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg class="beauty-icon beauty-icon--showcase" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span></span>
+  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><img class="beauty-icon beauty-icon--showcase real-product-shot" data-product-photo="colour-riche" alt="" width="80" height="80" loading="lazy" decoding="async" /></span></span>
   <span class="category-card__bottom"><span><strong>Makeup</strong><small>Your look, your rules.</small></span><span class="category-card__arrow" aria-hidden="true">↗</span></span>
 </button>
 <button class="category-card category-card--hair" type="button" data-prompt="Recommend a personalized L'Oréal haircare routine. First ask about my hair type and main concerns." aria-label="Explore Haircare: A little love for every strand.">
   <span class="category-card__number">03 / THE HAIR EDIT</span>
-  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg class="beauty-icon beauty-icon--showcase" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-hair"></use></svg></span></span>
+  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><img class="beauty-icon beauty-icon--showcase real-product-shot" data-product-photo="plump-shampoo" alt="" width="80" height="80" loading="lazy" decoding="async" /></span></span>
   <span class="category-card__bottom"><span><strong>Haircare</strong><small>A little love for every strand.</small></span><span class="category-card__arrow" aria-hidden="true">↗</span></span>
 </button>
-<button class="category-card category-card--scent" type="button" data-prompt="Help me discover a L'Oréal fragrance that suits my personality. Ask about scent notes and when I'd wear it." aria-label="Explore Fragrance: Find the scent that stays.">
+<button class="category-card category-card--scent" type="button" data-prompt="Help me discover a fragrance from L’Oréal Groupe, including Lancôme. Ask about scent notes and when I would wear it." aria-label="Explore Fragrance: Find the scent that stays.">
   <span class="category-card__number">04 / THE SCENT EDIT</span>
-  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><svg class="beauty-icon beauty-icon--showcase" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span></span>
-  <span class="category-card__bottom"><span><strong>Fragrance</strong><small>Find the scent that stays.</small></span><span class="category-card__arrow" aria-hidden="true">↗</span></span>
+  <span class="category-card__scene" aria-hidden="true"><span class="category-card__disc"></span><span class="category-card__visual"><img class="beauty-icon beauty-icon--showcase real-product-shot" data-product-photo="lancome-fragrance" alt="" width="80" height="80" loading="lazy" decoding="async" /></span></span>
+  <span class="category-card__bottom"><span><strong>Fragrance</strong><small>Lancôme · L’Oréal Groupe.</small></span><span class="category-card__arrow" aria-hidden="true">↗</span></span>
 </button>
       </div>
     </section>
@@ -568,10 +284,10 @@
           <div class="ritual__arch"></div>
           <div class="ritual__halo"></div>
           <div class="ritual__plinth"></div>
-          <span class="ritual__object ritual__object--perfume"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-perfume"></use></svg></span>
-          <span class="ritual__object ritual__object--serum"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-serum"></use></svg></span>
-          <span class="ritual__object ritual__object--lipstick"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-lipstick"></use></svg></span>
-          <span class="ritual__object ritual__object--hair"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-hair"></use></svg></span>
+          <span class="ritual__object ritual__object--perfume"><img class="beauty-icon real-product-shot" data-product-photo="lancome-fragrance" alt="" width="80" height="80" loading="lazy" decoding="async" /></span>
+          <span class="ritual__object ritual__object--serum"><img class="beauty-icon real-product-shot" data-product-photo="ha-serum" alt="" width="80" height="80" loading="lazy" decoding="async" /></span>
+          <span class="ritual__object ritual__object--lipstick"><img class="beauty-icon real-product-shot" data-product-photo="colour-riche" alt="" width="80" height="80" loading="lazy" decoding="async" /></span>
+          <span class="ritual__object ritual__object--hair"><img class="beauty-icon real-product-shot" data-product-photo="plump-shampoo" alt="" width="80" height="80" loading="lazy" decoding="async" /></span>
           <span class="ritual__corner-label">ATELIER / THE PERSONAL EDIT</span>
           <span class="ritual__vertical-label">BEAUTY WITHOUT RULES</span>
         </div>
@@ -589,12 +305,13 @@
       </div>
     </section>
     <section class="manifesto" aria-label="Beauty Atelier statement">
-      <div class="page-width manifesto__inner"><span>THE ART OF SELF EXPRESSION</span><p>Beauty has no rules.<br /><em>Only possibilities.</em></p><span class="manifesto__mark" aria-hidden="true"><svg class="beauty-icon" viewBox="0 0 80 80" aria-hidden="true" focusable="false"><use href="#ui-compact"></use></svg></span></div>
+      <div class="page-width manifesto__inner"><span>THE ART OF SELF EXPRESSION</span><p>Beauty has no rules.<br /><em>Only possibilities.</em></p><span class="manifesto__mark" aria-hidden="true"><img class="beauty-icon real-product-shot" data-product-photo="lumi-glotion" alt="" width="80" height="80" loading="lazy" decoding="async" /></span></div>
     </section>
   </main>
-  <footer class="site-footer page-width"><div><strong>BEAUTY ATELIER</strong><span>AN INDEPENDENT STUDENT PROJECT INSPIRED BY L’ORÉAL PARIS.</span></div><p>Not affiliated with or endorsed by L'Oréal. Product suggestions are AI-generated and may be inaccurate; check official product listings before buying.</p><div class="footer-actions"><button id="motionToggle" type="button" class="motion-toggle"><span class="motion-toggle__icon" aria-hidden="true">Ⅱ</span><span class="motion-toggle__label">PAUSE MOTION</span></button><a href="#top">BACK TO TOP ↑</a></div></footer>
+  <footer class="site-footer page-width"><div><strong>BEAUTY ATELIER</strong><span>AN INDEPENDENT STUDENT PROJECT INSPIRED BY L’ORÉAL PARIS.</span></div><p>Independent student project; not affiliated with or endorsed by L’Oréal or Lancôme. Product photographs belong to their respective rights holders and are linked from outside sources; verify packaging, shades and availability with the official brands. AI advice may be inaccurate.</p><div class="footer-actions"><button id="motionToggle" type="button" class="motion-toggle"><span class="motion-toggle__icon" aria-hidden="true">Ⅱ</span><span class="motion-toggle__label">PAUSE MOTION</span></button><a href="#top">BACK TO TOP ↑</a></div></footer>
   <script src="script.js?v=20261119-balanced"></script>
   <script src="product-catalog.js"></script>
+  <script src="product-photography.js?v=20261119-real"></script>
   <script src="routine-builder.js"></script>
   <script src="language-support.js"></script>
   <script src="atelier-experience.js"></script>
