@@ -669,3 +669,53 @@ html[dir="rtl"] .hero-story .hero-signature{text-align:right}
 .request-diagnostic__copy:hover{background:#784d5a}
 #requestDiagnosticCopyStatus{display:inline-block;color:#6d5151}
 html[dir="rtl"] .request-diagnostic{text-align:start}
+
+
+/* CHAT VISIBILITY FIX
+   The old fixed-height advisor let the composer consume the entire card,
+   shrinking the transcript to just a few pixels when suggestions and web
+   search were present. Let the advisor grow with its contents instead. */
+.advisor{
+  height:auto;
+  min-height:0;
+  max-height:none;
+}
+.advisor__header,.advisor__intro,.advisor__composer,.question-preview{
+  flex-shrink:0;
+}
+.chat-window{
+  flex:0 0 auto;
+  height:clamp(390px,52vh,610px);
+  min-height:390px;
+  max-height:none;
+  overflow-y:auto;
+  scroll-padding-block:18px;
+  overscroll-behavior-y:contain;
+}
+/* The initial suggestion shortcuts are for starting a chat. Once there is a
+   conversation, keep the contextual follow-ups, but give the reply priority. */
+.advisor:has(.chat-window .message.user) .prompt-heading,
+.advisor:has(.chat-window .message.user) .quick-prompts{
+  display:none;
+}
+@media(max-width:940px){
+  /* On narrow screens avoid a second tiny scrollbar entirely. Every reply
+     and cited source expands into the normal PAGE scroll, like a real chat. */
+  .advisor{
+    height:auto;
+    min-height:0;
+    max-height:none;
+  }
+  .chat-window{
+    flex:0 0 auto;
+    height:auto;
+    min-height:310px;
+    max-height:none;
+    overflow:visible;
+    overscroll-behavior-y:auto;
+  }
+}
+@media(max-width:620px){
+  .advisor{height:auto;min-height:0;max-height:none}
+  .chat-window{height:auto;min-height:280px;max-height:none;overflow:visible}
+}
