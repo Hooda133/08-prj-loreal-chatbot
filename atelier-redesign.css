@@ -894,3 +894,211 @@ html[dir="rtl"] .advisor--focus .chat-window{direction:rtl}
   }
   .advisor--focus .advisor__expand:hover{background:#704758}
 }
+
+
+/* ──────────────────────────────────────────────────────────────
+   ATELIER OBJECT STUDIES / v2
+   The original SVG products now live on softly lit, physical-looking
+   plinths. Each beauty department has its own light and material mood.
+   All light effects are CSS-only; no photo, library, or extra request.
+   ────────────────────────────────────────────────────────────── */
+.category-card{
+  --stage-edge:#f6e4d3;
+  --stage-face:#d5b29c;
+  --stage-heel:#866b64;
+  --stage-light:#fff5df;
+}
+.category-card--skin{
+  --stage-edge:#fff4e4;
+  --stage-face:#e6c8b2;
+  --stage-heel:#ac8075;
+  --stage-light:#fff5dd;
+}
+.category-card--makeup{
+  --stage-edge:#f5d9cf;
+  --stage-face:#ad7180;
+  --stage-heel:#522b44;
+  --stage-light:#ffdce0;
+}
+.category-card--hair{
+  --stage-edge:#fff2df;
+  --stage-face:#d4ba9b;
+  --stage-heel:#866a66;
+  --stage-light:#fff5e5;
+}
+.category-card--scent{
+  --stage-edge:#f5e5e9;
+  --stage-face:#a1819a;
+  --stage-heel:#453448;
+  --stage-light:#ffe6e7;
+}
+.category-card__scene{
+  perspective:750px;
+  isolation:isolate;
+}
+.category-card__scene::before{
+  width:min(93%,215px);
+  background:radial-gradient(ellipse at 43% 33%,var(--stage-light) 0%,#ffffff8e 30%,transparent 72%);
+  filter:blur(9px);
+  opacity:.92;
+}
+.category-card__scene::after{
+  left:14%;
+  bottom:3%;
+  width:72%;
+  height:26px;
+  border-radius:50%;
+  transform:translateY(2px);
+  background:radial-gradient(ellipse,#22161a71 0%,#452c3644 33%,transparent 71%);
+  filter:blur(9px);
+  opacity:.74;
+}
+.category-card__disc{
+  position:absolute;
+  z-index:1;
+  border:1px solid #ffffff97;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 38% 18%,#ffffffb8,transparent 32%),
+    radial-gradient(ellipse at 50% 64%,var(--stage-light),transparent 68%),
+    linear-gradient(145deg,#fff9f18c,#e4c9b23e 52%,#ffffff4f);
+  box-shadow:
+    inset 0 1px 1px #ffffffdd,
+    inset 7px 9px 24px #ffffff40,
+    inset -12px -10px 25px #66464e23,
+    0 0 0 1px #ffffff24,
+    0 18px 38px #281b2426;
+  pointer-events:none;
+}
+/* A two-piece miniature museum pedestal, beneath the floating product. */
+.category-card__disc::before{
+  content:"";
+  position:absolute;
+  inset:auto 7% 1% 7%;
+  height:24px;
+  border-radius:10% 10% 50% 50%/24% 24% 70% 70%;
+  background:linear-gradient(90deg,var(--stage-heel),var(--stage-face) 17%,var(--stage-edge) 51%,var(--stage-face) 82%,var(--stage-heel));
+  border:1px solid #fff9e18c;
+  box-shadow:0 11px 17px #291c2238,inset 0 -5px 8px #35202c25;
+}
+.category-card__disc::after{
+  content:"";
+  position:absolute;
+  inset:auto 6% 10% 6%;
+  height:17px;
+  border-radius:50%;
+  background:linear-gradient(95deg,var(--stage-face),var(--stage-edge) 38%,#fffdf5 60%,var(--stage-face));
+  border:1px solid #fff9e5b8;
+  box-shadow:0 2px 5px #35242c2b,inset 0 2px 4px #ffffff80;
+}
+.category-card__visual{
+  z-index:2;
+  filter:drop-shadow(5px 14px 7px #31202b40);
+}
+.category-card__visual .beauty-icon--showcase{
+  filter:drop-shadow(2px 3px 1px #fff6e365) drop-shadow(7px 14px 7px #34212d63);
+}
+.category-card__visual::after{
+  content:"";
+  position:absolute;
+  right:13%;
+  top:17%;
+  width:16px;
+  height:16px;
+  background:#fff9df;
+  opacity:.75;
+  filter:drop-shadow(0 0 7px #fff4c8b0);
+  clip-path:polygon(50% 0%,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);
+  transform:scale(.7);
+  transition:transform .36s ease,opacity .36s ease;
+  pointer-events:none;
+}
+.category-card--makeup .category-card__visual::after,
+.category-card--scent .category-card__visual::after{background:#fff3ed}
+@media(hover:hover){
+  .category-card:hover .category-card__visual::after,
+  .category-card:focus-visible .category-card__visual::after{
+    transform:scale(1) rotate(25deg);
+    opacity:1;
+  }
+}
+
+/* Catalog miniatures: every bottle or compact sits on a lit display shelf.
+   Labels and whole-card selection targets remain where they already are. */
+.catalog-card__art{
+  isolation:isolate;
+  overflow:hidden;
+  border-color:#dcc9bb;
+  background:
+    radial-gradient(ellipse at 50% 2%,#fffefa 0%,#fff4e2a1 20%,transparent 59%),
+    radial-gradient(ellipse at 52% 90%,#d2ad9e8c,transparent 66%),
+    linear-gradient(145deg,#faf2e9,#e3cbc0 68%,#c6a7a4);
+  box-shadow:inset 0 2px 8px #fff9ecad,inset 0 -11px 20px #7f59601c;
+}
+.catalog-card__art::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  /* Reset the inherited arch's top/right coordinates. Otherwise the
+     pedestal mistakenly appears above the bottle, not beneath it. */
+  top:auto;
+  right:auto;
+  left:19%;
+  bottom:7px;
+  width:62%;
+  height:27px;
+  border-radius:50%/30%;
+  background:
+    linear-gradient(to bottom,#fffaf0e6 0 28%,#dbbaaa 29% 62%,#9d7b79 100%);
+  border:1px solid #fff9e9b8;
+  box-shadow:0 9px 13px #4a2e3848,inset 0 2px 5px #ffffffa1;
+  pointer-events:none;
+}
+.catalog-card__art::after{
+  z-index:0;
+  bottom:5px;
+  height:17px;
+  inset-inline:15%;
+  background:radial-gradient(ellipse,#58374165,transparent 72%);
+  filter:blur(8px);
+}
+.catalog-card__art .beauty-icon{
+  z-index:1;
+  filter:drop-shadow(3px 11px 6px #34222c56);
+}
+.catalog-card:hover .catalog-card__art .beauty-icon{
+  filter:drop-shadow(4px 16px 8px #2e1b255e);
+}
+.catalog-card__art--sunscreen{
+  background:radial-gradient(ellipse at 48% 12%,#fffef5,#f0e4c9 58%,#d4c6ac);
+}
+.catalog-card__art--moisturizer{
+  background:radial-gradient(ellipse at 48% 12%,#fffaf6,#ebdcd7 62%,#d6bfc2);
+}
+.catalog-card--selected .catalog-card__art{
+  box-shadow:inset 0 0 0 2px #c59b7b,inset 0 2px 8px #fff9ecad,inset 0 -11px 20px #7f59601c;
+}
+
+/* Small, repeated icons pick up the same lens-like finish without
+   increasing button sizes or interfering with keyboard navigation. */
+.quick-prompts button .beauty-icon{
+  filter:drop-shadow(1px 2px 1px #ffffffa1) drop-shadow(2px 4px 3px #472d3a57);
+}
+.advisor__avatar{
+  background:radial-gradient(circle at 34% 13%,#fff9e8 0%,#eacbbd 35%,#8b6575 100%);
+  border:1px solid #ffffffa1;
+  box-shadow:inset 0 2px 5px #ffffff8a,inset 0 -5px 10px #563b4730,0 10px 23px #462c3c45;
+}
+.advisor__avatar .beauty-icon{
+  filter:drop-shadow(1px 3px 2px #fff6df6b) drop-shadow(3px 5px 3px #3b283b72);
+}
+@media(max-width:620px){
+  .category-card__disc::before{height:17px}
+  .category-card__disc::after{height:12px}
+  .category-card__visual::after{width:10px;height:10px}
+  .catalog-card__art::before{height:24px}
+}
+@media(prefers-reduced-motion:reduce){
+  .category-card__visual::after{transition:none;transform:none}
+}
+.motion-paused .category-card__visual::after{transition:none;transform:none}
