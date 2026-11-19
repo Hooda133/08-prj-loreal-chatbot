@@ -98,7 +98,10 @@ try {
     const firstCard = document.querySelector("#productGrid .catalog-card");
     return {
       theme:document.querySelector('meta[name="theme-color"]')?.content,
-      cssLoaded:[...document.styleSheets].some(sheet => sheet.href?.endsWith("/atelier-redesign.css")),
+      cssLoaded:[...document.styleSheets].some(sheet =>
+        sheet.href?.split("?")[0].endsWith("/atelier-redesign.css")),
+      build:document.querySelector('meta[name="beauty-atelier-build"]')?.content,
+      cacheBustedChat:!!document.querySelector('script[src*="script.js?v=20261119-reader"]'),
       darkCover:getComputedStyle(hero).backgroundImage.includes("linear-gradient"),
       headingColor:getComputedStyle(heading).color,
       stickyHeader:getComputedStyle(document.querySelector(".site-header")).position,
@@ -114,6 +117,10 @@ try {
   });
   assert.equal(editorial.theme, "#251b20");
   assert.equal(editorial.cssLoaded, true, "Premium design stylesheet should load");
+  assert.equal(editorial.build, "2026-11-19-reading-mode",
+    "The HTML must identify the deployed reading-mode version");
+  assert.equal(editorial.cacheBustedChat, true,
+    "The HTML should load fresh chat JavaScript after deployment");
   assert.equal(editorial.darkCover, true, "Cover must use editorial gradients");
   assert.equal(editorial.headingColor, "rgb(255, 250, 242)");
   assert.equal(editorial.stickyHeader, "relative", "Masthead must not cover scrolled-to controls");
@@ -794,10 +801,20 @@ try {
   await sendQuestion(mobile, "Recommend L’Oréal products for dry skin");
   const mobileConversation = await mobile.evaluate(() => ({
     overflow: document.documentElement.scrollWidth - innerWidth,
-    replyVisible: document.querySelectorAll(".chat-window .message.ai:not(.pending)").length === 2
+    replyVisible: document.querySelectorAll(".chat-window .message.ai:not(.pending)").length === 2,
+    readingMode:document.querySelector("#concierge").classList.contains("advisor--focus"),
+    panelHeight:document.querySelector("#concierge").getBoundingClientRect().height,
+    transcriptHeight:document.querySelector("#chatWindow").getBoundingClientRect().height,
+    viewportHeight:innerHeight
   }));
   assert.ok(mobileConversation.overflow <= 2, "Mobile chat overflow: " + mobileConversation.overflow);
   assert.equal(mobileConversation.replyVisible, true);
+  assert.equal(mobileConversation.readingMode, true,
+    "The first phone question must automatically open the large reading view");
+  assert.ok(mobileConversation.panelHeight >= mobileConversation.viewportHeight - 2,
+    "The phone chat takes up the full window automatically");
+  assert.ok(mobileConversation.transcriptHeight > 250,
+    "Answers must get a real reading area, not a tiny clipped strip");
   await mobile.screenshot({ path: "/tmp/final-beauty-mobile.png", fullPage: true });
 
   // New Chat should also clear the conversation without reopening the keyboard
@@ -813,6 +830,9 @@ try {
   });
   assert.equal(afterReset.focused, false, "New Chat should not auto-focus the mobile keyboard");
   assert.equal(afterReset.messages, 1, "New Chat resets to the welcome message");
+  assert.equal(await mobile.$eval("#concierge",
+    el => el.classList.contains("advisor--focus")), false,
+    "New Chat returns the reader to the normal page");
   assert.ok(afterReset.top >= 0 && afterReset.bottom <= afterReset.viewport,
     "New Chat must leave the mobile composer visible");
 
@@ -857,6 +877,13 @@ try {
   assert.equal(mobileCitations.inline, "[1]");
   assert.match(mobileCitations.link, /^https:\/\/www\.lorealparisusa\.com\//);
   assert.ok(mobileCitations.overflow <= 2);
+  assert.equal(await mobile.$eval("#concierge",
+    el => el.classList.contains("advisor--focus")), true,
+    "Search replies also open in the full-window reader automatically");
+  // The reader can be closed and reopened without losing web source links.
+  await mobile.click("#expandChatBtn");
+  assert.equal(await mobile.$eval("#concierge",
+    el => el.classList.contains("advisor--focus")), false);
   await mobile.click("#expandChatBtn");
   const mobileFocus = await mobile.evaluate(() => ({
     full:document.querySelector("#concierge").classList.contains("advisor--focus"),
@@ -1129,6 +1156,16 @@ try {
   await sendQuestion(replyLayout, "Help me find a L'Oréal fragrance.");
   await replyLayout.click("#webSearchToggle");
   await sendQuestion(replyLayout, "Latest L'Oréal Paris fragrances with sources?");
+  const autoReader = await replyLayout.evaluate(() => ({
+    full:document.querySelector("#concierge").classList.contains("advisor--focus"),
+    panelHeight:document.querySelector("#concierge").getBoundingClientRect().height,
+    transcriptHeight:document.querySelector("#chatWindow").getBoundingClientRect().height
+  }));
+  assert.equal(autoReader.full, true, "The exact reported narrow screenshot must open the full reader");
+  assert.ok(autoReader.panelHeight >= 688, "The 594x690 viewport must display a full-height chat");
+  assert.ok(autoReader.transcriptHeight > 250, "Answers have readable vertical space");
+  // Closing the reader must STILL leave a large, naturally scrolling inline chat.
+  await replyLayout.click("#expandChatBtn");
   const replyGeometry = await replyLayout.evaluate(() => {
     const advisor = document.querySelector("#concierge");
     const chat = document.querySelector("#chatWindow");
@@ -1171,6 +1208,8 @@ try {
   assert.equal(replyGeometry.followUpsVisible, true);
   assert.ok(replyGeometry.overflow <= 2,
     "Expanded mobile conversation must not create sideways scrolling");
+  await replyLayout.evaluate(() => document.querySelector("#chatWindow .message.ai:last-child")
+    .scrollIntoView({block:"start",behavior:"instant"}));
   await replyLayout.waitForFunction(() => {
     const bubble = document.querySelector("#chatWindow .message.ai:last-child");
     const top = bubble?.getBoundingClientRect().top;
