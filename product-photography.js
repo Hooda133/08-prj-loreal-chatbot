@@ -54,8 +54,17 @@
     photo.addEventListener("error", () => {
       photo.hidden = true;
       // Make failure explicit rather than substituting a fake bottle.
-      const frame = photo.closest(".catalog-card__art,.hero-product-scene,.category-card__visual,.ritual__object,.photo-frame");
-      if (frame) frame.classList.add("product-photo-missing");
+      const frame = photo.parentElement;
+      if (frame) {
+        frame.classList.add("product-photo-missing");
+        if (!frame.querySelector(".product-photo-fallback")) {
+          const label = document.createElement("span");
+          label.className = "product-photo-fallback";
+          label.textContent = "Photo unavailable";
+          label.setAttribute("aria-hidden", "true");
+          frame.appendChild(label);
+        }
+      }
     }, { once: true });
     photo.src = src;
     return photo;
