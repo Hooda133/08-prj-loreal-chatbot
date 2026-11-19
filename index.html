@@ -88,6 +88,34 @@
         <feGaussianBlur stdDeviation="2.1"/>
       </filter>
 
+      <!-- Studio v2: tiny, directional highlights used by all five original icons.
+           No external product images, filters or fonts are required. -->
+      <linearGradient id="ui-bevel-v2" x1="0" y1="0" x2="1" y2=".7">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".9"/>
+        <stop offset=".23" stop-color="#fff8e8" stop-opacity=".21"/>
+        <stop offset=".62" stop-color="#caa796" stop-opacity=".1"/>
+        <stop offset="1" stop-color="#6e3e4c" stop-opacity=".44"/>
+      </linearGradient>
+      <linearGradient id="ui-prism-v2" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".75"/>
+        <stop offset=".3" stop-color="#f8d6ee" stop-opacity=".38"/>
+        <stop offset=".65" stop-color="#ffd8a1" stop-opacity=".12"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity=".6"/>
+      </linearGradient>
+      <linearGradient id="ui-rose-metal-v2" x1="0" y1="0" x2="1" y2=".22">
+        <stop offset="0" stop-color="#623b3b"/>
+        <stop offset=".15" stop-color="#e9bd9d"/>
+        <stop offset=".33" stop-color="#fff6df"/>
+        <stop offset=".57" stop-color="#b97d69"/>
+        <stop offset=".77" stop-color="#f4d9b6"/>
+        <stop offset="1" stop-color="#694642"/>
+      </linearGradient>
+      <radialGradient id="ui-crystal-v2" cx=".26" cy=".15" r=".96">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".8"/>
+        <stop offset=".28" stop-color="#ffead8" stop-opacity=".15"/>
+        <stop offset="1" stop-color="#9b5d70" stop-opacity=".24"/>
+      </radialGradient>
+
       <!-- 01: pearly pipette with amber liquid suspended inside a faceted serum bottle -->
       <symbol id="ui-serum" viewBox="0 0 80 80">
         <ellipse cx="40" cy="73" rx="23" ry="3.6" fill="#3e281d" opacity=".29" filter="url(#ui-shadow)"/>
@@ -108,6 +136,14 @@
         <text x="40" y="59.9" fill="#886b52" font-family="Arial,sans-serif" font-size="3.6" letter-spacing="1" text-anchor="middle">SERUM</text>
         <path d="M27.3 67.5Q39.6 70.1 52.3 67.4" fill="none" stroke="#fff5d8" stroke-width="1" opacity=".75"/>
         <path d="M47 31.4l4 2.1" stroke="#fff" stroke-width="1.1" opacity=".64"/>
+        <!-- Thick beveled glass edges and refracted liquid highlights. -->
+        <path d="M22.9 35.6L25.4 32.7L26.4 64.8L24.4 67Z" fill="url(#ui-bevel-v2)" opacity=".49"/>
+        <path d="M54.5 33L57.4 36.2L57.8 61.7L54.5 65.6Z" fill="url(#ui-prism-v2)" opacity=".65"/>
+        <path d="M30 65.6Q40.2 67.1 50.8 65.6" fill="none" stroke="#fff7e5" stroke-width=".95" opacity=".9"/>
+        <path d="M34.3 12.2v7.7" stroke="#fff6da" stroke-width=".9" opacity=".65"/>
+        <path d="M46.6 26.1h2" stroke="#fff7e4" stroke-width=".8" opacity=".7"/>
+        <path d="M29 41.1h22" stroke="#ffffff" stroke-width=".5" opacity=".48"/>
+        <circle cx="56.1" cy="34.2" r=".9" fill="#ffffff" opacity=".95"/>
       </symbol>
 
       <!-- 02: sculpted rose bullet, gold collar, black lacquered lipstick case -->
@@ -129,6 +165,14 @@
           <text x="40.3" y="55.1" font-family="Georgia,serif" font-size="4.2" letter-spacing=".35" fill="#f3d9a8" text-anchor="middle">ATELIER</text>
           <rect x="27.5" y="68.5" width="25.6" height="1.1" rx=".5" fill="#f2d399" opacity=".65"/>
         </g>
+        <!-- Satin rose pigment, beveled gold cuff and piano-lacquer gleam. -->
+        <path d="M30.8 16.4Q32.5 12.7 37.9 10.7" fill="none" stroke="#ffe4d3" stroke-width="1.35" opacity=".93" stroke-linecap="round"/>
+        <path d="M47.9 11.4V28.7" stroke="#5b1835" stroke-width="1.8" opacity=".26"/>
+        <path d="M28.8 35.7H51.4" stroke="#fff8e1" stroke-width=".85" opacity=".83"/>
+        <path d="M29.7 45.2V63.5" stroke="#ffffff" stroke-width="1.4" opacity=".5" stroke-linecap="round"/>
+        <path d="M46.7 45V63.9" stroke="#f4d7b0" stroke-width=".65" opacity=".37"/>
+        <path d="M26.5 67.2h27.2" stroke="#f0c996" stroke-width=".75" opacity=".79"/>
+        <path d="M31.5 43.4h17.4" stroke="url(#ui-rose-metal-v2)" stroke-width="1.25" opacity=".82"/>
       </symbol>
 
       <!-- 03: faceted, rose-liquid fragrance bottle with heavy glass base -->
@@ -151,6 +195,15 @@
         <text x="40" y="59.5" font-family="Arial,sans-serif" font-size="3.7" letter-spacing=".8" text-anchor="middle" fill="#835d54">PARFUM</text>
         <path d="M17 66.9Q40 70.8 63 66.9" stroke="#fff8df" stroke-width="1.5" opacity=".85" fill="none"/>
         <path d="M14 36l3-3" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".8"/>
+        <!-- Cut crystal shoulders, amber-pink depth and a weighty glass heel. -->
+        <path d="M14.7 33.1L19.2 30.9L20.3 64.9L16.2 67Z" fill="url(#ui-crystal-v2)" opacity=".63"/>
+        <path d="M64.1 31L66.6 33.6L67.4 62.9L63.7 67.3Z" fill="url(#ui-prism-v2)" opacity=".64"/>
+        <path d="M20.7 69L24 65.9H56L60.6 69" stroke="#fff9ec" stroke-width="1.3" fill="none" opacity=".86"/>
+        <path d="M21.8 32.7l2.3 5.8M58.1 33.1l-2.3 5.5" stroke="#ffffff" stroke-width="1" stroke-linecap="round" opacity=".58"/>
+        <path d="M34.9 12.1h9.6M35.2 15.1h9.4" stroke="#fff7db" stroke-width=".55" opacity=".82"/>
+        <path d="M27.5 43.5H52.6" stroke="#ffffff" stroke-width=".8" opacity=".7"/>
+        <path d="M34.4 68.1H47.2" stroke="#f7cbb3" stroke-width="1" opacity=".64"/>
+        <circle cx="63.7" cy="35.2" r="1.1" fill="#ffffff" opacity=".96"/>
       </symbol>
 
       <!-- 04: open jewel-like compact, soft mirror reflection and blush powder -->
@@ -168,6 +221,14 @@
         <path d="M15.2 61.1Q39.9 70 64.9 61.1" fill="none" stroke="#815d36" stroke-width=".75" opacity=".6"/>
         <rect x="35.2" y="60.1" width="9.6" height="4.1" rx="1.2" fill="url(#ui-noir)" stroke="#f9d59c" stroke-width=".7"/>
         <path d="M19 66.4Q40 72.8 61 66.4" stroke="#fff5d6" stroke-width="1" opacity=".47" fill="none"/>
+        <!-- Polished rim, iridescent mirror facet and pressed-powder sheen. -->
+        <path d="M23 39Q28 25.5 40.6 22.3" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".52"/>
+        <path d="M51.4 24.1Q56 28.6 58 37.3" stroke="#fff1dc" stroke-width=".9" fill="none" opacity=".7"/>
+        <path d="M18 43.6Q41 41.8 62 43.7" stroke="#fff4d2" stroke-width="1.15" fill="none" opacity=".9"/>
+        <path d="M17 49.8Q40 56.4 63 49.8" stroke="#fff2db" stroke-width=".85" fill="none" opacity=".6"/>
+        <path d="M22.6 46.8Q40.2 43.7 57.3 46.8" stroke="#ffe8d2" stroke-width=".95" opacity=".65" fill="none"/>
+        <path d="M13.4 60.2Q40 68.2 66.5 60.2" stroke="url(#ui-rose-metal-v2)" stroke-width="1.75" opacity=".8" fill="none"/>
+        <path d="M33 21.6l1.3-2.9 1.2 2.9 2.9 1.2-2.9 1.1-1.2 2.8-1.3-2.8-2.7-1.1Z" fill="#ffffff" opacity=".77"/>
       </symbol>
 
       <!-- 05: bronze pump, deep amber hair serum and soft-cream label -->
@@ -188,6 +249,15 @@
         <path d="M34.7 54.8H45.4" stroke="#9d7452" stroke-width=".65"/>
         <text x="40" y="60" font-family="Arial,sans-serif" font-size="3.5" letter-spacing=".8" fill="#8b6c4e" text-anchor="middle">HAIR</text>
         <path d="M29 68H51" stroke="#ffdfaf" stroke-width="1" opacity=".65"/>
+        <!-- Rounded amber bottle, embossed label and luminous rose-gold pump. -->
+        <path d="M23.6 37L25.5 33.6V63.7L27.3 67.5" stroke="#fff8dd" stroke-width="1.2" opacity=".56" fill="none" stroke-linecap="round"/>
+        <path d="M52.9 34.2Q55 47.4 53.5 60.2" stroke="#ffe2b0" stroke-width=".8" opacity=".62" fill="none"/>
+        <path d="M25.3 31.5Q40 28.7 54.6 31.4" stroke="#fff6df" stroke-width=".75" opacity=".68" fill="none"/>
+        <path d="M31.1 44.8h17.8" stroke="#ffffff" stroke-width=".7" opacity=".84"/>
+        <path d="M30.5 64.4H49.5" stroke="#ffe5be" stroke-width="1.2" opacity=".74"/>
+        <path d="M37.4 11.8H56.8" stroke="url(#ui-rose-metal-v2)" stroke-width="1" opacity=".9"/>
+        <path d="M46.5 18.5v7.5" stroke="#fff7d4" stroke-width=".8" opacity=".55"/>
+        <circle cx="26.9" cy="34.2" r=".9" fill="#ffffff" opacity=".9"/>
       </symbol>
     </defs>
   </svg>
