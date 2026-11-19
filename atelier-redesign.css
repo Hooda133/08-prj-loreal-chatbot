@@ -1296,3 +1296,42 @@ html[dir="rtl"] .advisor--focus .chat-window{direction:rtl}
   .hero-art:hover .hero-photo{transform:none}
 }
 .motion-paused .hero-photo{transition:none!important;transform:none!important}
+
+
+/* SHORT REPLIES BY DEFAULT
+   Old Worker releases may still send long-form text. Offer a clear way to
+   read it without overwhelming the default chat view or losing citations. */
+.chat-window .chat-answer-body{min-width:0}
+.chat-window .chat-answer-body.is-collapsed{
+  max-height:11.25rem;
+  overflow:hidden;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 72%,transparent 100%);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 72%,transparent 100%);
+}
+.chat-window .chat-answer-toggle{
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  align-self:flex-start;
+  min-height:36px;
+  padding:7px 13px;
+  margin:7px 0 3px;
+  border:1px solid #b98b96;
+  border-radius:20px;
+  background:#fff8f2;
+  color:#61394b;
+  font:700 12px/1.3 var(--maison-sans);
+  cursor:pointer;
+  transition:background .16s ease,border-color .16s ease;
+}
+.chat-window .chat-answer-toggle:hover{background:#f0e3df;border-color:#86546a}
+.chat-window .chat-answer-toggle:focus-visible{
+  outline:3px solid #875568;
+  outline-offset:3px;
+}
+@media(max-width:620px){
+  .chat-window .chat-answer-body.is-collapsed{max-height:10.75rem}
+}
+@media(prefers-reduced-motion:reduce){
+  .chat-window .chat-answer-toggle{transition:none}
+}
