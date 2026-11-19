@@ -671,13 +671,12 @@ html[dir="rtl"] .hero-story .hero-signature{text-align:right}
 html[dir="rtl"] .request-diagnostic{text-align:start}
 
 
-/* EXTRA-LARGE BEAUTY CONCIERGE
-   Make conversation reading the primary experience, not a tiny slot
-   squeezed between promotional controls. The panel may grow as needed. */
+/* BALANCED BEAUTY CONCIERGE
+   A real conversation desk, not a page-sized block or a tiny answer strip.
+   Only the transcript scrolls; title, search option and composer stay put. */
 @media(min-width:1181px){
-  /* Give the chat the larger share of the editorial cover. */
   .hero-grid{
-    grid-template-columns:minmax(0,.86fr) minmax(480px,1.14fr);
+    grid-template-columns:minmax(0,1.02fr) minmax(440px,.98fr);
     align-items:start;
   }
 }
@@ -690,69 +689,105 @@ html[dir="rtl"] .request-diagnostic{text-align:start}
 .advisor__header,.advisor__intro,.advisor__composer,.question-preview{
   flex-shrink:0;
 }
+.advisor__header{padding:18px 19px}
+.advisor__avatar{width:48px;height:48px;min-width:48px}
+.advisor__identity h2{font-size:clamp(26px,2.8vw,34px)}
+.advisor__intro{padding:9px 12px}
+.question-preview{margin-inline:18px;padding:9px 12px}
 .chat-window{
   flex:0 0 auto;
-  height:clamp(720px,78vh,1000px);
-  min-height:720px;
+  height:clamp(400px,49vh,510px);
+  min-height:0;
   max-height:none;
+  overflow-x:hidden;
   overflow-y:auto;
-  scroll-padding-block:24px;
+  scroll-padding-block:18px;
   overscroll-behavior-y:contain;
-  padding-block:26px 36px;
+  padding:20px 21px 24px;
+  gap:14px;
 }
-/* Make long recommendations and web-source links easy to read. */
 .chat-window .message{
-  font-size:16px;
-  line-height:1.78;
-  max-width:94%;
+  font-size:15px;
+  line-height:1.68;
+  max-width:min(94%,590px);
 }
 .chat-window .message p,
-.chat-window .message li{
-  font-size:inherit;
+.chat-window .message li{font-size:inherit}
+.chat-window .chat-sources{font-size:13px;line-height:1.55}
+.chat-window .chat-source-link{font-size:13px}
+.advisor__composer{padding:12px 18px 15px}
+.quick-prompts{gap:7px;margin-bottom:10px}
+.quick-prompts button{padding:9px 11px;min-height:38px}
+.followup-ideas{margin-bottom:10px;padding:9px 11px}
+.followup-ideas__label{margin-bottom:5px}
+.followup-ideas__choices{
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  overscroll-behavior-x:contain;
+  scrollbar-width:thin;
+  padding-bottom:4px;
 }
-.chat-window .chat-sources{
-  font-size:14px;
-  line-height:1.65;
+.followup-ideas__choices button{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:7px 10px;
+  white-space:nowrap;
 }
-.chat-window .chat-source-link{
-  font-size:14px;
-}
-/* Starting a conversation removes the large one-time prompt row, leaving
-   follow-up choices and the search switch reachable below the answer. */
+.web-search-choice{margin-bottom:10px;padding:9px 12px;gap:9px}
+.web-search-choice input{width:17px;height:17px}
+.chat-form input{font-size:14px}
+.advisor__fineprint{margin-top:9px}
+/* The one-time discovery prompts and promo strip make way for real replies. */
 .advisor:has(.chat-window .message.user) .prompt-heading,
-.advisor:has(.chat-window .message.user) .quick-prompts{
+.advisor:has(.chat-window .message.user) .quick-prompts,
+.advisor:has(.chat-window .message.user) .advisor__intro{
   display:none;
 }
 @media(min-width:941px) and (max-width:1180px){
   .hero-grid{
-    grid-template-columns:minmax(0,.85fr) minmax(420px,1.15fr);
+    grid-template-columns:minmax(0,.96fr) minmax(400px,1.04fr);
   }
 }
 @media(max-width:940px){
-  /* No tiny nested scroll region: the browser's full page carries the
-     conversation, while the area reserves a generous 600px+ on its own. */
   .advisor{height:auto;min-height:0;max-height:none}
   .chat-window{
     flex:0 0 auto;
-    height:auto;
-    min-height:clamp(600px,82svh,850px);
+    height:clamp(360px,49svh,470px);
+    min-height:0;
     max-height:none;
-    overflow:visible;
-    overscroll-behavior-y:auto;
-    padding-block:22px 32px;
+    overflow-y:auto;
+    overscroll-behavior-y:contain;
+    padding-block:18px 22px;
   }
 }
 @media(max-width:620px){
+  .advisor__header{padding:14px 13px}
+  .advisor__avatar{width:42px;height:42px;min-width:42px}
+  .advisor__identity h2{font-size:26px}
+  .advisor__intro{padding:8px 10px}
+  .question-preview{margin-inline:12px;padding:8px 11px}
   .chat-window{
-    height:auto;
-    min-height:clamp(600px,82svh,850px);
-    max-height:none;
-    overflow:visible;
+    height:clamp(380px,50svh,450px);
+    padding:17px 13px 21px;
+    gap:13px;
   }
-  .chat-window .message{font-size:16px;line-height:1.75}
-  .chat-window .chat-source-link{font-size:14px}
+  .chat-window .message{
+    font-size:15px;
+    line-height:1.67;
+    max-width:96%;
+  }
+  .chat-window .chat-source-link{font-size:13px}
+  .advisor__composer{padding:11px 12px 13px}
+  .followup-ideas{padding:8px 9px}
+  .followup-ideas__choices button{flex:0 0 auto;min-height:34px}
+  .web-search-choice{padding:9px 10px;gap:9px}
+  .web-search-choice__copy small{font-size:10px}
+  .advisor__fineprint{font-size:9px}
 }
-
+@media(max-width:380px){
+  .chat-window{height:clamp(360px,50svh,430px)}
+  .advisor__identity h2{font-size:24px}
+}
 
 /* An optional reading mode makes the same LIVE chat nearly full-screen;
    the advisor node moves to document.body without resetting any messages. */
@@ -816,10 +851,9 @@ html[dir="rtl"] .advisor--focus .chat-window{direction:rtl}
 }
 
 
-/* CONVERSATION-FIRST PHONE VIEW
-   Sending a question now opens the existing reading view automatically on
-   narrow screens. Keep the title and input, but give answers and source links
-   the largest possible share of the viewport. Close restores the page chat. */
+/* OPTIONAL READING MODE
+   Expanded chat uses the same conversation and sources. It only occupies
+   the screen when a visitor explicitly presses Expand. */
 @media(max-width:940px){
   .advisor--focus .advisor__header{
     gap:10px;
