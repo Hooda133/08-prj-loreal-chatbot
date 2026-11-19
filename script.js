@@ -337,7 +337,8 @@ function renderAssistantReply(bubble, responseText, sources = [], sourceType = "
   const isLongAnswer = responseText.length > 600;
   const answerBody = isLongAnswer ? document.createElement("div") : bubble;
   if (isLongAnswer) {
-    answerBody.className = "chat-answer-body is-collapsed";
+    answerBody.className = "chat-answer-body";
+    answerBody.classList.add("is-collapsed");
     answerBody.setAttribute("id", "chat-answer-" + (++chatAnswerSequence));
     bubble.appendChild(answerBody);
   }
