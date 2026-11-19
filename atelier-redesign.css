@@ -671,11 +671,18 @@ html[dir="rtl"] .hero-story .hero-signature{text-align:right}
 html[dir="rtl"] .request-diagnostic{text-align:start}
 
 
-/* CHAT VISIBILITY FIX
-   The old fixed-height advisor let the composer consume the entire card,
-   shrinking the transcript to just a few pixels when suggestions and web
-   search were present. Let the advisor grow with its contents instead. */
+/* EXTRA-LARGE BEAUTY CONCIERGE
+   Make conversation reading the primary experience, not a tiny slot
+   squeezed between promotional controls. The panel may grow as needed. */
+@media(min-width:1181px){
+  /* Give the chat the larger share of the editorial cover. */
+  .hero-grid{
+    grid-template-columns:minmax(0,.86fr) minmax(480px,1.14fr);
+    align-items:start;
+  }
+}
 .advisor{
+  width:100%;
   height:auto;
   min-height:0;
   max-height:none;
@@ -685,37 +692,63 @@ html[dir="rtl"] .request-diagnostic{text-align:start}
 }
 .chat-window{
   flex:0 0 auto;
-  height:clamp(390px,52vh,610px);
-  min-height:390px;
+  height:clamp(720px,78vh,1000px);
+  min-height:720px;
   max-height:none;
   overflow-y:auto;
-  scroll-padding-block:18px;
+  scroll-padding-block:24px;
   overscroll-behavior-y:contain;
+  padding-block:26px 36px;
 }
-/* The initial suggestion shortcuts are for starting a chat. Once there is a
-   conversation, keep the contextual follow-ups, but give the reply priority. */
+/* Make long recommendations and web-source links easy to read. */
+.chat-window .message{
+  font-size:16px;
+  line-height:1.78;
+  max-width:94%;
+}
+.chat-window .message p,
+.chat-window .message li{
+  font-size:inherit;
+}
+.chat-window .chat-sources{
+  font-size:14px;
+  line-height:1.65;
+}
+.chat-window .chat-source-link{
+  font-size:14px;
+}
+/* Starting a conversation removes the large one-time prompt row, leaving
+   follow-up choices and the search switch reachable below the answer. */
 .advisor:has(.chat-window .message.user) .prompt-heading,
 .advisor:has(.chat-window .message.user) .quick-prompts{
   display:none;
 }
-@media(max-width:940px){
-  /* On narrow screens avoid a second tiny scrollbar entirely. Every reply
-     and cited source expands into the normal PAGE scroll, like a real chat. */
-  .advisor{
-    height:auto;
-    min-height:0;
-    max-height:none;
+@media(min-width:941px) and (max-width:1180px){
+  .hero-grid{
+    grid-template-columns:minmax(0,.85fr) minmax(420px,1.15fr);
   }
+}
+@media(max-width:940px){
+  /* No tiny nested scroll region: the browser's full page carries the
+     conversation, while the area reserves a generous 600px+ on its own. */
+  .advisor{height:auto;min-height:0;max-height:none}
   .chat-window{
     flex:0 0 auto;
     height:auto;
-    min-height:310px;
+    min-height:clamp(600px,82svh,850px);
     max-height:none;
     overflow:visible;
     overscroll-behavior-y:auto;
+    padding-block:22px 32px;
   }
 }
 @media(max-width:620px){
-  .advisor{height:auto;min-height:0;max-height:none}
-  .chat-window{height:auto;min-height:280px;max-height:none;overflow:visible}
+  .chat-window{
+    height:auto;
+    min-height:clamp(600px,82svh,850px);
+    max-height:none;
+    overflow:visible;
+  }
+  .chat-window .message{font-size:16px;line-height:1.75}
+  .chat-window .chat-source-link{font-size:14px}
 }
