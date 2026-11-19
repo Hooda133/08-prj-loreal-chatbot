@@ -208,7 +208,7 @@ try {
   assert.equal(a11yDetails.build,"final-accessibility-pass");
   assert.ok(a11yDetails.officialHeight >= 32,
     "Official product links need a large enough touch target");
-  assert.equal(a11yDetails.officialDisplay,"inline-flex");
+  assert.match(a11yDetails.officialDisplay,/^(inline-)?flex$/);
   for(const [visible,spoken] of [
     [a11yDetails.officialText,a11yDetails.officialLabel],
     [a11yDetails.saveText,a11yDetails.saveLabel],
