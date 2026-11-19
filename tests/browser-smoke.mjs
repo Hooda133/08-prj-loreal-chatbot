@@ -199,6 +199,50 @@ try {
     "Source list is available without inventing inline citations");
   assert.equal(consulted.status, "");
 
+  // Full-window view must contain the same successful chat and real links,
+  // not create a second conversation or lose the search setting.
+  const lookupSourcesBefore = await lookup.$eval("#chatWindow",
+    el => el.querySelectorAll(".chat-source-link").length);
+  await lookup.click("#expandChatBtn");
+  const fullView = await lookup.evaluate(() => {
+    const advisor = document.querySelector("#concierge");
+    const rect = advisor.getBoundingClientRect();
+    return {
+      active:advisor.classList.contains("advisor--focus"),
+      role:advisor.getAttribute("role"),
+      modal:advisor.getAttribute("aria-modal"),
+      width:rect.width,
+      height:rect.height,
+      viewportWidth:innerWidth,
+      viewportHeight:innerHeight,
+      conversation:document.querySelector("#chatWindow").getBoundingClientRect().height,
+      links:advisor.querySelectorAll(".chat-source-link").length,
+      searchChecked:document.querySelector("#webSearchToggle").checked,
+      expanded:document.querySelector("#expandChatBtn").getAttribute("aria-pressed")
+    };
+  });
+  assert.equal(fullView.active, true);
+  assert.equal(fullView.role, "dialog");
+  assert.equal(fullView.modal, "true");
+  assert.ok(fullView.width > fullView.viewportWidth - 40);
+  assert.ok(fullView.height > fullView.viewportHeight - 40);
+  assert.ok(fullView.conversation > 300, "Focus mode shows a large transcript");
+  assert.equal(fullView.links, lookupSourcesBefore);
+  assert.equal(fullView.searchChecked, true);
+  assert.equal(fullView.expanded, "true");
+  await lookup.keyboard.press("Escape");
+  const restoredView = await lookup.evaluate(() => ({
+    focusMode:document.querySelector("#concierge").classList.contains("advisor--focus"),
+    location:document.querySelector("#concierge").parentElement.classList.contains("hero-grid"),
+    scrollLocked:document.body.classList.contains("chat-focus-open"),
+    expanded:document.querySelector("#expandChatBtn").getAttribute("aria-pressed"),
+    links:document.querySelectorAll("#chatWindow .chat-source-link").length
+  }));
+  assert.deepEqual(restoredView,{
+    focusMode:false,location:true,scrollLocked:false,
+    expanded:"false",links:lookupSourcesBefore
+  });
+
   await lookup.click("#webSearchToggle");
   assert.equal(await lookup.$eval("#webSearchToggle", el => el.checked), false);
 
@@ -813,6 +857,24 @@ try {
   assert.equal(mobileCitations.inline, "[1]");
   assert.match(mobileCitations.link, /^https:\/\/www\.lorealparisusa\.com\//);
   assert.ok(mobileCitations.overflow <= 2);
+  await mobile.click("#expandChatBtn");
+  const mobileFocus = await mobile.evaluate(() => ({
+    full:document.querySelector("#concierge").classList.contains("advisor--focus"),
+    panelHeight:document.querySelector("#concierge").getBoundingClientRect().height,
+    areaHeight:document.querySelector("#chatWindow").getBoundingClientRect().height,
+    sources:document.querySelector("#chatWindow").querySelectorAll(".chat-source-link").length,
+    overflow:document.documentElement.scrollWidth - innerWidth
+  }));
+  assert.equal(mobileFocus.full,true);
+  assert.ok(mobileFocus.panelHeight >= 800,
+    "Mobile focus mode should occupy the entire phone viewport");
+  assert.ok(mobileFocus.areaHeight > 250);
+  assert.ok(mobileFocus.sources > 0);
+  assert.ok(mobileFocus.overflow <= 2);
+  await mobile.keyboard.press("Escape");
+  assert.equal(await mobile.$eval("#concierge",
+    el => el.classList.contains("advisor--focus")),false);
+
   await mobile.click("#webSearchToggle");
 
   // Product searching also works on narrow touchscreens, alongside categories.
