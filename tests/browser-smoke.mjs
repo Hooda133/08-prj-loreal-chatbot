@@ -101,7 +101,8 @@ try {
       cssLoaded:[...document.styleSheets].some(sheet =>
         sheet.href?.split("?")[0].endsWith("/atelier-redesign.css")),
       build:document.querySelector('meta[name="beauty-atelier-build"]')?.content,
-      cacheBustedChat:!!document.querySelector('script[src*="script.js?v=20261119-balanced"]'),
+      cacheBustedChat:!!document.querySelector('script[src*="script.js?v=20261119-concise-replies"]'),
+      conciseMode:document.querySelector('meta[name="beauty-atelier-reply-mode"]')?.content,
       darkCover:getComputedStyle(hero).backgroundImage.includes("linear-gradient"),
       headingColor:getComputedStyle(heading).color,
       stickyHeader:getComputedStyle(document.querySelector(".site-header")).position,
@@ -121,6 +122,8 @@ try {
     "The existing balanced chat must remain unchanged");
   assert.equal(editorial.cacheBustedChat, true,
     "The HTML should load fresh chat JavaScript after deployment");
+  assert.equal(editorial.conciseMode,"concise-with-expand",
+    "The published HTML must opt into the new concise chat display");
   assert.equal(editorial.darkCover, true, "Cover must use editorial gradients");
   assert.equal(editorial.headingColor, "rgb(255, 250, 242)");
   assert.equal(editorial.stickyHeader, "relative", "Masthead must not cover scrolled-to controls");
@@ -179,6 +182,49 @@ try {
   assert.equal(realArt.correctFirstProduct,true,"Catalog photo must match product id");
   assert.equal(realArt.selectable,true,"Real images must not block card selection");
   assert.match(realArt.fragranceDisclosure,/Lancôme.*L.Oréal Groupe/);
+  // A lengthy reply from an older Worker stays accessible but is not
+  // dumped as a wall of text. Keep search citations visible independently.
+  const longReader = await desktop.evaluate(() => {
+    const win = document.querySelector("#chatWindow");
+    const bubble = document.createElement("div");
+    bubble.className = "message ai";
+    bubble.id = "test-long-answer";
+    win.appendChild(bubble);
+    const text = Array(30).fill("Lancôme offers a range of beautiful fragrance options.").join(" ");
+    window.renderAssistantReply(bubble,text,[{
+      url:"https://www.lancome-usa.com/fragrance",title:"Lancôme fragrance"
+    }],"consulted");
+    const body = bubble.querySelector(".chat-answer-body");
+    const toggle = bubble.querySelector(".chat-answer-toggle");
+    const before = {
+      collapsed:body.classList.contains("is-collapsed"),
+      height:body.getBoundingClientRect().height,
+      aria:toggle.getAttribute("aria-expanded"),
+      label:toggle.textContent,
+      source:!!bubble.querySelector(".chat-source-link")
+    };
+    toggle.click();
+    const expanded = {
+      height:body.getBoundingClientRect().height,
+      aria:toggle.getAttribute("aria-expanded"),
+      label:toggle.textContent
+    };
+    toggle.click();
+    const closed = body.classList.contains("is-collapsed");
+    bubble.remove();
+    return {before,expanded,closed};
+  });
+  assert.equal(longReader.before.collapsed,true);
+  assert.ok(longReader.before.height < 210,
+    "Large AI replies must be presented compactly by default");
+  assert.equal(longReader.before.aria,"false");
+  assert.equal(longReader.before.label,"Show full answer");
+  assert.equal(longReader.before.source,true,"Source links remain available");
+  assert.ok(longReader.expanded.height > longReader.before.height + 20);
+  assert.equal(longReader.expanded.aria,"true");
+  assert.equal(longReader.expanded.label,"Show less");
+  assert.equal(longReader.closed,true);
+
   await desktop.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight / 3));
   await desktop.waitForFunction(() => {
     const t = document.querySelector("#readingProgressBar").style.transform;
