@@ -24,6 +24,11 @@ const copyRequestDiagnostic = document.getElementById("copyRequestDiagnostic");
 const requestDiagnosticCopyStatus = document.getElementById("requestDiagnosticCopyStatus");
 
 
+// Keep a shared reading-mode control so sending a question on a narrow
+// screen can reveal the answer without requiring a second click.
+// It reuses the SAME chat node, keeping messages and cited links intact.
+let toggleChatFocusMode = () => {};
+
 // Optional large reading view: keep the SAME chat node and in-memory
 // conversation, so opening/closing cannot discard messages or web sources.
 // Move the node outside the hero's isolated stacking context for a true
@@ -34,7 +39,7 @@ if (expandChatBtn && advisor) {
   originalParent.insertBefore(placeholder, advisor);
   let expanded = false;
 
-  function toggleChatFocusMode(open) {
+  toggleChatFocusMode = function (open) {
     if (open === expanded) return;
     expanded = open;
     if (open) {
@@ -401,6 +406,9 @@ function updateFollowUpSuggestions() {
 }
 
 function newChat(focusInput = true) {
+  // A new conversation starts in the normal page, with the welcome prompts
+  // and message field visible. The next question can enter reading mode.
+  toggleChatFocusMode(false);
   if (busy) {
     // Invalidate pending promises even if the browser or a mock transport
     // ignores AbortController, so a late result cannot reappear.
@@ -448,6 +456,13 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
   clearRequestDiagnostic();
   setQuestionPreview(content);
   const userBubble = addMessage(content, "user", false, true);
+  // On phones, tablets and narrow desktop windows, show the conversation
+  // full-window the moment a question is sent. This prevents the composer,
+  // suggestions and promotional header from squeezing the reply into a strip.
+  // The user can choose Close to return to the naturally growing page chat.
+  if (window.matchMedia("(max-width: 940px)").matches) {
+    toggleChatFocusMode(true);
+  }
   // Generating from product cards should not wipe a question the visitor
   // was typing in the chat box. Ordinary chat submits keep their old behavior.
   if (!safeNotes.length && !preserveDraft) input.value = "";
@@ -546,7 +561,7 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
     // replies behind the large composer. Bring the new answer into the
     // visible page after Send instead of leaving the reader at the input.
     // A full-size conversation also works with ordinary page scrolling.
-    if (shouldRevealOnPhone) {
+    if (shouldRevealOnPhone || advisor.classList.contains("advisor--focus")) {
       pending.scrollIntoView({
         block: "start",
         behavior: motionIsAllowed() ? "smooth" : "auto"
@@ -618,7 +633,7 @@ function handleSuggestedPrompt(event) {
   const button = event.target.closest("button[data-prompt]");
   if (!button) return;
   sendMessage(button.dataset.prompt);
-  scrollToAdvisor();
+  if (!advisor.classList.contains("advisor--focus")) scrollToAdvisor();
 }
 suggestions.addEventListener("click", handleSuggestedPrompt);
 miniPrompts.addEventListener("click", handleSuggestedPrompt);
