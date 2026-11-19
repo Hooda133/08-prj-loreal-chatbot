@@ -311,7 +311,7 @@ html[dir="rtl"] .atelier-path__arrow{transform:scaleX(-1)}
 .catalog-field input:focus-visible,.catalog-field select:focus-visible,.builder-field select:focus-visible{outline-color:#9c5e6f}
 .catalog-search-control{min-width:0}
 .catalog-search-clear{background:#f5e7e1;border-color:#d2b7b0;color:#713f50;border-radius:4px}
-.catalog-search-help{color:#877273}
+.catalog-search-help{color:#765e66} /* Verified contrast against ivory background. */
 .catalog-selection-help{color:#806a69}
 .catalog-grid{gap:20px}
 .catalog-card{
@@ -1334,4 +1334,24 @@ html[dir="rtl"] .advisor--focus .chat-window{direction:rtl}
 }
 @media(prefers-reduced-motion:reduce){
   .chat-window .chat-answer-toggle{transition:none}
+}
+
+
+/* FINAL SUBMISSION QA — catalog navigation
+   Official product links are now comfortable touch/keyboard targets, without
+   letting the card's selection overlay steal link clicks. */
+.catalog-card > .catalog-link,
+.routine-result__step .catalog-link{
+  display:inline-flex;
+  align-items:center;
+  min-height:34px;
+  padding:7px 3px;
+  box-sizing:border-box;
+  line-height:1.45;
+}
+.catalog-card > .catalog-link{margin-top:2px}
+.catalog-card > .catalog-link:focus-visible,
+.routine-result__step .catalog-link:focus-visible{
+  outline:3px solid #875568;
+  outline-offset:3px;
 }
