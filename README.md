@@ -162,6 +162,37 @@ category intersections, recovery from zero results, responsive mobile
 layout and preserving existing card features. Node tests validate search
 logic independently.
 
+## Fix: make full AI replies and web sources visible on small screens
+
+The Beauty Concierge used to have a fixed 690px mobile card height.
+After a conversation started, the quick prompts, follow-up suggestions,
+web-search toggle and composer could consume nearly all that height,
+leaving **only a tiny sliver of the actual answer** visible. This looked
+like live search was broken even when the Worker returned working links.
+
+- The card now **grows with its content** instead of shrinking the
+  conversation to make the controls fit.
+- On narrow screens (up to 940px) the entire transcript, including all
+  sourced answers, uses **normal page scrolling** instead of a nested
+  scroll area. Longer replies and source lists remain readable.
+- On desktops the transcript has a generous dedicated scroll region,
+  with a minimum height of 390px.
+- Once a conversation starts, the **introductory quick prompts collapse**
+  to prioritize the answer; the contextual follow-up suggestions remain.
+  Starting a New Chat restores the introductory prompts.
+- When a mobile reply finishes, the page **reveals the new answer** rather
+  than staying anchored to the input. Visitors who are reading older
+  messages during a request are not forcibly interrupted.
+- This is a frontend-only fix; it changes no Worker secrets, search
+  sources, conversation storage or API requests.
+
+A real Chrome smoke test reproduces the screenshot conditions
+(**594 × 690**), sends a follow-up live-search question, checks
+that the conversation is at least 280px tall, verifies that its
+source links are fully inside the transcript, and confirms the input
+does not overlap the answer. The desktop, 375px phone, accessibility
+and RTL tests still run.
+
 ## Troubleshooting: live-search failures in a specific browser
 
 The deployed Cloudflare Worker has successfully returned live web-search answers
