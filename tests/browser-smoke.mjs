@@ -204,6 +204,24 @@ try {
 
   await lookup.close();
 
+  // Desktop keeps a usable, scrollable transcript even with composer
+  // shortcuts and web-search controls present.
+  const desktopTranscript = await desktop.evaluate(() => {
+    const chat = document.querySelector("#chatWindow");
+    const composer = document.querySelector(".advisor__composer");
+    const chatRect = chat.getBoundingClientRect();
+    return {
+      height:chatRect.height,
+      overflow:getComputedStyle(chat).overflowY,
+      composerTop:composer.getBoundingClientRect().top,
+      chatBottom:chatRect.bottom
+    };
+  });
+  assert.ok(desktopTranscript.height >= 390,
+    "Desktop conversation should reserve at least 390px for answers");
+  assert.equal(desktopTranscript.overflow, "auto");
+  assert.ok(desktopTranscript.composerTop >= desktopTranscript.chatBottom - 2);
+
   await sendQuestion(desktop, "My name is Emma. Can you suggest a L’Oréal routine?");
   state = await desktop.evaluate(() => ({
     user: document.querySelectorAll(".chat-window .message.user").length,
