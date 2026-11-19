@@ -131,6 +131,44 @@ try {
   assert.equal(editorial.cardEditionHidden, "true");
   assert.equal(editorial.hasBuilder, true);
   assert.equal(editorial.hasChat, true);
+
+  // Studio v2 is actual source-owned vector artwork on dimensional display
+  // stages, not remote stock icons or visual overlays blocking controls.
+  const sculptedArt = await desktop.evaluate(() => {
+    const iconIds = ["ui-serum","ui-lipstick","ui-perfume","ui-compact","ui-hair"];
+    const stage = document.querySelector(".category-card__disc");
+    const glint = document.querySelector(".category-card__visual");
+    const catalogArt = document.querySelector("#productGrid .catalog-card__art");
+    const symbolUses = [...document.querySelectorAll(".category-card__visual use")];
+    return {
+      build:document.querySelector('meta[name="beauty-atelier-art-version"]')?.content,
+      styleVersion:!!document.querySelector('link[href*="atelier-redesign.css?v=20261119-sculpted-v2"]'),
+      sourceSymbols:iconIds.every(id => !!document.getElementById(id)),
+      beveledMaterial:!!document.getElementById("ui-bevel-v2"),
+      prismaticMaterial:!!document.getElementById("ui-prism-v2"),
+      displays:symbolUses.map(use => use.getAttribute("href")),
+      pedestal:getComputedStyle(stage,"::before").backgroundImage,
+      pedestalTop:getComputedStyle(stage,"::after").backgroundImage,
+      sparkle:getComputedStyle(glint,"::after").clipPath,
+      catalogPedestal:getComputedStyle(catalogArt,"::before").backgroundImage,
+      catalogStillClickable:!!catalogArt.parentElement.querySelector(".catalog-card__pick"),
+      imageRequests:[...document.images].filter(img =>
+        /unsplash|pexels|stockphotos/i.test(img.src)).length
+    };
+  });
+  assert.equal(sculptedArt.build,"sculpted-icons-v2");
+  assert.equal(sculptedArt.styleVersion,true,"Load versioned premium icon CSS");
+  assert.equal(sculptedArt.sourceSymbols,true,"All five reusable product SVG illustrations exist");
+  assert.equal(sculptedArt.beveledMaterial,true);
+  assert.equal(sculptedArt.prismaticMaterial,true);
+  assert.deepEqual(sculptedArt.displays,
+    ["#ui-serum","#ui-lipstick","#ui-hair","#ui-perfume"]);
+  assert.match(sculptedArt.pedestal,/linear-gradient/);
+  assert.match(sculptedArt.pedestalTop,/linear-gradient/);
+  assert.match(sculptedArt.sparkle,/polygon/);
+  assert.match(sculptedArt.catalogPedestal,/linear-gradient/);
+  assert.equal(sculptedArt.catalogStillClickable,true);
+  assert.equal(sculptedArt.imageRequests,0,"No stock icon images added");
   await desktop.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight / 3));
   await desktop.waitForFunction(() => {
     const t = document.querySelector("#readingProgressBar").style.transform;
