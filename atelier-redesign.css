@@ -1039,6 +1039,10 @@ html[dir="rtl"] .advisor--focus .chat-window{direction:rtl}
   content:"";
   position:absolute;
   z-index:0;
+  /* Reset the inherited arch's top/right coordinates. Otherwise the
+     pedestal mistakenly appears above the bottle, not beneath it. */
+  top:auto;
+  right:auto;
   left:19%;
   bottom:7px;
   width:62%;
