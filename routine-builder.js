@@ -310,7 +310,8 @@
     link.href = product.url;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.setAttribute("aria-label", "View " + product.name + " on the official L'Oréal Paris site (opens new tab)");
+    // Keep the visible label at the start of the accessible name (WCAG 2.5.3).
+    link.setAttribute("aria-label", "Official product details for " + product.name + " (opens new tab)");
     return link;
   }
 
@@ -349,7 +350,9 @@
     const save = card.querySelector(".catalog-button--save");
     save.textContent = active ? "✓ Saved" : "+ Save product";
     save.setAttribute("aria-pressed", String(active));
-    save.setAttribute("aria-label", (active ? "Remove " : "Save ") + product.name);
+    save.setAttribute("aria-label", active
+      ? "Saved — remove " + product.name
+      : "Save product — " + product.name);
   }
 
   function syncVisibleCard(product) {
@@ -531,11 +534,13 @@
       const save = make("button", "catalog-button catalog-button--save", selected.has(product.id) ? "✓ Saved" : "+ Save product");
       save.type = "button";
       save.setAttribute("aria-pressed", String(selected.has(product.id)));
-      save.setAttribute("aria-label", (selected.has(product.id) ? "Remove " : "Save ") + product.name);
+      save.setAttribute("aria-label", selected.has(product.id)
+        ? "Saved — remove " + product.name
+        : "Save product — " + product.name);
       save.addEventListener("click", () => toggleSelectedProduct(product, card));
       const ask = make("button", "catalog-button catalog-button--ask", "Ask AI ↗");
       ask.type = "button";
-      ask.setAttribute("aria-label", "Ask the beauty assistant about " + product.name);
+      ask.setAttribute("aria-label", "Ask AI about " + product.name);
       ask.addEventListener("click", () => askAbout(product));
       actions.append(save, ask);
       card.appendChild(actions);
