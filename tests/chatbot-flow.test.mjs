@@ -639,42 +639,39 @@ test("An upstream model refusal uses the same warm beauty-specific redirection",
 });
 
 
-test("Beauty icon sprite contains five complete, uniquely named dimensional product vectors", async () => {
+test("Real official L’Oréal product imagery covers all 23 verified catalog IDs", async () => {
   const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const sprite = html.match(/<svg class="beauty-icon-sprite"[\s\S]*?<\/svg>/)?.[0];
-  assert.ok(sprite, "Shared original beauty icon sprite exists");
-  const names = [...sprite.matchAll(/<symbol id="([^"]+)"/g)].map(m => m[1]);
-  assert.deepEqual(names, ["ui-serum", "ui-lipstick", "ui-perfume", "ui-compact", "ui-hair"]);
-  const materials = [...sprite.matchAll(/<(?:linearGradient|radialGradient|filter) id="([^"]+)"/g)]
-    .map(m => m[1]);
-  assert.equal(materials.length, new Set(materials).size, "Material and filter IDs must be unique");
-  assert.ok(materials.length >= 10, "Original materials include distinct glass, chrome, metallic and soft powders");
-
-  const references = [...sprite.matchAll(/(?:fill|stroke|filter)="url\(#([^)"']+)\)"/g)]
-    .map(m => m[1]);
-  assert.ok(references.length > 18, "Material gradients are used throughout the icons");
-  for (const ref of references) {
-    assert.ok(materials.includes(ref), "Defined SVG material missing: " + ref);
-  }
-  const symbolsClosed = (sprite.match(/<\/symbol>/g) || []).length;
-  assert.equal(symbolsClosed, 5);
+  const photos = await readFile(new URL("../product-photography.js", import.meta.url), "utf8");
+  const catalog = await readFile(new URL("../product-catalog.js", import.meta.url), "utf8");
+  const catalogIds = [...catalog.matchAll(/\bid:\s*"([^"]+)"/g)].map(m => m[1]);
+  const mediaIds = new Set([...photos.matchAll(/^    "([^"]+)": loreal \+ /gm)].map(m => m[1]));
+  assert.equal(catalogIds.length,23);
+  assert.equal(mediaIds.size,23, "Each catalog product has an official product image mapping");
+  for (const id of catalogIds) assert.ok(mediaIds.has(id), "Missing real product media for " + id);
+  assert.match(photos,/https:\/\/www\.lorealparisusa\.com\/\-\/media\/project\/loreal/);
+  assert.match(photos,/window\.BeautyPhotography = Object\.freeze/);
+  assert.match(photos,/Photo unavailable/);
+  assert.doesNotMatch(html,/<symbol id="ui-/);
 });
 
-test("Product-card and concierge icons share the same pack without broken references", async () => {
+test("The hero, categories, concierge and routine UI use actual photos instead of SVG bottles", async () => {
   const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
-  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
-  const symbolIds = new Set([...html.matchAll(/<symbol id="([^"]+)"/g)].map(m => m[1]));
-  const iconUses = [...html.matchAll(/<use href="#([^"]+)"/g)].map(m => m[1]);
-  assert.ok(iconUses.length >= 29);
-  for (const icon of iconUses) {
-    assert.ok(symbolIds.has(icon), "Unknown icon reference: " + icon);
-  }
-  assert.equal((html.match(/beauty-icon--showcase/g) || []).length, 4);
-  assert.equal((html.match(/<span class="category-card__visual">/g) || []).length, 4);
-  assert.ok(!html.includes('id="serumglass"'), "Legacy flat product-card gradients were replaced");
-  assert.match(css, /\.category-card__scene::before\s*\{/);
-  assert.match(css, /\.category-card__visual \.beauty-icon--showcase\s*\{/);
-  assert.match(css, /@media\(prefers-reduced-motion:reduce\)/);
+  const style = await readFile(new URL("../atelier-redesign.css", import.meta.url), "utf8");
+  const js = await readFile(new URL("../routine-builder.js", import.meta.url), "utf8");
+  const images = [...html.matchAll(/data-product-photo="([^"]+)"/g)].map(m => m[1]);
+  assert.ok(images.length >= 32,"Every prior icon and the hero must have an image");
+  assert.equal((html.match(/beauty-icon--showcase/g) || []).length,4);
+  assert.equal((html.match(/<span class="category-card__visual">/g) || []).length,4);
+  assert.equal((html.match(/<use href="#ui-/g) || []).length,0);
+  assert.match(html,/hero-product-scene/);
+  assert.match(html,/Lancôme · L.Oréal Groupe/);
+  assert.match(style,/\.hero-photo--serum\s*\{/);
+  assert.match(style,/\.category-card__visual \.real-product-shot\s*\{/);
+  assert.match(style,/\.catalog-card__art \.real-product-shot\s*\{/);
+  assert.match(js,/productPhoto\(product/);
+  assert.match(js,/saved-chip__photo/);
+  assert.match(js,/routine-step__photo/);
+  assert.match(style,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
 test("Chat pending message uses professional, user-friendly wording", async () => {

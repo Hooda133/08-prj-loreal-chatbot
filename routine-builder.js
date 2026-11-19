@@ -296,17 +296,13 @@
 
   function announceText(text) { announce.textContent = text; }
 
-  function productIcon(product) {
-    const map = { cleanser:"ui-compact", serum:"ui-serum", moisturizer:"ui-hair", sunscreen:"ui-perfume", shampoo:"ui-hair", conditioner:"ui-hair", "leave-in":"ui-serum", base:"ui-compact", eyes:"ui-lipstick", lips:"ui-lipstick" };
-    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute("viewBox", "0 0 80 80");
-    svg.setAttribute("class", "beauty-icon");
-    svg.setAttribute("aria-hidden", "true");
-    svg.setAttribute("focusable", "false");
-    const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-    use.setAttribute("href", "#" + map[product.group]);
-    svg.appendChild(use);
-    return svg;
+  function productPhoto(product, className = "catalog-product-photo") {
+    // A real, source-matched photo for each catalog ID, not a category icon.
+    // Network failures show a truthful unavailable state via the shared helper.
+    return window.BeautyPhotography?.create(product.id, {
+      className: "real-product-shot " + className,
+      decorative: true
+    }) || make("span", "product-photo-fallback", "Product photograph unavailable");
   }
 
   function officialLink(product) {
@@ -389,8 +385,11 @@
     for (const id of selected) {
       const product = catalog.find(item => item.id === id);
       if (!product) continue;
-      const chip = make("button", "saved-chip", product.name + " ×");
+      const chip = make("button", "saved-chip");
       chip.type = "button";
+      chip.appendChild(productPhoto(product, "saved-chip__photo"));
+      chip.appendChild(make("span", "saved-chip__name", product.name));
+      chip.appendChild(make("span", "saved-chip__remove", "×"));
       chip.setAttribute("aria-label", "Remove " + product.name + " from saved products");
       chip.addEventListener("click", () => {
         selected.delete(id);
@@ -498,7 +497,7 @@
       edition.setAttribute("aria-hidden", "true");
       card.appendChild(edition);
       const image = make("div", "catalog-card__art catalog-card__art--" + product.group);
-      image.appendChild(productIcon(product));
+      image.appendChild(productPhoto(product));
       card.appendChild(image);
       const selectionLabel = make("span", "catalog-card__selection-label");
       selectionLabel.setAttribute("aria-hidden", "true");
@@ -559,7 +558,10 @@
       details.appendChild(make("span", "routine-result__step-label", step.label));
       details.appendChild(make("strong", "", step.product.name));
       details.appendChild(make("small", "", step.product.description));
-      item.appendChild(details);
+      const row = make("div", "routine-step-main");
+      row.appendChild(productPhoto(step.product, "routine-step__photo"));
+      row.appendChild(details);
+      item.appendChild(row);
       item.appendChild(officialLink(step.product));
       list.appendChild(item);
     }

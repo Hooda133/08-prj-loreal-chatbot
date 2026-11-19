@@ -118,7 +118,7 @@ try {
   assert.equal(editorial.theme, "#251b20");
   assert.equal(editorial.cssLoaded, true, "Premium design stylesheet should load");
   assert.equal(editorial.build, "2026-11-19-balanced-chat",
-    "The HTML must identify the balanced-chat deployment version");
+    "The existing balanced chat must remain unchanged");
   assert.equal(editorial.cacheBustedChat, true,
     "The HTML should load fresh chat JavaScript after deployment");
   assert.equal(editorial.darkCover, true, "Cover must use editorial gradients");
@@ -132,48 +132,53 @@ try {
   assert.equal(editorial.hasBuilder, true);
   assert.equal(editorial.hasChat, true);
 
-  // Studio v2 is actual source-owned vector artwork on dimensional display
-  // stages, not remote stock icons or visual overlays blocking controls.
-  const sculptedArt = await desktop.evaluate(() => {
-    const iconIds = ["ui-serum","ui-lipstick","ui-perfume","ui-compact","ui-hair"];
-    const stage = document.querySelector(".category-card__disc");
-    const glint = document.querySelector(".category-card__visual");
-    const catalogArt = document.querySelector("#productGrid .catalog-card__art");
-    const symbolUses = [...document.querySelectorAll(".category-card__visual use")];
+  // The gallery must use real, source-matched product packshots everywhere.
+  const realArt = await desktop.evaluate(() => {
+    const photos = window.BeautyPhotography;
+    const catalog = window.BeautyCatalog;
+    const cards = [...document.querySelectorAll(".category-card__visual img")];
+    const productCards = [...document.querySelectorAll("#productGrid .catalog-card")];
+    const sample = productCards[0];
+    const photographed = [...document.querySelectorAll("img[data-product-photo]")];
     return {
-      build:document.querySelector('meta[name="beauty-atelier-art-version"]')?.content,
-      styleVersion:!!document.querySelector('link[href*="atelier-redesign.css?v=20261119-sculpted-v2"]'),
-      sourceSymbols:iconIds.every(id => !!document.getElementById(id)),
-      beveledMaterial:!!document.getElementById("ui-bevel-v2"),
-      prismaticMaterial:!!document.getElementById("ui-prism-v2"),
-      displays:symbolUses.map(use => use.getAttribute("href")),
-      pedestal:getComputedStyle(stage,"::before").backgroundImage,
-      pedestalTop:getComputedStyle(stage,"::after").backgroundImage,
-      sparkle:getComputedStyle(glint,"::after").clipPath,
-      catalogPedestal:getComputedStyle(catalogArt,"::before").backgroundImage,
-      catalogPedestalTop:getComputedStyle(catalogArt,"::before").top,
-      catalogPedestalBottom:getComputedStyle(catalogArt,"::before").bottom,
-      catalogStillClickable:!!catalogArt.parentElement.querySelector(".catalog-card__pick"),
-      imageRequests:[...document.images].filter(img =>
-        /unsplash|pexels|stockphotos/i.test(img.src)).length
+      version:document.querySelector('meta[name="beauty-atelier-art-version"]')?.content,
+      stylesheet:!!document.querySelector('link[href*="atelier-redesign.css?v=20261119-real-products"]'),
+      jsLoaded:!!document.querySelector('script[src*="product-photography.js?v=20261119-real"]'),
+      totalCatalog:catalog.length,
+      mappedCatalog:catalog.filter(item => !!photos.urlFor(item.id)).length,
+      uniqueImages:new Set(catalog.map(item => photos.urlFor(item.id))).size,
+      lorealSources:catalog.every(item => photos.urlFor(item.id).startsWith("https://www.lorealparisusa.com/-/media/")),
+      realHero:document.querySelectorAll(".hero-product-scene .hero-photo").length,
+      fakeHero:!!document.querySelector("svg.hero-art__still-life"),
+      fakeSprite:!!document.querySelector(".beauty-icon-sprite"),
+      fakeUses:document.querySelectorAll('use[href^="#ui-"]').length,
+      categoryPhotos:cards.map(img => img.dataset.productPhoto),
+      hydratedStatic:photographed.length,
+      staticSources:photographed.filter(img => img.src.startsWith("https://")).length,
+      correctFirstProduct:sample.querySelector(".catalog-product-photo")?.src === photos.urlFor(sample.dataset.productId),
+      selectable:!!sample.querySelector(".catalog-card__pick"),
+      fragranceDisclosure:document.querySelector(".category-card--scent .category-card__bottom small")?.textContent
     };
   });
-  assert.equal(sculptedArt.build,"sculpted-icons-v2");
-  assert.equal(sculptedArt.styleVersion,true,"Load versioned premium icon CSS");
-  assert.equal(sculptedArt.sourceSymbols,true,"All five reusable product SVG illustrations exist");
-  assert.equal(sculptedArt.beveledMaterial,true);
-  assert.equal(sculptedArt.prismaticMaterial,true);
-  assert.deepEqual(sculptedArt.displays,
-    ["#ui-serum","#ui-lipstick","#ui-hair","#ui-perfume"]);
-  assert.match(sculptedArt.pedestal,/linear-gradient/);
-  assert.match(sculptedArt.pedestalTop,/linear-gradient/);
-  assert.match(sculptedArt.sparkle,/polygon/);
-  assert.match(sculptedArt.catalogPedestal,/linear-gradient/);
-  assert.ok(parseFloat(sculptedArt.catalogPedestalTop) > 100,
-    "Catalog podium must be positioned near the bottom, not above the bottle");
-  assert.equal(sculptedArt.catalogPedestalBottom,"7px");
-  assert.equal(sculptedArt.catalogStillClickable,true);
-  assert.equal(sculptedArt.imageRequests,0,"No stock icon images added");
+  assert.equal(realArt.version,"real-product-photography");
+  assert.equal(realArt.stylesheet,true);
+  assert.equal(realArt.jsLoaded,true);
+  assert.equal(realArt.totalCatalog,23);
+  assert.equal(realArt.mappedCatalog,23,"Each official product has a real photo URL");
+  assert.equal(realArt.uniqueImages,23,"Catalog items cannot repeat a generic category illustration");
+  assert.equal(realArt.lorealSources,true);
+  assert.equal(realArt.realHero,3);
+  assert.equal(realArt.fakeHero,false);
+  assert.equal(realArt.fakeSprite,false);
+  assert.equal(realArt.fakeUses,0);
+  assert.deepEqual(realArt.categoryPhotos,
+    ["ha-serum","colour-riche","plump-shampoo","lancome-fragrance"]);
+  assert.ok(realArt.hydratedStatic >= 29);
+  assert.equal(realArt.hydratedStatic,realArt.staticSources,
+    "Every static product image should have a real HTTPS photograph URL");
+  assert.equal(realArt.correctFirstProduct,true,"Catalog photo must match product id");
+  assert.equal(realArt.selectable,true,"Real images must not block card selection");
+  assert.match(realArt.fragranceDisclosure,/Lancôme.*L.Oréal Groupe/);
   await desktop.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight / 3));
   await desktop.waitForFunction(() => {
     const t = document.querySelector("#readingProgressBar").style.transform;
@@ -594,6 +599,14 @@ try {
     saved:document.querySelectorAll("#chosenProducts .saved-chip").length
   }));
   assert.deepEqual(afterKeyboard, {pressed:"true",focusPreserved:true,saved:1});
+  const savedPhoto = await desktop.evaluate(() => ({
+    src:document.querySelector("#chosenProducts .saved-chip__photo")?.src,
+    official:window.BeautyPhotography.urlFor("lumi-glotion"),
+    remove:document.querySelector("#chosenProducts .saved-chip__remove")?.textContent
+  }));
+  assert.equal(savedPhoto.src,savedPhoto.official,
+    "Saved products display their own photographed packaging");
+  assert.equal(savedPhoto.remove,"×");
 
   // Ask AI stays independent; clicking it must not unselect the product.
   await desktop.click(lumiCard + " .catalog-button--ask");

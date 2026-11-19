@@ -1102,3 +1102,197 @@ html[dir="rtl"] .advisor--focus .chat-window{direction:rtl}
   .category-card__visual::after{transition:none;transform:none}
 }
 .motion-paused .category-card__visual::after{transition:none;transform:none}
+
+
+/* REAL PRODUCT PHOTOGRAPHY / 2026-11-19
+   L'Oréal Paris package photography (plus labeled Lancôme fragrance) replaces
+   concept-product drawings. Preserve existing cards, controls and accessibility. */
+.real-product-shot,.real-product-photo{
+  display:block;
+  object-fit:contain;
+  object-position:center;
+  max-width:100%;
+  max-height:100%;
+  mix-blend-mode:normal;
+  pointer-events:none;
+}
+.real-product-shot[hidden],.real-product-photo[hidden]{display:none!important}
+.product-photo-fallback{
+  display:inline-flex;
+  max-width:100%;
+  align-items:center;
+  justify-content:center;
+  padding:7px 9px;
+  text-align:center;
+  font:600 10px/1.4 var(--maison-sans);
+  letter-spacing:.04em;
+  color:#68464c;
+  background:#fffaf0d9;
+  border:1px solid #d8c8bd;
+  border-radius:5px;
+  pointer-events:none;
+}
+.catalog-card__art .product-photo-fallback,
+.category-card__visual .product-photo-fallback{
+  position:absolute;inset:35% 8% auto;z-index:2;
+}
+.category-card--makeup .product-photo-fallback,
+.category-card--scent .product-photo-fallback{color:#fff;background:#432a3ddd;border-color:#ffffff65}
+
+/* Photo shoot: real L'Oréal Paris RevitaLift + Colour Riche on marble plinth. */
+.hero-art{background:#dcc7bd}
+.hero-product-scene{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  isolation:isolate;
+  background:
+    radial-gradient(ellipse at 48% 22%,#fffaf1 0%,#ead6ca 43%,transparent 72%),
+    linear-gradient(135deg,#b88b83,#edddcf 52%,#ae8281 100%);
+}
+.hero-photo-arch{
+  position:absolute;
+  z-index:0;
+  inset:9% 18% -15%;
+  border-radius:48% 48% 0 0;
+  background:linear-gradient(120deg,#fbf0e6c8,#ffffff25 55%,#b18a8a77);
+  border:1px solid #fffaf3a8;
+  box-shadow:inset 7px 6px 25px #ffffffa6,inset -15px 0 32px #82585e48;
+}
+.hero-photo-plinth{
+  position:absolute;
+  z-index:1;
+  left:10%;
+  right:9%;
+  bottom:-2%;
+  height:21%;
+  border-radius:54% 54% 8px 8px/28% 28% 8px 8px;
+  background:linear-gradient(100deg,#a17c73 0%,#fff5e8 27%,#d6b5a8 70%,#8f6564 100%);
+  box-shadow:0 -5px 4px #fff9e2b3,inset 0 10px 16px #fff9e19c,0 20px 30px #2e1d2448;
+}
+.hero-photo{
+  position:absolute;
+  z-index:2;
+  width:auto;
+  object-fit:contain;
+  max-width:none;
+  filter:drop-shadow(11px 18px 9px #3b252c68);
+  transition:transform .55s cubic-bezier(.2,.7,.2,1);
+}
+.hero-photo--cream{left:11%;bottom:14%;width:33%;height:49%;transform:rotate(-6deg)}
+.hero-photo--serum{left:38%;bottom:15%;width:33%;height:68%;z-index:3}
+.hero-photo--lipstick{right:7%;bottom:13%;width:27%;height:57%;transform:rotate(8deg)}
+.hero-art:hover .hero-photo--cream{transform:translateY(-4px) rotate(-7deg)}
+.hero-art:hover .hero-photo--serum{transform:translateY(-7px)}
+.hero-art:hover .hero-photo--lipstick{transform:translateY(-5px) rotate(9deg)}
+.hero-photo-caption{
+  position:absolute;z-index:3;bottom:5%;left:14%;
+  color:#563a41;font:800 8px/1.3 var(--maison-sans);
+  letter-spacing:.17em;text-shadow:0 1px #ffffffa6;
+}
+.hero-art__vertical{color:#70454f}
+
+/* Tiny photos remain product cutouts, not rounded app pictograms. */
+.announcement__product,
+.advisor__intro-icon,
+.fineprint__product{display:grid;place-items:center}
+.announcement__product .real-product-shot,
+.advisor__intro-icon .real-product-shot,
+.fineprint__product .real-product-shot,
+.luxury-ticker .real-product-shot{width:100%;height:100%;object-fit:contain;filter:drop-shadow(1px 3px 2px #24151f60)}
+.advisor__avatar .real-product-shot{
+  width:86%;height:86%;object-fit:contain;
+  filter:drop-shadow(2px 5px 3px #3d253d65);
+}
+.advisor__intro .real-product-shot{max-height:28px}
+.quick-prompts button .real-product-shot{
+  width:30px;height:36px;flex:none;
+  object-fit:contain;filter:drop-shadow(2px 3px 2px #49313754);
+}
+.hero-art__orbit .real-product-shot{
+  width:72%;height:80%;
+  filter:drop-shadow(3px 7px 3px #43293672);
+}
+.hero-art__product-icon .real-product-shot{height:83%;width:78%}
+.ritual__object .real-product-shot{height:100%;width:100%;filter:drop-shadow(7px 10px 5px #1a101879)}
+.manifesto__mark .real-product-shot{height:100%;width:100%;filter:drop-shadow(8px 12px 6px #1c101a88)}
+
+/* Discovery cards become editorial product-photography spotlights. */
+.category-card__visual .real-product-shot{
+  width:100%;height:100%;object-fit:contain;
+  filter:drop-shadow(7px 14px 7px #32202970);
+}
+.category-card--scent .category-card__visual .real-product-shot{
+  border-radius:2px;
+  /* Lancôme retailer image uses a white photographic background. */
+  mix-blend-mode:multiply;
+}
+.category-card__disc::before,.category-card__disc::after{opacity:.85}
+.category-card__visual::after{opacity:.55}
+.category-card:hover .category-card__visual .real-product-shot,
+.category-card:focus-visible .category-card__visual .real-product-shot{
+  filter:drop-shadow(9px 19px 9px #24152386);
+}
+
+/* Photographed packshots in catalog: accurate to each SKU, no category repeats. */
+.catalog-card__art{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:radial-gradient(ellipse at 50% 22%,#fffdfa 0%,#faf0e7 48%,#e2cbc4 100%);
+}
+.catalog-card__art::before{opacity:.52}
+.catalog-card__art .real-product-shot{
+  position:relative;z-index:2;
+  width:min(84%,165px);
+  height:155px;
+  object-fit:contain;
+  filter:drop-shadow(5px 11px 5px #402d3552);
+}
+.catalog-card:hover .catalog-card__art .real-product-shot{
+  transform:translateY(-5px) scale(1.04);
+  filter:drop-shadow(8px 14px 7px #34232c66);
+}
+.catalog-card__art--shampoo,.catalog-card__art--conditioner,
+.catalog-card__art--leave-in{
+  background:radial-gradient(ellipse at 50% 22%,#fffefa,#f4e9f4 55%,#ddd0df);
+}
+.catalog-card__art--eyes,.catalog-card__art--lips,.catalog-card__art--base{
+  background:radial-gradient(ellipse at 50% 20%,#fffdf9,#f8e8e6 55%,#e7cbd0);
+}
+
+/* The saved list and each routine step now display the exact chosen product. */
+.saved-chip{display:inline-flex;align-items:center;gap:7px;text-align:start;max-width:100%}
+.saved-chip__photo{width:27px;height:32px;flex:0 0 27px;object-fit:contain}
+.saved-chip__name{min-width:0;overflow-wrap:anywhere}
+.saved-chip__remove{margin-inline-start:2px;flex:none;font-size:17px}
+.routine-step-main{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.routine-step__photo{
+  width:58px;height:68px;flex:0 0 58px;
+  object-fit:contain;
+  background:linear-gradient(145deg,#fffefa,#f1e7e0);
+  border-radius:6px;
+  padding:5px;
+  filter:drop-shadow(2px 5px 3px #4d30372c);
+}
+.routine-step-main .routine-result__step-copy{min-width:0;flex:1}
+.routine-result__step .catalog-link{margin-inline-start:70px}
+
+/* A clean, honest label is better than a forged bottle if a remote image fails. */
+.photo-unavailable .product-photo-fallback{display:inline-flex}
+@media(max-width:620px){
+  .hero-photo--cream{left:10%;width:35%;height:49%}
+  .hero-photo--serum{left:36%;width:35%;height:66%}
+  .hero-photo--lipstick{right:4%;width:30%;height:54%}
+  .hero-photo-caption{font-size:7px;left:13%}
+  .catalog-card__art .real-product-shot{height:142px;width:min(80%,150px)}
+  .quick-prompts button .real-product-shot{width:26px;height:31px}
+  .routine-step__photo{width:48px;height:60px;flex-basis:48px}
+  .routine-result__step .catalog-link{margin-inline-start:60px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-photo{transition:none}
+  .hero-art:hover .hero-photo{transform:none}
+}
+.motion-paused .hero-photo{transition:none!important;transform:none!important}
