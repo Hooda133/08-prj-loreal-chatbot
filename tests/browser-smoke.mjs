@@ -101,7 +101,7 @@ try {
       cssLoaded:[...document.styleSheets].some(sheet =>
         sheet.href?.split("?")[0].endsWith("/atelier-redesign.css")),
       build:document.querySelector('meta[name="beauty-atelier-build"]')?.content,
-      cacheBustedChat:!!document.querySelector('script[src*="script.js?v=20261119-reader"]'),
+      cacheBustedChat:!!document.querySelector('script[src*="script.js?v=20261119-balanced"]'),
       darkCover:getComputedStyle(hero).backgroundImage.includes("linear-gradient"),
       headingColor:getComputedStyle(heading).color,
       stickyHeader:getComputedStyle(document.querySelector(".site-header")).position,
@@ -117,8 +117,8 @@ try {
   });
   assert.equal(editorial.theme, "#251b20");
   assert.equal(editorial.cssLoaded, true, "Premium design stylesheet should load");
-  assert.equal(editorial.build, "2026-11-19-reading-mode",
-    "The HTML must identify the deployed reading-mode version");
+  assert.equal(editorial.build, "2026-11-19-balanced-chat",
+    "The HTML must identify the balanced-chat deployment version");
   assert.equal(editorial.cacheBustedChat, true,
     "The HTML should load fresh chat JavaScript after deployment");
   assert.equal(editorial.darkCover, true, "Cover must use editorial gradients");
@@ -268,8 +268,8 @@ try {
       chatBottom:chatRect.bottom
     };
   });
-  assert.ok(desktopTranscript.height >= 720,
-    "Desktop transcript must be at least 720px high for longer answers and sources");
+  assert.ok(desktopTranscript.height >= 400 && desktopTranscript.height <= 515,
+    "Desktop transcript should be a balanced 400–510px instead of dominating the page");
   assert.equal(desktopTranscript.overflow, "auto");
   assert.ok(desktopTranscript.composerTop >= desktopTranscript.chatBottom - 2);
 
@@ -799,22 +799,28 @@ try {
   assert.equal(singleOutline.outer, "solid", "One visible outer keyboard focus ring");
 
   await sendQuestion(mobile, "Recommend L’Oréal products for dry skin");
-  const mobileConversation = await mobile.evaluate(() => ({
-    overflow: document.documentElement.scrollWidth - innerWidth,
-    replyVisible: document.querySelectorAll(".chat-window .message.ai:not(.pending)").length === 2,
-    readingMode:document.querySelector("#concierge").classList.contains("advisor--focus"),
-    panelHeight:document.querySelector("#concierge").getBoundingClientRect().height,
-    transcriptHeight:document.querySelector("#chatWindow").getBoundingClientRect().height,
-    viewportHeight:innerHeight
-  }));
+  const mobileConversation = await mobile.evaluate(() => {
+    const chat = document.querySelector("#chatWindow");
+    return {
+      overflow:document.documentElement.scrollWidth - innerWidth,
+      replyVisible:document.querySelectorAll(".chat-window .message.ai:not(.pending)").length === 2,
+      readingMode:document.querySelector("#concierge").classList.contains("advisor--focus"),
+      transcriptHeight:chat.getBoundingClientRect().height,
+      transcriptOverflow:getComputedStyle(chat).overflowY,
+      composerTop:document.querySelector(".advisor__composer").getBoundingClientRect().top,
+      chatBottom:chat.getBoundingClientRect().bottom
+    };
+  });
   assert.ok(mobileConversation.overflow <= 2, "Mobile chat overflow: " + mobileConversation.overflow);
   assert.equal(mobileConversation.replyVisible, true);
-  assert.equal(mobileConversation.readingMode, true,
-    "The first phone question must automatically open the large reading view");
-  assert.ok(mobileConversation.panelHeight >= mobileConversation.viewportHeight - 2,
-    "The phone chat takes up the full window automatically");
-  assert.ok(mobileConversation.transcriptHeight > 250,
-    "Answers must get a real reading area, not a tiny clipped strip");
+  assert.equal(mobileConversation.readingMode, false,
+    "Sending a message must NOT automatically take over the phone screen");
+  assert.ok(mobileConversation.transcriptHeight >= 380 && mobileConversation.transcriptHeight <= 470,
+    "Phone transcript must be comfortable to read without being oversized");
+  assert.equal(mobileConversation.transcriptOverflow, "auto",
+    "Long replies scroll inside their own readable chat panel");
+  assert.ok(mobileConversation.composerTop >= mobileConversation.chatBottom - 2,
+    "The mobile composer must not overlap the conversation");
   await mobile.screenshot({ path: "/tmp/final-beauty-mobile.png", fullPage: true });
 
   // New Chat should also clear the conversation without reopening the keyboard
@@ -878,12 +884,9 @@ try {
   assert.match(mobileCitations.link, /^https:\/\/www\.lorealparisusa\.com\//);
   assert.ok(mobileCitations.overflow <= 2);
   assert.equal(await mobile.$eval("#concierge",
-    el => el.classList.contains("advisor--focus")), true,
-    "Search replies also open in the full-window reader automatically");
-  // The reader can be closed and reopened without losing web source links.
-  await mobile.click("#expandChatBtn");
-  assert.equal(await mobile.$eval("#concierge",
-    el => el.classList.contains("advisor--focus")), false);
+    el => el.classList.contains("advisor--focus")), false,
+    "Live-search results should remain inside the normal-sized chat");
+  // Full-window reading is still available on purpose, and keeps source links.
   await mobile.click("#expandChatBtn");
   const mobileFocus = await mobile.evaluate(() => ({
     full:document.querySelector("#concierge").classList.contains("advisor--focus"),
@@ -1156,16 +1159,20 @@ try {
   await sendQuestion(replyLayout, "Help me find a L'Oréal fragrance.");
   await replyLayout.click("#webSearchToggle");
   await sendQuestion(replyLayout, "Latest L'Oréal Paris fragrances with sources?");
-  const autoReader = await replyLayout.evaluate(() => ({
+  const inlineReader = await replyLayout.evaluate(() => ({
     full:document.querySelector("#concierge").classList.contains("advisor--focus"),
     panelHeight:document.querySelector("#concierge").getBoundingClientRect().height,
     transcriptHeight:document.querySelector("#chatWindow").getBoundingClientRect().height
   }));
-  assert.equal(autoReader.full, true, "The exact reported narrow screenshot must open the full reader");
-  assert.ok(autoReader.panelHeight >= 688, "The 594x690 viewport must display a full-height chat");
-  assert.ok(autoReader.transcriptHeight > 250, "Answers have readable vertical space");
-  // Closing the reader must STILL leave a large, naturally scrolling inline chat.
-  await replyLayout.click("#expandChatBtn");
+  assert.equal(inlineReader.full, false,
+    "The reported 594×690 viewport must keep the chat inline after sending");
+  assert.ok(inlineReader.panelHeight < 1050,
+    "The whole narrow chat card must no longer dominate the page");
+  assert.ok(inlineReader.transcriptHeight >= 360 && inlineReader.transcriptHeight <= 470,
+    "The answer space should be compact but never collapsed");
+  // Put the cited source into the scrollable transcript's viewing area.
+  await replyLayout.evaluate(() => document.querySelector("#chatWindow .message.ai:last-child .chat-source-link")
+    ?.scrollIntoView({block:"nearest",behavior:"instant"}));
   const replyGeometry = await replyLayout.evaluate(() => {
     const advisor = document.querySelector("#concierge");
     const chat = document.querySelector("#chatWindow");
@@ -1190,24 +1197,37 @@ try {
       overflow:document.documentElement.scrollWidth - innerWidth
     };
   });
-  assert.ok(replyGeometry.chatHeight >= 600,
-    "594px layout must reserve at least 600px for readable answers and citations");
-  assert.equal(replyGeometry.chatOverflow, "visible",
-    "Narrow layouts use normal page scrolling, not a tiny nested scrollbar");
-  assert.ok(replyGeometry.advisorHeight > 800,
-    "Entire mobile chat card grows to fit the larger conversation and composer");
-  assert.ok(replyGeometry.chatScrollHeight <= replyGeometry.chatClientHeight + 2,
-    "Entire answer should fit naturally in the mobile conversation");
+  assert.ok(replyGeometry.chatHeight >= 360 && replyGeometry.chatHeight <= 470,
+    "594px layout uses a manageable transcript rather than a huge scrolling page");
+  assert.equal(replyGeometry.chatOverflow, "auto",
+    "The answer pane scrolls without making the entire page giant");
+  assert.ok(replyGeometry.advisorHeight < 1050,
+    "The total narrow chat card stays proportionate");
+  assert.ok(replyGeometry.chatScrollHeight >= replyGeometry.chatClientHeight,
+    "Long messages remain scrollable rather than clipping");
   assert.ok(replyGeometry.composerTop >= replyGeometry.chatBottom - 2,
     "Composer may not overlap or conceal the conversation");
   assert.equal(replyGeometry.sources, 1);
   assert.equal(replyGeometry.sourceInside, true,
-    "Web source link is inside the visible expanded transcript");
+    "A source link can be scrolled into the visible answer pane");
   assert.equal(replyGeometry.initialPromptDisplay, "none",
     "One-time prompt choices should no longer crowd an active conversation");
   assert.equal(replyGeometry.followUpsVisible, true);
   assert.ok(replyGeometry.overflow <= 2,
-    "Expanded mobile conversation must not create sideways scrolling");
+    "Compact mobile conversation must not create sideways scrolling");
+  // Expand is optional: opening and closing it keeps all citations intact.
+  await replyLayout.click("#expandChatBtn");
+  const manuallyExpanded = await replyLayout.evaluate(() => ({
+    active:document.querySelector("#concierge").classList.contains("advisor--focus"),
+    height:document.querySelector("#concierge").getBoundingClientRect().height,
+    sources:document.querySelectorAll("#chatWindow .chat-source-link").length
+  }));
+  assert.equal(manuallyExpanded.active, true);
+  assert.ok(manuallyExpanded.height >= 688);
+  assert.ok(manuallyExpanded.sources > 0);
+  await replyLayout.keyboard.press("Escape");
+  assert.equal(await replyLayout.$eval("#concierge",
+    el => el.classList.contains("advisor--focus")), false);
   await replyLayout.evaluate(() => document.querySelector("#chatWindow .message.ai:last-child")
     .scrollIntoView({block:"start",behavior:"instant"}));
   await replyLayout.waitForFunction(() => {
@@ -1216,7 +1236,7 @@ try {
     return typeof top === "number" && top >= -4 && top < innerHeight;
   }, {timeout:5000});
 
-  // Large mobile conversation stays spacious even on smaller phone widths.
+  // A balanced chat transcript adapts to narrow phones and tablets.
   for (const width of [375, 320, 768]) {
     await replyLayout.setViewport({
       width, height:720, deviceScaleFactor:1, isMobile:true, hasTouch:true
@@ -1230,9 +1250,9 @@ try {
         overflow:document.documentElement.scrollWidth - innerWidth
       };
     });
-    assert.ok(metrics.chatHeight >= 600,
-      width + "px viewport must have a large, readable conversation area");
-    assert.equal(metrics.scroller,"visible");
+    assert.ok(metrics.chatHeight >= 360 && metrics.chatHeight <= 470,
+      width + "px viewport must keep the chat comfortable and compact");
+    assert.equal(metrics.scroller,"auto");
     assert.equal(metrics.sources,1);
     assert.ok(metrics.overflow <= 2,
       width + "px viewport must not scroll horizontally");

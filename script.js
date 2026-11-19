@@ -24,8 +24,8 @@ const copyRequestDiagnostic = document.getElementById("copyRequestDiagnostic");
 const requestDiagnosticCopyStatus = document.getElementById("requestDiagnosticCopyStatus");
 
 
-// Keep a shared reading-mode control so sending a question on a narrow
-// screen can reveal the answer without requiring a second click.
+// Keep a shared reading-mode control for the optional Expand button and
+// for restoring the inline panel when starting a fresh conversation.
 // It reuses the SAME chat node, keeping messages and cited links intact.
 let toggleChatFocusMode = () => {};
 
@@ -456,13 +456,8 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
   clearRequestDiagnostic();
   setQuestionPreview(content);
   const userBubble = addMessage(content, "user", false, true);
-  // On phones, tablets and narrow desktop windows, show the conversation
-  // full-window the moment a question is sent. This prevents the composer,
-  // suggestions and promotional header from squeezing the reply into a strip.
-  // The user can choose Close to return to the naturally growing page chat.
-  if (window.matchMedia("(max-width: 940px)").matches) {
-    toggleChatFocusMode(true);
-  }
+  // Keep the answer inside the well-sized inline chat by default.
+  // Visitors can still choose Expand themselves to read a longer answer.
   // Generating from product cards should not wipe a question the visitor
   // was typing in the chat box. Ordinary chat submits keep their old behavior.
   if (!safeNotes.length && !preserveDraft) input.value = "";
@@ -557,10 +552,8 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
       isNearChatBottom();
     renderAssistantReply(pending, reply, sources,
       data?.sourceType === "consulted" ? "consulted" : "cited");
-    // The mobile conversation grows with its content, rather than hiding
-    // replies behind the large composer. Bring the new answer into the
-    // visible page after Send instead of leaving the reader at the input.
-    // A full-size conversation also works with ordinary page scrolling.
+    // Within the scrollable transcript, reveal the beginning of a new
+    // reply on smaller screens. The surrounding card stays a sensible size.
     if (shouldRevealOnPhone || advisor.classList.contains("advisor--focus")) {
       pending.scrollIntoView({
         block: "start",
