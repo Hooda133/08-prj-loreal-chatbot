@@ -417,6 +417,7 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
   const controller = new AbortController();
   activeRequestController = controller;
   let didTimeOut = false;
+  let revealedNewReply = false;
   const timeoutId = setTimeout(() => {
     if (thisRequest !== requestGeneration) return;
     didTimeOut = true;
@@ -473,8 +474,21 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
     }
     phase = "rendering";
     pending.classList.remove("pending");
+    const shouldRevealOnPhone = window.matchMedia("(max-width: 940px)").matches &&
+      isNearChatBottom();
     renderAssistantReply(pending, reply, sources,
       data?.sourceType === "consulted" ? "consulted" : "cited");
+    // The mobile conversation grows with its content, rather than hiding
+    // replies behind the large composer. Bring the new answer into the
+    // visible page after Send; do not steal focus if the visitor browsed
+    // older messages while waiting for the Worker.
+    if (shouldRevealOnPhone) {
+      pending.scrollIntoView({
+        block: "start",
+        behavior: motionIsAllowed() ? "smooth" : "auto"
+      });
+      revealedNewReply = true;
+    }
     chatAnnouncement.textContent =
       "Beauty Concierge replied. " + reply.slice(0, 320) +
       (reply.length > 320 ? " The full response is in the conversation." : "");
@@ -522,7 +536,8 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
       activeRequestController = null;
       setBusy(false);
       // Avoid unexpectedly opening the virtual keyboard on touch devices.
-      if (returnFocus && window.matchMedia("(pointer: fine)").matches) input.focus();
+      if (returnFocus && !revealedNewReply &&
+          window.matchMedia("(pointer: fine)").matches) input.focus();
     }
   }
 }
