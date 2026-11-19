@@ -814,3 +814,49 @@ html[dir="rtl"] .advisor--focus .chat-window{direction:rtl}
 @media(prefers-reduced-motion:reduce){
   .advisor__expand{transition:none}
 }
+
+
+/* CONVERSATION-FIRST PHONE VIEW
+   Sending a question now opens the existing reading view automatically on
+   narrow screens. Keep the title and input, but give answers and source links
+   the largest possible share of the viewport. Close restores the page chat. */
+@media(max-width:940px){
+  .advisor--focus .advisor__header{
+    gap:10px;
+    padding:10px 14px;
+    flex:0 0 auto;
+  }
+  .advisor--focus .advisor__avatar{
+    width:42px;
+    height:42px;
+    min-width:42px;
+  }
+  .advisor--focus .advisor__identity h2{
+    font-size:clamp(23px,4.2vw,30px);
+    line-height:1.08;
+  }
+  .advisor--focus .advisor__eyebrow,
+  .advisor--focus .advisor__availability{
+    display:none;
+  }
+  .advisor--focus .chat-window{
+    min-height:0;
+    scroll-padding-top:20px;
+    padding-block:20px 24px;
+  }
+  .advisor--focus .advisor__composer{
+    flex:0 0 auto;
+    padding:10px 14px 12px;
+  }
+  .advisor--focus .web-search-choice{
+    padding:8px 11px;
+    margin-bottom:8px;
+  }
+  .advisor--focus .web-search-choice__copy small{display:none}
+  .advisor--focus .advisor__expand{
+    background:#583441;
+    border-color:#583441;
+    color:#fffaf6;
+  }
+  .advisor--focus .advisor__expand:hover{background:#704758}
+}
