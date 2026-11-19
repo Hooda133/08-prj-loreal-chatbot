@@ -145,7 +145,7 @@ try {
     const photographed = [...document.querySelectorAll("img[data-product-photo]")];
     return {
       version:document.querySelector('meta[name="beauty-atelier-art-version"]')?.content,
-      stylesheet:!!document.querySelector('link[href*="atelier-redesign.css?v=20261119-real-products"]'),
+      stylesheet:!!document.querySelector('link[href*="atelier-redesign.css?v=20261119-concise-replies"]'),
       jsLoaded:!!document.querySelector('script[src*="product-photography.js?v=20261119-real"]'),
       totalCatalog:catalog.length,
       mappedCatalog:catalog.filter(item => !!photos.urlFor(item.id)).length,
