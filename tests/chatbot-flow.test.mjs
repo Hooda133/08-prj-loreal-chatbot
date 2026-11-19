@@ -55,6 +55,9 @@ test("Cloudflare adds a beauty system prompt and sends user input to OpenAI", as
     assert.match(payload.messages[0].content, /official L.Oréal representative/i);
     assert.match(payload.messages[0].content, /STRICT TOPIC BOUNDARY/);
     assert.match(payload.messages[0].content, /out.of.scope/i);
+    assert.match(payload.messages[0].content, /35–75 words/, "Ordinary beauty answers stay short");
+    assert.match(payload.messages[0].content, /ONE useful follow-up question/, "Ask only one follow-up");
+    assert.match(payload.messages[0].content, /specifically asks for a detailed routine/, "Detailed requests keep their context");
     assert.deepEqual(payload.messages[1], { role: "user", content: "Can you suggest skincare?" });
     assert.ok(!JSON.stringify(result).includes("test-secret-never-commit"));
   } finally {
@@ -688,6 +691,65 @@ test("Chat pending message uses professional, user-friendly wording", async () =
   assert.match(app.elements.chatWindow.nodes.at(-1).textContent, /moisturizing routine/);
 });
 
+
+test("Long assistant messages are collapsed initially but can be fully expanded without losing text", async () => {
+  const original = "Here is your L’Oréal beauty recommendation. ";
+  const replyText = original.repeat(30);
+  const app = createFrontend(async () => new Response(JSON.stringify({
+    choices:[{message:{content:replyText}}]
+  }), {status:200,headers:{"Content-Type":"application/json"}}));
+  app.elements.userInput.value = "Suggest a Lancôme fragrance.";
+  app.elements.chatForm.listeners.submit({preventDefault() {}});
+  await new Promise(resolve => setTimeout(resolve, 15));
+  const reply = app.elements.chatWindow.nodes.at(-1);
+  const body = reply.nodes.find(node => node.className === "chat-answer-body");
+  const toggle = reply.nodes.find(node => node.className === "chat-answer-toggle");
+  assert.ok(body, "Long answers have a collapsible body");
+  assert.ok(toggle, "A Show full answer button is available");
+  assert.equal(body.classList.contains("is-collapsed"),true);
+  assert.equal(toggle.getAttribute("aria-expanded"),"false");
+  assert.equal(toggle.textContent,"Show full answer");
+  assert.ok(body.textContent.includes(original), "Full reply is still present");
+  toggle.listeners.click();
+  assert.equal(body.classList.contains("is-collapsed"),false);
+  assert.equal(toggle.getAttribute("aria-expanded"),"true");
+  assert.equal(toggle.textContent,"Show less");
+  toggle.listeners.click();
+  assert.equal(body.classList.contains("is-collapsed"),true);
+  assert.equal(toggle.textContent,"Show full answer");
+});
+
+test("Live-search guidance asks for short cited replies without raw tracking URLs", async () => {
+  const originalFetch = globalThis.fetch;
+  let instructions = "";
+  globalThis.fetch = async (url, options) => {
+    const parsed = JSON.parse(options.body);
+    if (String(url).includes("/chat/completions")) {
+      return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify({
+        scope:"in_scope",answer:"Let's explore Lancôme fragrance."
+      })}}]}), {status:200});
+    }
+    instructions = parsed.instructions;
+    return new Response(JSON.stringify({output:[
+      {type:"web_search_call",action:{sources:[{
+        type:"url",url:"https://www.lancome-usa.com/fragrance",title:"Lancôme fragrance"
+      }]}},
+      {type:"message",role:"assistant",content:[{type:"output_text",text:"Lancôme has floral and fresh fragrances."}]}
+    ]}), {status:200});
+  };
+  try {
+    const response = await worker.fetch(new Request("https://example.workers.dev/",{
+      method:"POST",
+      headers:{Origin:trustedOrigin,"Content-Type":"application/json"},
+      body:JSON.stringify({messages:[{role:"user",content:"Help me find a Lancôme fragrance"}],searchWeb:true})
+    }), {ALLOWED_ORIGIN:trustedOrigin, OPENAI_API_KEY:"test-key"});
+    assert.equal(response.status,200);
+    assert.match(instructions,/35–75 words/);
+    assert.match(instructions,/ONE helpful follow-up question/);
+    assert.match(instructions,/Do not paste raw web URLs/);
+    assert.match(instructions,/explicitly requests steps, comparisons or detail/);
+  } finally { globalThis.fetch = originalFetch; }
+});
 
 test("Explicit visitor name remains in context after the original message rolls out", async () => {
   const captured = [];

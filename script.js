@@ -322,6 +322,7 @@ function addInlineText(parent, value, sources = []) {
   }
   parent.appendChild(document.createTextNode(value.slice(last)));
 }
+let chatAnswerSequence = 0;
 function renderAssistantReply(bubble, responseText, sources = [], sourceType = "cited") {
   const shouldScroll = isNearChatBottom();
   // Consulted pages are useful references, not claim-level citations.
@@ -330,6 +331,17 @@ function renderAssistantReply(bubble, responseText, sources = [], sourceType = "
   bubble.setAttribute("dir", "auto");
   bubble.setAttribute("lang", /[\u0600-\u06FF]/.test(responseText) ? "ar" : "en");
   bubble.replaceChildren();
+  // The Worker should answer briefly. Older deployed Workers can still send
+  // essays, so keep their full reply available behind a single explicit control.
+  // This is presentation-only; never change the full message stored in history.
+  const isLongAnswer = responseText.length > 600;
+  const answerBody = isLongAnswer ? document.createElement("div") : bubble;
+  if (isLongAnswer) {
+    answerBody.className = "chat-answer-body";
+    answerBody.classList.add("is-collapsed");
+    answerBody.setAttribute("id", "chat-answer-" + (++chatAnswerSequence));
+    bubble.appendChild(answerBody);
+  }
   const lines = responseText.split(/\r?\n/);
   let list = null;
   let listKind = "";
@@ -347,7 +359,7 @@ function renderAssistantReply(bubble, responseText, sources = [], sourceType = "
       const kind = numbered ? "ol" : "ul";
       if (!list || listKind !== kind) {
         list = document.createElement(kind);
-        bubble.appendChild(list);
+        answerBody.appendChild(list);
         listKind = kind;
       }
       const item = document.createElement("li");
@@ -360,7 +372,22 @@ function renderAssistantReply(bubble, responseText, sources = [], sourceType = "
     const heading = line.match(/^#{1,4}\s+(.+)$/);
     const element = document.createElement(heading ? "h3" : "p");
     addInlineText(element, heading ? heading[1] : line, inlineSources);
-    bubble.appendChild(element);
+    answerBody.appendChild(element);
+  }
+  if (isLongAnswer) {
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "chat-answer-toggle";
+    toggle.textContent = "Show full answer";
+    toggle.setAttribute("aria-controls", answerBody.getAttribute("id"));
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.addEventListener("click", () => {
+      const expanding = answerBody.classList.contains("is-collapsed");
+      answerBody.classList.toggle("is-collapsed", !expanding);
+      toggle.textContent = expanding ? "Show less" : "Show full answer";
+      toggle.setAttribute("aria-expanded", String(expanding));
+    });
+    bubble.appendChild(toggle);
   }
   if (sources.length) {
     const section = document.createElement("section");
