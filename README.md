@@ -10,26 +10,25 @@ theme experiment.
 
 ### Art direction and experiences
 
-- **Editorial cover:** sculptural burgundy hero, dramatic Bodoni Moda serif
-  display type, metallic champagne call to action, original beauty still-life,
-  delicate magazine gridwork, issue labeling and a light that follows the
-  pointer on desktop.
+- **Editorial cover:** midnight-plum hero, dramatic Bodoni Moda serif,
+  champagne CTAs and a genuine L'Oréal Paris product-photo display (serum,
+  moisturizer and lipstick), with pointer-responsive studio lighting.
 - **Digital beauty studio:** refined ivory consultation card with a richer
   message hierarchy, hand-tuned prompt buttons, warm focus states, and clear
   live web-search citation styling.
 - **Journey navigation:** three anchor links (conversation → product edit →
   inspiration) jump directly to working features without creating inert UI.
-- **Curated product library:** larger sculptural original product icons, edition
-  numbers, elegant product cards and distinct selected states. Filtering,
-  details, saving and AI routine generation are preserved.
+- **Curated product library:** 23 verified product entries, each paired with
+  its own photo URL and official listing, plus filtering, details, saved
+  selections and personalized routine generation.
 - **Bespoke routine counter:** deep plum panel with high-contrast champagne
   buttons and readable form controls; sidebar collapses naturally on mobile.
 - **Editorial departments and closing statement:** four color stories and
   a cinematic finale while preserving original category click actions.
-- **Micro-interactions:** fine scrolling-progress line and pointer-responsive
-  studio lighting. Existing Pause Motion button and reduced-motion preference
-  remain respected. No paid APIs, additional dependencies or image hotlinks
-  have been added.
+- **Micro-interactions:** scrolling progress, refined lighting and restrained
+  animation, with Pause Motion and reduced-motion support. Product photos are
+  hotlinked from brand or retailer sites and may change or become unavailable;
+  the website displays a fallback when an image fails.
 
 New files: `atelier-redesign.css` and `atelier-experience.js`.
 `index.html` includes the editorial layout and meaningful navigation links;
@@ -162,36 +161,30 @@ category intersections, recovery from zero results, responsive mobile
 layout and preserving existing card features. Node tests validate search
 logic independently.
 
-## Extra-large Beauty Concierge chat and full-window reading view
+## Balanced Beauty Concierge and optional full-window reading
 
-A larger chat window is now a **first-class part of the visual design**, not
-just a narrow scroll strip under suggestions.
+The default transcript is deliberately **readable but proportional**, rather
+than a tiny strip or a page-sized chat. On desktop the transcript is typically
+**400–510px tall**; on phone/tablet layouts it is typically **360–470px**.
+Long conversations scroll inside the transcript without covering the composer.
 
-- The standard desktop chat transcript is **at least 720px tall** and may
-  grow to 1000px depending on the viewport (previously only 390px).
-  Its dedicated transcript region scrolls independently of the composer.
-- On phones and tablets up to 940px wide, the transcript reserves
-  **at least 600px** and up to 850px on taller screens (formerly 280–310px).
-  The **entire transcript and sourced answers** are visible in normal
-  page scrolling; there is no nested tiny scrollbar.
-- Desktop Beauty Concierge now takes a **larger share of the editorial
-  cover width**. Chat bubbles are 16px with clearer 14px source links.
-- **Expand** in the chat header opens the SAME conversation as an almost
-  full-window consultation, on either desktop or phone. This keeps all
-  previous messages, live web-source links, input and search toggle.
-  Click **Close** or press **Escape** to return to the normal page;
-  keyboard focus stays within the large consultation while open.
-- After the first message, the introductory quick prompts hide to free
-  up space. Contextual follow-ups remain in normal view. **New Chat**
-  restores the introductory prompts.
-- The Cloudflare Worker, API key handling, product selection, browser
-  translation and saved state are unchanged.
+- **Expand** opens the same conversation in a full-window dialog on desktop
+  or mobile. **Close** and **Escape** restore the original inline card without
+  clearing conversation history, citations, or selections.
+- Introductory prompt chips hide once a conversation begins; follow-up chips
+  remain available in the standard card. **New Chat** resets the chat.
+- The Worker prompts for one short conversational paragraph (about 35–75 words)
+  and at most one follow-up question for routine inquiries. More detail remains
+  possible when requested. Replies over 600 characters from older Worker
+  deployments have a **Show full answer** button; source links remain visible.
+- GitHub Pages publishes the frontend, **not** the production Cloudflare
+  Worker. The short-answer prompt requires independently deploying
+  `RESOURCE_cloudflare-worker.js` in Cloudflare; no secret should be pasted
+  into GitHub.
 
-**Verification:** a real-browser smoke test checks at least 720px of
-conversation at desktop, at least 600px on **320px, 375px, 594px and
-768px** mobile/tablet layouts, intact live-source links, no composer
-overlap or sideways scrolling, and Expand / Escape / restoration
-without losing the chat.
+**Automated coverage:** desktop, 320/375/594/768px responsive layouts,
+keyboard focus, Expand/Escape, sources, transcript sizing, and long-answer
+disclosure are checked in Chrome with mocked Worker results.
 
 ## Troubleshooting: live-search failures in a specific browser
 
@@ -468,25 +461,32 @@ After a PR is merged, verify mobile/desktop search, selecting/removing,
 skincare AM/PM, hair wash-day, makeup plans, copy, and the AI handoff on the published GitHub Pages page.
 No Worker redeployment is required for this frontend-only feature.
 
-## Atelier Studio — original premium icon collection
+## Real-product photography throughout
 
-The site's product artwork now uses **one consistent, original SVG icon system**, rather than a mixture of small symbols and older product-card sketches. The five shared designs include a glass serum dropper, sculpted lipstick, faceted perfume flacon, open powder compact and bronze haircare pump. They feature custom gradient materials (glass, translucent liquid, polished metal, black lacquer and soft powder), realistic edge highlights and subtle shadows.
-
-- The **four product-category cards**, floating showroom objects, hero accents, concierge avatar, suggested-question chips and decorative accents all reuse the same SVG symbols.
-- Product cards have refined lighting, a soft stage shadow and a restrained depth effect. Icons scale cleanly from small chatbot shortcuts to larger illustrations.
-- Illustrations are original, fictional **Atelier** products: not official L'Oréal product images, and no external stock imagery, photo licenses or new JavaScript dependencies were introduced.
-- SVGs in decorative placements are hidden from assistive technologies; functional buttons retain their accessible labels. Existing pause-motion and reduced-motion handling is preserved.
-- Verify with `node --test tests/chatbot-flow.test.mjs`; icon checks cover broken references, reused SVG definitions and card consistency.
+- **23 distinct, source-matched L'Oréal Paris packshots** appear in the
+  searchable product catalog, saved selections and generated routine steps.
+- Representative real products replace former fictional SVG bottles in the
+  homepage hero, department cards, Beauty Concierge prompts and editorial
+  accents. The fragrance department shows **Lancôme**, identified correctly
+  as a **L'Oréal Groupe** brand, not a L'Oréal Paris fragrance.
+- Product photos link to externally hosted brand/retailer image URLs.
+  Availability, licensing and exact packaging can change; the site does not
+  own these images and must not be represented as an official L'Oréal site.
+  Missing photos show a truthful fallback.
+- The independent-project disclaimer remains visible. For commercial or
+  long-term public use, confirm appropriate image and trademark permissions.
 
 ## Features
-- Premium editorial homepage with animated original beauty still-life artwork
-- Five custom-dimensional SVG icons, plus moving product orbits, a luxury announcement ticker, animated product cards and a cinematic beauty-ritual showroom
-- Responsive high-end design with reduced-motion support and a footer pause/resume-motion control
-- Four functional beauty-category prompts and a new personalized-routine CTA
-- Dedicated beauty concierge panel with suggested prompts, subtle motion, and accessible status feedback
-- Safe formatting of common AI response Markdown: bold text, headings, bullet/numbered lists (no HTML injection)
-- Conversation history with Cloudflare message-length protection; user messages are removed on failed attempts so retries don't duplicate them
-- Cloudflare Worker securely holds the OpenAI API key; the working endpoint is already configured in `script.js`
+
+- Premium editorial homepage featuring actual product photography
+- Real packshots throughout the catalog, routines, homepage and concierge
+- Responsive desktop, tablet and mobile layout; Pause Motion and reduced motion
+- Functional beauty categories, saved products, live catalog search and AI routines
+- Beauty Concierge with concise responses, conversation context, optional live
+  web search and clickable verified sources
+- Expand/Close for full-screen reading, plus Show full answer for long replies
+- Browser-translated Arabic RTL layout support without an in-page language menu
+- Secure Cloudflare Worker to hold OpenAI credentials server-side
 
 ## Stability and interface polish
 
@@ -497,7 +497,9 @@ The chat is designed to recover cleanly from unreliable connections and longer c
 - **Thoughtful scrolling:** New submitted questions scroll to the latest message, but an incoming AI reply will not force scrolling if the visitor has moved up to read earlier messages.
 - **Better device focus:** Chat input focus is restored only when appropriate for keyboard/mouse use; a completed response no longer unexpectedly opens the phone's virtual keyboard.
 - **Visual finishing details:** Clearer status errors, responsive header and composer, consistent focus states and a single outer input focus ring (no extra inner rectangle).
-- **Security unchanged:** This update remains in the GitHub Pages frontend; the approved Cloudflare Worker endpoint and key management are not modified.
+- **Security:** The browser continues to call the same HTTPS Cloudflare
+  Worker; secrets remain server-side, and the Worker code is deployed
+  independently of the frontend.
 
 **Verify:** Run `node --test tests/chatbot-flow.test.mjs` and review the Lighthouse accessibility workflow. New tests cover timeout recovery, cancellation races, ignored stale replies, network failures and intentional scroll preservation. Manually review on a phone and desktop before merging.
 
@@ -590,7 +592,9 @@ Run `node --test tests/chatbot-flow.test.mjs` to exercise eight mocked Worker/fr
 Run a static server or open `index.html` in Codespaces/VS Code Live Preview. There are no build tools or third-party JS libraries. The real AI backend is still the Cloudflare Worker configured in `script.js`. Your Cloudflare `ALLOWED_ORIGIN` variable must contain the exact preview origin to allow browser requests.
 
 ## Deploy the Worker
-1. In Cloudflare Dashboard, create a new Worker and replace its code with `RESOURCE_cloudflare-worker.js`.
+1. In Cloudflare Dashboard, open the existing **loreal-beauty-advisor**
+   Worker (do not create a duplicate) and paste the latest
+   `RESOURCE_cloudflare-worker.js` into its code editor. Deploy the change.
 2. In **Settings → Variables and Secrets**, add **OPENAI_API_KEY** as a **secret** (never commit it).
 3. Add **ALLOWED_ORIGIN** as a Text variable containing your allowed site origin(s). For GitHub Pages use `https://hooda133.github.io`. To support a Codespaces live preview **at the same time**, add a comma and the exact preview origin from your browser address bar, for example `https://hooda133.github.io,https://your-codespace-3000.app.github.dev`. Do **not** include paths or trailing slashes. Save the variable and deploy the updated Worker code. Change the Codespaces origin when its preview URL changes.
 4. Deploy the Worker and copy its HTTPS `workers.dev` URL.
@@ -602,7 +606,8 @@ The Worker validates message shape and length, restricts browser CORS to explici
 
 ### Test checklist
 - Open the page on mobile and desktop; quick prompts and New chat work
-- Before Worker setup, sending shows a useful configuration message
+- Confirm the deployed Worker returns a real answer; GitHub mocks do not
+  verify Cloudflare production status or current OpenAI spend limits
 - After setup, ask for a skincare routine; see a response and send a follow-up
 - Try an unavailable API service; errors are visible and input is restored
 - Confirm Worker secret is never visible in browser/network response or repository
@@ -615,7 +620,8 @@ HTML, CSS, vanilla JavaScript, Cloudflare Workers, OpenAI Chat Completions API (
 - The page header shows the **L’Oréal wordmark** from the [Wikimedia Commons vector published by L’Oréal](https://commons.wikimedia.org/wiki/File:L%27Or%C3%A9al_logo.svg) with a separate `PARIS` label. The vector is loaded from Wikimedia’s SVG host rather than copied into the Git repository.
 - Black (`#101010`) and white (`#ffffff`) are the primary brand-inspired UI colors. Soft ivory and champagne/gold are **our own secondary editorial accent colors**, not presented as an official brand guide or approved proprietary palette.
 - This remains an **independent student design concept**. The L’Oréal wordmark is a trademark; its use here does not mean L’Oréal sponsors, endorses or operates this site.
-- The original vector product art and working chatbot stay unchanged.
+- The current product imagery uses externally hosted L'Oréal Paris and
+  Lancôme packshots; verify rights and branding before commercial use.
 
 ## Typography system
 The page uses two complementary Google Fonts with local fallbacks:
@@ -634,6 +640,11 @@ The chatbot deliberately prioritizes readability with 15px message text, spaciou
 **Important:** An automated Lighthouse score (including 100/100) is not proof of full WCAG compliance. Manually verify a keyboard-only chat, 200–400% zoom, screen-reader announcements, category shortcuts and the pause-motion behavior on desktop and mobile.
 
 ## Design credits
-The hero and all four category product illustrations are original inline SVG artwork built for this student concept. The hero is a fictional beauty product still life rather than a photograph of a real model or a genuine product packshot. No third-party stock photo or model likeness is used in the page.
+
+Custom editorial layout and CSS showroom stages were created for this
+independent educational project. Individual product packshots are externally
+hosted photos from brand or retailer sources and remain the property of their
+respective rights holders. The site does not imply sponsorship or permission
+for commercial redistribution.
 
 **This is an independent educational concept, not affiliated with or endorsed by L'Oréal.** Verify product recommendations through official product listings.
