@@ -57,6 +57,7 @@ jobs:
           path: |
             /tmp/final-beauty-desktop.png
             /tmp/final-beauty-mobile.png
+            /tmp/beauty-chat-reply-visible.png
             /tmp/beauty-rtl-desktop.png
             /tmp/beauty-rtl-mobile.png
           if-no-files-found: ignore

@@ -16,6 +16,10 @@ const startButton = document.getElementById("startConsultation");
 const advisor = document.getElementById("concierge");
 const followUpSuggestions = document.getElementById("followUpSuggestions");
 const webSearchToggle = document.getElementById("webSearchToggle");
+const requestDiagnostic = document.getElementById("requestDiagnostic");
+const requestDiagnosticText = document.getElementById("requestDiagnosticText");
+const copyRequestDiagnostic = document.getElementById("copyRequestDiagnostic");
+const requestDiagnosticCopyStatus = document.getElementById("requestDiagnosticCopyStatus");
 
 const GREETING =
   "Welcome to Beauty Atelier.\n\nI can help with L’Oréal skincare, makeup, haircare and fragrances, plus personalized beauty routines. What would you like to explore?";
@@ -35,6 +39,54 @@ let preferredName = "";
 let activeRoutineNotes = [];
 let busy = false;
 const REPLY_TIMEOUT_MS = 30000;
+const WEB_SEARCH_TIMEOUT_MS = 75000;
+const CHAT_BUILD = "2026-11-18-search-diagnostics-v1";
+let latestSafeDiagnostic = "";
+
+function clearRequestDiagnostic() {
+  latestSafeDiagnostic = "";
+  if (requestDiagnostic) {
+    requestDiagnostic.hidden = true;
+    requestDiagnostic.open = false;
+  }
+  if (requestDiagnosticText) requestDiagnosticText.textContent = "";
+  if (requestDiagnosticCopyStatus) requestDiagnosticCopyStatus.textContent = "";
+}
+
+// A local diagnostic is never sent to a server or stored. It intentionally
+// excludes the question, conversation history, keys, IP, and full page URLs.
+function showRequestDiagnostic({ code, phase, httpStatus, elapsedMs, searched, sources }) {
+  const lines = [
+    "Beauty Atelier support details",
+    "Build: " + CHAT_BUILD,
+    "Error code: " + code,
+    "Request phase: " + phase,
+    "Live search: " + (searched ? "on" : "off"),
+    "HTTP status: " + (httpStatus || "no response"),
+    "Elapsed: " + (Math.max(0, Math.round(elapsedMs / 1000))) + " seconds",
+    "Verified sources: " + (sources === null ? "unknown" : sources)
+  ];
+  latestSafeDiagnostic = lines.join("\n");
+  if (requestDiagnosticText) requestDiagnosticText.textContent = latestSafeDiagnostic;
+  if (requestDiagnostic) requestDiagnostic.hidden = false;
+}
+
+copyRequestDiagnostic?.addEventListener("click", async () => {
+  if (!latestSafeDiagnostic) return;
+  try {
+    if (!navigator?.clipboard?.writeText) throw new Error("Clipboard unavailable");
+    await navigator.clipboard.writeText(latestSafeDiagnostic);
+    requestDiagnosticCopyStatus.textContent = "Copied. You can paste these details into the chat.";
+  } catch {
+    requestDiagnosticCopyStatus.textContent = "Select the details above and copy them manually.";
+  }
+});
+
+function chatFailure(message, code) {
+  const error = new Error(message);
+  error.diagnosticCode = code;
+  return error;
+}
 let requestGeneration = 0;
 let activeRequestController = null;
 
@@ -300,6 +352,7 @@ function newChat(focusInput = true) {
   windowEl.replaceChildren();
   setQuestionPreview("");
   statusEl.textContent = "";
+  clearRequestDiagnostic();
   chatAnnouncement.textContent = "";
   input.value = "";
   addMessage(GREETING, "ai");
@@ -328,6 +381,7 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
     : [];
 
   statusEl.textContent = "";
+  clearRequestDiagnostic();
   setQuestionPreview(content);
   const userBubble = addMessage(content, "user", false, true);
   // Generating from product cards should not wipe a question the visitor
@@ -347,6 +401,10 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
     ];
   }
   const isWebSearch = webSearchToggle?.checked === true;
+  const startedAt = Date.now();
+  let phase = "connecting";
+  let responseStatus = null;
+  let verifiedSourceCount = null;
   const pending = addMessage(isWebSearch
     ? "Searching current L'Oréal sources and verifying links…"
     : "Preparing your personalized beauty recommendations…", "ai", true);
@@ -359,11 +417,12 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
   const controller = new AbortController();
   activeRequestController = controller;
   let didTimeOut = false;
+  let revealedNewReply = false;
   const timeoutId = setTimeout(() => {
     if (thisRequest !== requestGeneration) return;
     didTimeOut = true;
     controller.abort();
-  }, REPLY_TIMEOUT_MS);
+  }, isWebSearch ? WEB_SEARCH_TIMEOUT_MS : REPLY_TIMEOUT_MS);
 
   try {
     if (!WORKER_URL.startsWith("https://")) {
@@ -382,33 +441,54 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
     }
     const response = await fetch(WORKER_URL, options);
     if (thisRequest !== requestGeneration) return;
+    responseStatus = response.status || null;
+    phase = "reading_response";
     let data;
     try {
       data = await response.json();
     } catch {
-      throw new Error("The server returned an unreadable response.");
+      throw chatFailure("The server returned an unreadable response.", "INVALID_RESPONSE");
     }
     if (thisRequest !== requestGeneration) return;
     if (!response.ok) {
-      throw new Error(typeof data.error === "string" ? data.error : "The beauty advisor is unavailable right now.");
+      throw chatFailure(
+        typeof data.error === "string" ? data.error : "The beauty advisor is unavailable right now.",
+        "HTTP_" + (responseStatus || "ERROR")
+      );
     }
+    phase = "validating_search";
     const reply = data?.choices?.[0]?.message?.content;
     if (typeof reply !== "string" || !reply.trim()) {
-      throw new Error("The beauty advisor returned an empty response.");
+      throw chatFailure("The beauty advisor returned an empty response.", "EMPTY_RESPONSE");
     }
     const sources = verifiedSources(data?.sources);
+    verifiedSourceCount = sources.length;
     const isOutOfScopeSearch = isWebSearch && data?.searchStatus === "out_of_scope";
     if (isWebSearch && !isOutOfScopeSearch && sources.length === 0) {
       // The former Worker silently ignored searchWeb and returned its
       // usual chat answer. Never present that as current web research.
       if (!data?.searchStatus) {
-        throw new Error("Live search is not active on the Cloudflare Worker yet. Turn off Search the Live Web, or ask the site owner to deploy the updated Worker.");
+        throw chatFailure("Live search is not active on the Cloudflare Worker yet. Turn off Search the Live Web, or ask the site owner to deploy the updated Worker.", "WORKER_OUTDATED");
       }
-      throw new Error("Live search did not return source links. Try a more specific L'Oréal product question.");
+      throw chatFailure("Live search did not return source links. Try a more specific L'Oréal product question.", "NO_SEARCH_SOURCES");
     }
+    phase = "rendering";
     pending.classList.remove("pending");
+    const shouldRevealOnPhone = window.matchMedia("(max-width: 940px)").matches &&
+      isNearChatBottom();
     renderAssistantReply(pending, reply, sources,
       data?.sourceType === "consulted" ? "consulted" : "cited");
+    // The mobile conversation grows with its content, rather than hiding
+    // replies behind the large composer. Bring the new answer into the
+    // visible page after Send instead of leaving the reader at the input.
+    // A full-size conversation also works with ordinary page scrolling.
+    if (shouldRevealOnPhone) {
+      pending.scrollIntoView({
+        block: "start",
+        behavior: motionIsAllowed() ? "smooth" : "auto"
+      });
+      revealedNewReply = true;
+    }
     chatAnnouncement.textContent =
       "Beauty Concierge replied. " + reply.slice(0, 320) +
       (reply.length > 320 ? " The full response is in the conversation." : "");
@@ -432,13 +512,23 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
     if (!safeNotes.length && !preserveDraft) input.value = content;
     setQuestionPreview("");
     chatAnnouncement.textContent = "";
+    let code = error?.diagnosticCode || "UNEXPECTED";
     if (didTimeOut) {
-      statusEl.textContent = "The beauty advisor is taking too long. Please try sending your question again.";
+      code = "TIMEOUT";
+      statusEl.textContent = isWebSearch
+        ? "Live search took too long to respond. Try again or turn off Search the Live Web."
+        : "The beauty advisor is taking too long. Please try sending your question again.";
     } else if (error?.name === "TypeError" || error?.name === "AbortError") {
-      statusEl.textContent = "Could not reach the beauty advisor. Check your connection and try again.";
+      code = "NETWORK_OR_CORS";
+      statusEl.textContent = "Could not reach the Cloudflare Worker. Check your connection; a network filter, browser extension, or CORS restriction may have blocked this request.";
     } else {
       statusEl.textContent = error?.message || "Something went wrong. Please try again.";
     }
+    showRequestDiagnostic({
+      code, phase, httpStatus: responseStatus,
+      elapsedMs: Date.now() - startedAt, searched: isWebSearch,
+      sources: verifiedSourceCount
+    });
     return false;
   } finally {
     clearTimeout(timeoutId);
@@ -446,7 +536,8 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
       activeRequestController = null;
       setBusy(false);
       // Avoid unexpectedly opening the virtual keyboard on touch devices.
-      if (returnFocus && window.matchMedia("(pointer: fine)").matches) input.focus();
+      if (returnFocus && !revealedNewReply &&
+          window.matchMedia("(pointer: fine)").matches) input.focus();
     }
   }
 }

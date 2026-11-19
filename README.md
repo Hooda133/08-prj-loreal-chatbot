@@ -162,6 +162,75 @@ category intersections, recovery from zero results, responsive mobile
 layout and preserving existing card features. Node tests validate search
 logic independently.
 
+## Fix: make full AI replies and web sources visible on small screens
+
+The Beauty Concierge used to have a fixed 690px mobile card height.
+After a conversation started, the quick prompts, follow-up suggestions,
+web-search toggle and composer could consume nearly all that height,
+leaving **only a tiny sliver of the actual answer** visible. This looked
+like live search was broken even when the Worker returned working links.
+
+- The card now **grows with its content** instead of shrinking the
+  conversation to make the controls fit.
+- On narrow screens (up to 940px) the entire transcript, including all
+  sourced answers, uses **normal page scrolling** instead of a nested
+  scroll area. Longer replies and source lists remain readable.
+- On desktops the transcript has a generous dedicated scroll region,
+  with a minimum height of 390px.
+- Once a conversation starts, the **introductory quick prompts collapse**
+  to prioritize the answer; the contextual follow-up suggestions remain.
+  Starting a New Chat restores the introductory prompts.
+- When a mobile reply finishes, the page **reveals the new answer** rather
+  than staying anchored to the input. Visitors who are reading older
+  messages during a request are not forcibly interrupted.
+- This is a frontend-only fix; it changes no Worker secrets, search
+  sources, conversation storage or API requests.
+
+A real Chrome smoke test reproduces the screenshot conditions
+(**594 × 690**), sends a follow-up live-search question, checks
+that the conversation is at least 280px tall, verifies that its
+source links are fully inside the transcript, and confirms the input
+does not overlap the answer. The desktop, 375px phone, accessibility
+and RTL tests still run.
+
+## Troubleshooting: live-search failures in a specific browser
+
+The deployed Cloudflare Worker has successfully returned live web-search answers
+with authentic source links from a Chrome browser, but a visitor's own browser
+can still fail due to a connection filter, blocked cross-origin request,
+slow upstream response, browser extension, or unexpected server reply.
+
+To identify the failure **without collecting private information**, the
+chat now shows an expandable **View safe technical details** section only when
+a request fails. It contains a build identifier, error code, request phase,
+HTTP status (if any), elapsed time, whether live search was selected, and
+the number of validated source URLs. It **never includes the user's question,
+chat history, API key, IP address, or full browser URL** and is not uploaded
+or stored anywhere. Visitors can use **Copy details** and share that text
+with the project developer, or select and copy it manually.
+
+Common codes:
+
+- `NETWORK_OR_CORS`: the browser could not fetch the Worker (may be local
+  network blocking, security software, extension, CORS, or connectivity).
+  `HTTP status: no response` means browser JavaScript received no response.
+- `TIMEOUT`: the request exceeded the frontend timeout. Normal chat has
+  a 30-second limit; opted-in live web search has a 75-second limit
+  because searching can be slower than ordinary recommendations.
+- `HTTP_403`, `HTTP_502`, etc.: the browser received a particular HTTP
+  status. Check the exact error message and whether Cloudflare security or
+  OpenAI responded, before making changes.
+- `WORKER_OUTDATED`: a chat-only Cloudflare Worker returned a response
+  without live-search status or citations.
+- `NO_SEARCH_SOURCES`: search returned no usable HTTPS source links.
+- `INVALID_RESPONSE`, `EMPTY_RESPONSE`: the server returned malformed
+  or empty JSON content.
+
+After any error, selecting **New Chat** or retrying the request clears the
+previous details. All diagnostics are created locally in the current tab.
+The feature works on mobile and RTL layouts. An automated passing test
+cannot establish that a particular visitor's connection also works.
+
 ## Bonus: live web search with visible citations
 
 **Opt-in feature:** In Beauty Concierge, enable **SEARCH THE LIVE WEB**

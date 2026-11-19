@@ -267,7 +267,8 @@ function createFrontend(mockFetch, options = {}) {
     "chatForm", "userInput", "chatWindow", "status", "chatAnnouncement",
     "questionPreview", "questionPreviewText",
     "sendBtn", "suggestions", "miniPrompts", "resetBtn", "startConsultation",
-    "concierge", "ritualCta", "motionToggle", "followUpSuggestions", "webSearchToggle"
+    "concierge", "ritualCta", "motionToggle", "followUpSuggestions", "webSearchToggle",
+    "requestDiagnostic", "requestDiagnosticText", "copyRequestDiagnostic", "requestDiagnosticCopyStatus"
   ];
   const elements = Object.fromEntries(ids.map(id => [id, new FakeElement()]));
   const category = new FakeElement("button");
@@ -299,6 +300,9 @@ function createFrontend(mockFetch, options = {}) {
   };
   const sandbox = {
     document, window, fetch: mockFetch,
+    navigator: { clipboard: { writeText: async value => {
+      window.lastCopiedDiagnostic = value;
+    } } },
     URL, AbortController,
     setTimeout: options.setTimeout || setTimeout,
     clearTimeout: options.clearTimeout || clearTimeout
@@ -1147,4 +1151,68 @@ test("Out-of-scope search shows the beauty-only reply, not a source error", asyn
   await new Promise(resolve => setTimeout(resolve,12));
   assert.equal(app.elements.status.textContent,"");
   assert.match(app.elements.chatWindow.textContent,/outside my specialty/);
+});
+
+
+test("Live search errors expose safe diagnostics with HTTP status but no question or secrets", async () => {
+  const app = createFrontend(async (_url, options) => ({
+    ok:false,status:502,async json(){return {error:"Live web search temporarily unavailable"};}
+  }));
+  app.elements.webSearchToggle.checked = true;
+  const privateQuestion = "L'Oréal serum for Maya (private details)";
+  app.elements.userInput.value = privateQuestion;
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  await new Promise(resolve => setTimeout(resolve,12));
+  assert.match(app.elements.status.textContent,/temporarily unavailable/);
+  assert.equal(app.elements.requestDiagnostic.hidden,false);
+  const details=app.elements.requestDiagnosticText.textContent;
+  assert.match(details,/Error code: HTTP_502/);
+  assert.match(details,/Live search: on/);
+  assert.match(details,/HTTP status: 502/);
+  assert.doesNotMatch(details,/Maya|private details|Bearer|sk-proj|api key/i);
+  await app.elements.copyRequestDiagnostic.listeners.click();
+  assert.match(app.elements.requestDiagnosticCopyStatus.textContent,/Copied/);
+
+  // Retry hides stale diagnostics rather than leaving a misleading failure.
+  app.elements.webSearchToggle.checked = false;
+  app.elements.userInput.value = "Tell me about L'Oréal shampoo";
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  assert.equal(app.elements.requestDiagnostic.hidden,true);
+});
+
+test("Network or CORS browser errors produce a distinct diagnostic without a false HTTP status", async () => {
+  const app = createFrontend(async () => { throw new TypeError("Failed to fetch"); });
+  app.elements.webSearchToggle.checked = true;
+  app.elements.userInput.value = "L'Oréal skincare search";
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  await new Promise(resolve => setTimeout(resolve,12));
+  assert.match(app.elements.status.textContent,/Could not reach the Cloudflare Worker/);
+  const details=app.elements.requestDiagnosticText.textContent;
+  assert.match(details,/Error code: NETWORK_OR_CORS/);
+  assert.match(details,/HTTP status: no response/);
+  assert.equal(app.elements.userInput.value,"L'Oréal skincare search");
+  assert.equal(app.elements.requestDiagnostic.hidden,false);
+  app.elements.resetBtn.listeners.click();
+  assert.equal(app.elements.requestDiagnostic.hidden,true);
+});
+
+test("Search uses a longer timeout than standard chat without changing ordinary requests", async () => {
+  const calls = [];
+  const noopFetch = async () => ({ok:true,status:200,async json(){return {
+    choices:[{message:{content:"L'Oréal skincare [1]."}}],
+    searchStatus:"complete",sources:[{url:"https://www.lorealparisusa.com",title:"Official"}]
+  };}});
+  const app=createFrontend(noopFetch,{setTimeout(callback,milliseconds){
+    calls.push(milliseconds);
+    return calls.length;
+  },clearTimeout(){}});
+  app.elements.webSearchToggle.checked = true;
+  app.elements.userInput.value = "Latest L'Oréal serum";
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  await new Promise(resolve => setTimeout(resolve,10));
+  app.elements.webSearchToggle.checked = false;
+  app.elements.userInput.value = "How to use L'Oréal serum";
+  app.elements.chatForm.listeners.submit({preventDefault(){}});
+  await new Promise(resolve => setTimeout(resolve,10));
+  assert.deepEqual(calls,[75000,30000]);
 });
