@@ -101,7 +101,7 @@ try {
       cssLoaded:[...document.styleSheets].some(sheet =>
         sheet.href?.split("?")[0].endsWith("/atelier-redesign.css")),
       build:document.querySelector('meta[name="beauty-atelier-build"]')?.content,
-      cacheBustedChat:!!document.querySelector('script[src*="script.js?v=20261119-concise-replies"]'),
+      cacheBustedChat:!!document.querySelector('script[src*="script.js?v=20261119-final-qa"]'),
       conciseMode:document.querySelector('meta[name="beauty-atelier-reply-mode"]')?.content,
       darkCover:getComputedStyle(hero).backgroundImage.includes("linear-gradient"),
       headingColor:getComputedStyle(heading).color,
@@ -145,7 +145,7 @@ try {
     const photographed = [...document.querySelectorAll("img[data-product-photo]")];
     return {
       version:document.querySelector('meta[name="beauty-atelier-art-version"]')?.content,
-      stylesheet:!!document.querySelector('link[href*="atelier-redesign.css?v=20261119-concise-replies"]'),
+      stylesheet:!!document.querySelector('link[href*="atelier-redesign.css?v=20261119-final-qa"]'),
       jsLoaded:!!document.querySelector('script[src*="product-photography.js?v=20261119-real"]'),
       totalCatalog:catalog.length,
       mappedCatalog:catalog.filter(item => !!photos.urlFor(item.id)).length,
@@ -181,6 +181,46 @@ try {
     "Every static product image should have a real HTTPS photograph URL");
   assert.equal(realArt.correctFirstProduct,true,"Catalog photo must match product id");
   assert.equal(realArt.selectable,true,"Real images must not block card selection");
+
+  // Last QA pass: touch targets, visible-label accessibility, and contrast.
+  const a11yDetails = await desktop.evaluate(() => {
+    const card = document.querySelector("#productGrid .catalog-card");
+    const official = card.querySelector(".catalog-link");
+    const save = card.querySelector(".catalog-button--save");
+    const ask = card.querySelector(".catalog-button--ask");
+    const expand = document.querySelector("#expandChatBtn");
+    const help = document.querySelector("#productSearchHelp");
+    return {
+      officialText:official.textContent.trim(),
+      officialLabel:official.getAttribute("aria-label"),
+      officialHeight:official.getBoundingClientRect().height,
+      officialDisplay:getComputedStyle(official).display,
+      saveText:save.textContent.trim(),
+      saveLabel:save.getAttribute("aria-label"),
+      askText:ask.textContent.trim(),
+      askLabel:ask.getAttribute("aria-label"),
+      expandText:expand.textContent.trim(),
+      expandLabel:expand.getAttribute("aria-label"),
+      helpColor:getComputedStyle(help).color,
+      build:document.querySelector('meta[name="beauty-atelier-qa"]')?.content
+    };
+  });
+  assert.equal(a11yDetails.build,"final-accessibility-pass");
+  assert.ok(a11yDetails.officialHeight >= 32,
+    "Official product links need a large enough touch target");
+  assert.match(a11yDetails.officialDisplay,/^(inline-)?flex$/);
+  for(const [visible,spoken] of [
+    [a11yDetails.officialText,a11yDetails.officialLabel],
+    [a11yDetails.saveText,a11yDetails.saveLabel],
+    [a11yDetails.askText,a11yDetails.askLabel],
+    [a11yDetails.expandText,a11yDetails.expandLabel]
+  ]) {
+    const words = visible.replace(/[^a-z0-9 ]/gi,"").trim().toLowerCase();
+    assert.ok(spoken.toLowerCase().includes(words),
+      "Every visible control name must be included in its accessible name: " + visible);
+  }
+  assert.equal(a11yDetails.helpColor,"rgb(118, 94, 102)",
+    "Search helper text should use the higher-contrast color");
   assert.match(realArt.fragranceDisclosure,/Lancôme.*L.Oréal Groupe/);
   // A lengthy reply from an older Worker stays accessible but is not
   // dumped as a wall of text. Keep search citations visible independently.

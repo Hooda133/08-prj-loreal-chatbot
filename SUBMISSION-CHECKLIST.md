@@ -18,6 +18,9 @@
 | Conversational chat bubbles | .message.user / .message.ai in style.css | User dark/right, assistant ivory/left, speaker labels and readable lists |
 | Accessible controls and motion | Accessibility styles / motionToggle | Navigate with keyboard and try Pause Motion or OS reduced-motion settings |
 | Error recovery | AbortController and request reset in script.js | Connection failures restore the typed question; New chat cancels a pending reply |
+| Real product imagery | product-photography.js / routine-builder.js | Every one of the 23 catalog items shows its own packshot; missing photos show a fallback |
+| Concise responses | RESOURCE_cloudflare-worker.js / script.js | Simple fragrance questions get a short response; long replies have Show full answer |
+| Product controls | routine-builder.js / atelier-redesign.css | Official links and Save / Ask AI are readable and keyboard/touch accessible |
 
 ## Automated quality gates
 
@@ -30,11 +33,13 @@ GitHub Actions checks on the final PR:
 ## Last manual checks before submitting
 
 1. Merge the final review PR into main, then load the live GitHub Pages URL in a private tab and hard-refresh.
-2. Verify the latest page shows the updated name-aware conversation and L’Oréal-specific input instructions.
+2. Verify the page has the real-product photo hero, 23 catalog cards and a balanced Beauty Concierge; check for missing or broken image thumbnails.
 3. Send an actual **on-topic** question, then a **follow-up** referring to an earlier skin preference.
-4. Send an **off-topic** question and confirm the Worker returns the polite apology/redirection. If it doesn't, the Cloudflare-deployed Worker may be older than RESOURCE_cloudflare-worker.js; update it in Cloudflare without changing the secret or origin allowlist.
+4. Ask a simple **fragrance** question and confirm the reply is short with no more than one follow-up question. Test **Show full answer** on a longer reply. Ask an **off-topic** question and confirm the Worker returns a polite beauty-specific redirection. If the Worker still writes essays or accepts unrelated topics, deploy the latest RESOURCE_cloudflare-worker.js in Cloudflare (the GitHub merge alone does not update it).
 5. Open browser DevTools → Network and ask about a L'Oréal product: confirm the browser POST targets only `loreal-beauty-advisor.elshamandy133.workers.dev`, without an Authorization header or API key. Verify the **live Cloudflare Worker** still has `OPENAI_API_KEY` configured as a secret and `ALLOWED_ORIGIN` set to the site origin; deployment is independent of GitHub.
-6. Verify the desktop/mobile appearance at your own screen size and check browser Developer Tools for unexpected errors.
+6. Verify the desktop/mobile appearance, button focus outlines, official-product links, selected-product thumbnails and saved state after refresh. In Developer Tools, check for image 404s or blocked requests.
 7. Keep the branding disclaimer that this is an **independent student project**, not an official L’Oréal website.
 
 **Privacy/limits:** Conversation memory is in the currently open page, not persistent storage. Questions are still sent to the Cloudflare Worker and OpenAI for processing. The API key is stored only as a Cloudflare secret, not in the public repo.
+
+**Image rights:** This is a student demo, not an official L’Oréal site. Packshots are externally hosted and remain copyrighted. Confirm permission before commercial or long-term public redistribution.

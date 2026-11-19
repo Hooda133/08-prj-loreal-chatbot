@@ -49,7 +49,7 @@ if (expandChatBtn && advisor) {
       advisor.setAttribute("role", "dialog");
       advisor.setAttribute("aria-modal", "true");
       expandChatBtn.setAttribute("aria-pressed", "true");
-      expandChatBtn.setAttribute("aria-label", "Close large Beauty Concierge chat");
+      expandChatBtn.setAttribute("aria-label", "Close Beauty Concierge chat");
       expandChatLabel.textContent = "Close";
     } else {
       originalParent.insertBefore(advisor, placeholder.nextSibling);
@@ -58,7 +58,7 @@ if (expandChatBtn && advisor) {
       advisor.removeAttribute("role");
       advisor.removeAttribute("aria-modal");
       expandChatBtn.setAttribute("aria-pressed", "false");
-      expandChatBtn.setAttribute("aria-label", "Open large Beauty Concierge chat");
+      expandChatBtn.setAttribute("aria-label", "Expand Beauty Concierge chat");
       expandChatLabel.textContent = "Expand";
     }
     expandChatBtn.focus({ preventScroll: true });
