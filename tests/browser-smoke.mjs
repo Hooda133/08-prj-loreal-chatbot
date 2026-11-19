@@ -217,8 +217,8 @@ try {
       chatBottom:chatRect.bottom
     };
   });
-  assert.ok(desktopTranscript.height >= 390,
-    "Desktop conversation should reserve at least 390px for answers");
+  assert.ok(desktopTranscript.height >= 720,
+    "Desktop transcript must be at least 720px high for longer answers and sources");
   assert.equal(desktopTranscript.overflow, "auto");
   assert.ok(desktopTranscript.composerTop >= desktopTranscript.chatBottom - 2);
 
@@ -1091,10 +1091,12 @@ try {
       overflow:document.documentElement.scrollWidth - innerWidth
     };
   });
-  assert.ok(replyGeometry.chatHeight >= 280,
-    "Conversation area must not collapse below 280px when all controls are present");
+  assert.ok(replyGeometry.chatHeight >= 600,
+    "594px layout must reserve at least 600px for readable answers and citations");
   assert.equal(replyGeometry.chatOverflow, "visible",
     "Narrow layouts use normal page scrolling, not a tiny nested scrollbar");
+  assert.ok(replyGeometry.advisorHeight > 800,
+    "Entire mobile chat card grows to fit the larger conversation and composer");
   assert.ok(replyGeometry.chatScrollHeight <= replyGeometry.chatClientHeight + 2,
     "Entire answer should fit naturally in the mobile conversation");
   assert.ok(replyGeometry.composerTop >= replyGeometry.chatBottom - 2,
@@ -1112,6 +1114,31 @@ try {
     const top = bubble?.getBoundingClientRect().top;
     return typeof top === "number" && top >= -4 && top < innerHeight;
   }, {timeout:5000});
+
+  // Large mobile conversation stays spacious even on smaller phone widths.
+  for (const width of [375, 320, 768]) {
+    await replyLayout.setViewport({
+      width, height:720, deviceScaleFactor:1, isMobile:true, hasTouch:true
+    });
+    const metrics = await replyLayout.evaluate(() => {
+      const chat = document.querySelector("#chatWindow");
+      return {
+        chatHeight:chat.getBoundingClientRect().height,
+        scroller:getComputedStyle(chat).overflowY,
+        sources:chat.querySelectorAll(".chat-source-link").length,
+        overflow:document.documentElement.scrollWidth - innerWidth
+      };
+    });
+    assert.ok(metrics.chatHeight >= 600,
+      width + "px viewport must have a large, readable conversation area");
+    assert.equal(metrics.scroller,"visible");
+    assert.equal(metrics.sources,1);
+    assert.ok(metrics.overflow <= 2,
+      width + "px viewport must not scroll horizontally");
+  }
+  await replyLayout.setViewport({
+    width:594,height:690,deviceScaleFactor:1,isMobile:true,hasTouch:true
+  });
   await replyLayout.screenshot({path:"/tmp/beauty-chat-reply-visible.png",fullPage:true});
   await replyLayout.click("#resetBtn");
   assert.notEqual(await replyLayout.$eval("#miniPrompts", el => getComputedStyle(el).display),
