@@ -151,8 +151,8 @@ try {
       pedestalTop:getComputedStyle(stage,"::after").backgroundImage,
       sparkle:getComputedStyle(glint,"::after").clipPath,
       catalogPedestal:getComputedStyle(catalogArt,"::before").backgroundImage,
-      pedestalTop:getComputedStyle(catalogArt,"::before").top,
-      pedestalBottom:getComputedStyle(catalogArt,"::before").bottom,
+      catalogPedestalTop:getComputedStyle(catalogArt,"::before").top,
+      catalogPedestalBottom:getComputedStyle(catalogArt,"::before").bottom,
       catalogStillClickable:!!catalogArt.parentElement.querySelector(".catalog-card__pick"),
       imageRequests:[...document.images].filter(img =>
         /unsplash|pexels|stockphotos/i.test(img.src)).length
@@ -169,9 +169,9 @@ try {
   assert.match(sculptedArt.pedestalTop,/linear-gradient/);
   assert.match(sculptedArt.sparkle,/polygon/);
   assert.match(sculptedArt.catalogPedestal,/linear-gradient/);
-  assert.equal(sculptedArt.pedestalTop,"auto",
-    "Catalog plinth must stay under the bottle, not at the top of the illustration");
-  assert.equal(sculptedArt.pedestalBottom,"7px");
+  assert.ok(parseFloat(sculptedArt.catalogPedestalTop) > 100,
+    "Catalog podium must be positioned near the bottom, not above the bottle");
+  assert.equal(sculptedArt.catalogPedestalBottom,"7px");
   assert.equal(sculptedArt.catalogStillClickable,true);
   assert.equal(sculptedArt.imageRequests,0,"No stock icon images added");
   await desktop.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight / 3));
