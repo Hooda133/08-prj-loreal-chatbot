@@ -480,8 +480,8 @@ async function sendMessage(text, referenceNotes = [], followUpNotes = [], preser
       data?.sourceType === "consulted" ? "consulted" : "cited");
     // The mobile conversation grows with its content, rather than hiding
     // replies behind the large composer. Bring the new answer into the
-    // visible page after Send; do not steal focus if the visitor browsed
-    // older messages while waiting for the Worker.
+    // visible page after Send instead of leaving the reader at the input.
+    // A full-size conversation also works with ordinary page scrolling.
     if (shouldRevealOnPhone) {
       pending.scrollIntoView({
         block: "start",
